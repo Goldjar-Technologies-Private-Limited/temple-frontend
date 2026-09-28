@@ -780,8 +780,8 @@ export default function PrasadamPage() {
                 text-[#776d65]
               "
             >
-              Choose blessed prasadam and sacred offerings from Shri
-              Govardhannath Haveli.
+              Choose blessed prasadam and sacred
+              offerings from Shri Govardhannath Haveli.
             </p>
           </div>
 
@@ -954,15 +954,20 @@ export default function PrasadamPage() {
                     lg:hover:shadow-[0_12px_30px_rgba(79,43,14,0.09)]
                   "
                 >
-                  {/* PRODUCT IMAGE */}
+                  {/* =======================================
+                      PRODUCT IMAGE
+                  ======================================= */}
 
                   <div
                     className="
+                      relative
                       h-[72px]
                       w-[72px]
                       shrink-0
                       overflow-hidden
                       rounded-lg
+                      border
+                      border-[#eee0cc]
                       bg-[#f4e5c8]
 
                       sm:h-[82px]
@@ -974,18 +979,21 @@ export default function PrasadamPage() {
 
                       lg:h-[175px]
                       lg:w-full
+                      lg:rounded-xl
                     "
                   >
                     <img
                       src={product.image}
-                      alt={t(
-                        product.titleKey
-                      )}
+                      alt={t(product.titleKey)}
                       loading="lazy"
                       className="
+                        absolute
+                        inset-0
+                        block
                         h-full
                         w-full
                         object-cover
+                        object-center
                         transition-transform
                         duration-300
 
@@ -994,7 +1002,9 @@ export default function PrasadamPage() {
                     />
                   </div>
 
-                  {/* PRODUCT INFO */}
+                  {/* =======================================
+                      PRODUCT INFO
+                  ======================================= */}
 
                   <div
                     className="
@@ -1113,7 +1123,9 @@ export default function PrasadamPage() {
                     </p>
                   </div>
 
-                  {/* ADD TO CART / QUANTITY */}
+                  {/* =======================================
+                      ADD TO CART / QUANTITY
+                  ======================================= */}
 
                   <div
                     className="
@@ -1161,7 +1173,6 @@ export default function PrasadamPage() {
                           lg:hover:bg-[#d83f11]
                         "
                       >
-                        <CartIconWhite />
                         Add to Cart
                       </button>
                     ) : (
@@ -1280,19 +1291,6 @@ export default function PrasadamPage() {
                             +
                           </button>
                         </div>
-
-                        <span
-                          className="
-                            text-center
-                            text-[8px]
-                            font-semibold
-                            text-[#8d742e]
-
-                            sm:text-[9px]
-                          "
-                        >
-                          ✓ Added to Cart
-                        </span>
                       </div>
                     )}
                   </div>

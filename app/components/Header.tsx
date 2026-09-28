@@ -12,7 +12,13 @@ type ProfileData = {
   image: string;
 };
 
-type Cart = Record<number, number>;
+type Weight = "250g" | "500g" | "1kg";
+
+type CartItem = {
+  productId: number;
+  weight: Weight;
+  quantity: number;
+};
 
 const PROFILE_STORAGE_KEY = "profile-data";
 const CART_STORAGE_KEY = "prasadam-cart";
@@ -47,11 +53,7 @@ export default function HomeHeader() {
 
         setProfileName(name || "");
       } catch (error) {
-        console.error(
-          "Failed to load profile:",
-          error
-        );
-
+        console.error("Failed to load profile:", error);
         setProfileName("");
       }
     };
@@ -75,67 +77,69 @@ export default function HomeHeader() {
      LOAD CART COUNT
   ========================================================= */
 
-  useEffect(() => {
-    const loadCartCount = () => {
-      try {
-        const storedCart =
-          localStorage.getItem(
-            CART_STORAGE_KEY
-          );
+useEffect(() => {
+  const loadCartCount = () => {
+    try {
+      const storedCart = localStorage.getItem(
+        CART_STORAGE_KEY
+      );
 
-        if (!storedCart) {
-          setCartCount(0);
-          return;
-        }
-
-        const cart =
-          JSON.parse(storedCart) as Cart;
-
-        const totalItems =
-          Object.values(cart).reduce(
-            (total, quantity) =>
-              total + Number(quantity || 0),
-            0
-          );
-
-        setCartCount(totalItems);
-      } catch (error) {
-        console.error(
-          "Failed to load cart:",
-          error
-        );
-
+      if (!storedCart) {
         setCartCount(0);
+        return;
       }
-    };
 
-    // Load immediately
-    loadCartCount();
+      const parsedCart = JSON.parse(storedCart);
 
-    // Same tab update
-    window.addEventListener(
+      let totalItems = 0;
+
+      if (Array.isArray(parsedCart)) {
+        totalItems = parsedCart.reduce(
+          (total: number, item: CartItem) => {
+            return total + Number(item.quantity || 0);
+          },
+          0
+        );
+      }
+
+      setCartCount(totalItems);
+    } catch (error) {
+      console.error(
+        "Failed to load cart:",
+        error
+      );
+
+      setCartCount(0);
+    }
+  };
+
+  // Load immediately
+  loadCartCount();
+
+  // Same tab update
+  window.addEventListener(
+    "prasadam-cart-updated",
+    loadCartCount
+  );
+
+  // Other tab/window update
+  window.addEventListener(
+    "storage",
+    loadCartCount
+  );
+
+  return () => {
+    window.removeEventListener(
       "prasadam-cart-updated",
       loadCartCount
     );
 
-    // Other tab/window update
-    window.addEventListener(
+    window.removeEventListener(
       "storage",
       loadCartCount
     );
-
-    return () => {
-      window.removeEventListener(
-        "prasadam-cart-updated",
-        loadCartCount
-      );
-
-      window.removeEventListener(
-        "storage",
-        loadCartCount
-      );
-    };
-  }, []);
+  };
+}, []);
 
   /* =========================================================
      BUTTON STYLE
@@ -305,6 +309,7 @@ export default function HomeHeader() {
             aria-hidden="true"
           >
             <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+
             <path d="M10 21h4" />
           </svg>
 
@@ -328,72 +333,62 @@ export default function HomeHeader() {
         ================================================= */}
 
         <button
-          type="button"
-          onClick={() =>
-            router.push("/prasadam/cart")
-          }
-          aria-label="Open Cart"
-          title="Open Cart"
-          className={actionButtonClass}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-[18px] w-[18px]"
-            aria-hidden="true"
-          >
-            <circle
-              cx="9"
-              cy="20"
-              r="1"
-            />
+  type="button"
+  onClick={() =>
+    router.push("/prasadam/cart")
+  }
+  aria-label="Open Cart"
+  title="Open Cart"
+  className={actionButtonClass}
+>
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-[18px] w-[18px]"
+    aria-hidden="true"
+  >
+    <circle
+      cx="9"
+      cy="20"
+      r="1"
+    />
 
-            <circle
-              cx="18"
-              cy="20"
-              r="1"
-            />
+    <circle
+      cx="18"
+      cy="20"
+      r="1"
+    />
 
-            <path d="M3 4h2l2.4 10.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 8H6" />
-          </svg>
+    <path d="M3 4h2l2.4 10.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 8H6" />
+  </svg>
 
-          {/* =================================================
-              CART BADGE
-          ================================================= */}
-
-          {cartCount > 0 && (
-            <span
-              className="
-                absolute
-                -right-1
-                -top-1
-                flex
-                min-h-[18px]
-                min-w-[18px]
-                items-center
-                justify-center
-                rounded-full
-                border-2
-                border-[#fffaf2]
-                bg-[#e74b18]
-                px-1
-                text-[9px]
-                font-bold
-                leading-none
-                text-white
-                shadow-[0_2px_6px_rgba(231,75,24,0.3)]
-              "
-            >
-              {cartCount > 99
-                ? "99+"
-                : cartCount}
-            </span>
-          )}
-        </button>
+  {/* CART BADGE */}
+  {cartCount > 0 && (
+    <span
+      className="
+        absolute
+        -right-1
+        -top-1
+        grid
+        min-h-[17px]
+        min-w-[17px]
+        place-items-center
+        rounded-full
+        bg-[#e74b18]
+        px-1
+        text-[8px]
+        font-bold
+        text-white
+      "
+    >
+      {cartCount}
+    </span>
+  )}
+</button>
       </div>
 
       {/* BOTTOM DECORATION */}

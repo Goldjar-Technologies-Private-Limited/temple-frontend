@@ -1,17 +1,13 @@
 "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Weight =
-  | "250g"
-  | "500g"
-  | "1kg";
+/* =====================================================
+   TYPES
+===================================================== */
+
+type Weight = "250g" | "500g" | "1kg";
 
 type CartItemData = {
   productId: number;
@@ -26,11 +22,7 @@ type Product = {
   image: string;
 };
 
-type CartItem = Product & {
-  productId: number;
-  quantity: number;
-  weight: Weight;
-};
+type CartItem = Product & CartItemData;
 
 /* =====================================================
    PRODUCTS
@@ -64,566 +56,353 @@ const products: Product[] = [
 ];
 
 /* =====================================================
-   WEIGHT PRICE
+   CONSTANTS
 ===================================================== */
 
-function getWeightPrice(
-  basePrice: number,
-  weight: Weight
-) {
-  if (weight === "250g") {
-    return basePrice * 0.5;
-  }
-
-  if (weight === "1kg") {
-    return basePrice * 2;
-  }
-
-  return basePrice;
-}
+const CART_STORAGE_KEY = "prasadam-cart";
+const OLD_WEIGHT_STORAGE_KEY = "prasadam-cart-weights";
+const CART_UPDATED_EVENT = "prasadam-cart-updated";
+const DELIVERY_CHARGE = 50;
 
 /* =====================================================
-   WEIGHT LABEL
+   HELPERS
 ===================================================== */
 
-function getWeightLabel(
-  weight: Weight
-) {
-  if (weight === "250g") {
-    return "250 Gram";
-  }
+function getWeightPrice(price: number, weight: Weight): number {
+  switch (weight) {
+    case "250g":
+      return price * 0.5;
 
-  if (weight === "1kg") {
-    return "1 Kg";
-  }
+    case "1kg":
+      return price * 2;
 
-  return "500 Gram";
+    case "500g":
+    default:
+      return price;
+  }
 }
 
-/* =====================================================
-   VALID WEIGHT
-===================================================== */
+function getWeightLabel(weight: Weight): string {
+  switch (weight) {
+    case "250g":
+      return "250 Gram";
 
-function isValidWeight(
-  value: unknown
-): value is Weight {
+    case "1kg":
+      return "1 Kg";
+
+    case "500g":
+    default:
+      return "500 Gram";
+  }
+}
+
+function isValidWeight(value: unknown): value is Weight {
+  return value === "250g" || value === "500g" || value === "1kg";
+}
+
+function isValidCartItem(item: unknown): item is CartItemData {
+  if (!item || typeof item !== "object") {
+    return false;
+  }
+
+  const cartItem = item as Partial<CartItemData>;
+
   return (
-    value === "250g" ||
-    value === "500g" ||
-    value === "1kg"
+    typeof cartItem.productId === "number" &&
+    Number.isFinite(cartItem.productId) &&
+    products.some((product) => product.id === cartItem.productId) &&
+    isValidWeight(cartItem.weight) &&
+    typeof cartItem.quantity === "number" &&
+    Number.isFinite(cartItem.quantity) &&
+    cartItem.quantity > 0
   );
 }
 
+function formatPrice(price: number): string {
+  return price.toLocaleString("en-IN");
+}
+
 /* =====================================================
-   PAGE
+   LOAD CART
+===================================================== */
+
+function loadCart(): CartItemData[] {
+  try {
+    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+
+    if (!savedCart) {
+      return [];
+    }
+
+    const parsed: unknown = JSON.parse(savedCart);
+
+    /* NEW FORMAT */
+
+    if (Array.isArray(parsed)) {
+      return parsed.filter(isValidCartItem);
+    }
+
+    /* OLD FORMAT */
+
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      !Array.isArray(parsed)
+    ) {
+      return Object.entries(parsed)
+        .map(([productId, quantity]) => ({
+          productId: Number(productId),
+          weight: "500g" as Weight,
+          quantity: Number(quantity),
+        }))
+        .filter(
+          (item) =>
+            Number.isFinite(item.productId) &&
+            Number.isFinite(item.quantity) &&
+            item.quantity > 0 &&
+            products.some(
+              (product) => product.id === item.productId,
+            ),
+        );
+    }
+
+    return [];
+  } catch (error) {
+    console.error("Failed to load cart:", error);
+    return [];
+  }
+}
+
+/* =====================================================
+   SAVE CART
+===================================================== */
+
+function saveCart(cart: CartItemData[]): void {
+  try {
+    localStorage.setItem(
+      CART_STORAGE_KEY,
+      JSON.stringify(cart),
+    );
+
+    localStorage.removeItem(OLD_WEIGHT_STORAGE_KEY);
+
+    window.dispatchEvent(new Event(CART_UPDATED_EVENT));
+  } catch (error) {
+    console.error("Failed to save cart:", error);
+  }
+}
+
+/* =====================================================
+   CART PAGE
 ===================================================== */
 
 export default function CartPage() {
   const router = useRouter();
 
-  const [cart, setCart] =
-    useState<CartItemData[]>([]);
+  const [cart, setCart] = useState<CartItemData[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
-  const [loaded, setLoaded] =
-    useState(false);
-
-  /* =====================================================
-     LOAD CART
-  ===================================================== */
+  /* ===================================================
+     LOAD CART ON MOUNT
+  =================================================== */
 
   useEffect(() => {
-    try {
-      const savedCart =
-        localStorage.getItem(
-          "prasadam-cart"
-        );
+    const savedCart = loadCart();
 
-      if (!savedCart) {
-        setCart([]);
-        setLoaded(true);
-        return;
-      }
-
-      const parsed =
-        JSON.parse(savedCart);
-
-      /* =================================================
-         NEW FORMAT
-
-         [
-           {
-             productId: 1,
-             weight: "1kg",
-             quantity: 5
-           },
-           {
-             productId: 1,
-             weight: "250g",
-             quantity: 2
-           }
-         ]
-      ================================================= */
-
-      if (Array.isArray(parsed)) {
-        const validCart =
-          parsed.filter(
-            (
-              item
-            ): item is CartItemData =>
-              item &&
-              typeof item.productId ===
-                "number" &&
-              Number.isFinite(
-                item.productId
-              ) &&
-              products.some(
-                (product) =>
-                  product.id ===
-                  item.productId
-              ) &&
-              isValidWeight(
-                item.weight
-              ) &&
-              typeof item.quantity ===
-                "number" &&
-              Number.isFinite(
-                item.quantity
-              ) &&
-              item.quantity > 0
-          );
-
-        setCart(validCart);
-      } else {
-        /* =================================================
-           OLD FORMAT SUPPORT
-
-           {
-             "1": 2,
-             "2": 3
-           }
-
-           Old items become 500g.
-        ================================================= */
-
-        if (
-          parsed &&
-          typeof parsed === "object" &&
-          !Array.isArray(parsed)
-        ) {
-          const migratedCart: CartItemData[] =
-            Object.entries(parsed)
-              .map(
-                ([
-                  productId,
-                  quantity,
-                ]) => ({
-                  productId:
-                    Number(productId),
-
-                  weight:
-                    "500g" as Weight,
-
-                  quantity:
-                    Number(quantity),
-                })
-              )
-              .filter(
-                (item) =>
-                  Number.isFinite(
-                    item.productId
-                  ) &&
-                  item.quantity > 0 &&
-                  Number.isFinite(
-                    item.quantity
-                  ) &&
-                  products.some(
-                    (product) =>
-                      product.id ===
-                      item.productId
-                  )
-              );
-
-          setCart(migratedCart);
-        } else {
-          setCart([]);
-        }
-      }
-    } catch (error) {
-      console.error(
-        "Failed to load cart:",
-        error
-      );
-
-      setCart([]);
-    } finally {
-      setLoaded(true);
-    }
+    setCart(savedCart);
+    setLoaded(true);
   }, []);
 
-  /* =====================================================
-     SAVE CART
-  ===================================================== */
+  /* ===================================================
+     AUTO SAVE CART
+  =================================================== */
 
   useEffect(() => {
-    if (!loaded) return;
-
-    try {
-      localStorage.setItem(
-        "prasadam-cart",
-        JSON.stringify(cart)
-      );
-
-      /*
-        Old weight storage is no longer needed.
-        Weight is stored directly inside every cart item.
-      */
-
-      localStorage.removeItem(
-        "prasadam-cart-weights"
-      );
-
-      /*
-        Notify other components that cart changed.
-      */
-
-      window.dispatchEvent(
-        new Event(
-          "prasadam-cart-updated"
-        )
-      );
-    } catch (error) {
-      console.error(
-        "Failed to save cart:",
-        error
-      );
+    if (!loaded) {
+      return;
     }
+
+    saveCart(cart);
   }, [cart, loaded]);
 
-  /* =====================================================
+  /* ===================================================
      CART ITEMS
-  ===================================================== */
+  =================================================== */
 
-  const cartItems =
-    useMemo<CartItem[]>(() => {
-      return cart
-        .map((cartItem) => {
-          const product =
-            products.find(
-              (product) =>
-                product.id ===
-                cartItem.productId
-            );
-
-          if (!product) {
-            return null;
-          }
-
-          return {
-            ...product,
-
-            productId:
-              cartItem.productId,
-
-            quantity:
-              cartItem.quantity,
-
-            weight:
-              cartItem.weight,
-          };
-        })
-        .filter(
-          (
-            item
-          ): item is CartItem =>
-            item !== null
+  const cartItems = useMemo<CartItem[]>(() => {
+    return cart
+      .map((cartItem) => {
+        const product = products.find(
+          (item) => item.id === cartItem.productId,
         );
-    }, [cart]);
 
-  /* =====================================================
+        if (!product) {
+          return null;
+        }
+
+        return {
+          ...product,
+          productId: cartItem.productId,
+          weight: cartItem.weight,
+          quantity: cartItem.quantity,
+        };
+      })
+      .filter(
+        (item): item is CartItem => item !== null,
+      );
+  }, [cart]);
+
+  /* ===================================================
      TOTAL ITEMS
-  ===================================================== */
+  =================================================== */
 
-  const totalItems =
-    useMemo(() => {
-      return cartItems.reduce(
-        (total, item) =>
-          total + item.quantity,
-        0
-      );
-    }, [cartItems]);
+  const totalItems = useMemo(() => {
+    return cartItems.reduce(
+      (total, item) => total + item.quantity,
+      0,
+    );
+  }, [cartItems]);
 
-  /* =====================================================
+  /* ===================================================
      SUBTOTAL
-  ===================================================== */
+  =================================================== */
 
-  const subtotal =
-    useMemo(() => {
-      return cartItems.reduce(
-        (total, item) => {
-          const price =
-            getWeightPrice(
-              item.price,
-              item.weight
-            );
-
-          return (
-            total +
-            price *
-              item.quantity
-          );
-        },
-        0
+  const subtotal = useMemo(() => {
+    return cartItems.reduce((total, item) => {
+      const price = getWeightPrice(
+        item.price,
+        item.weight,
       );
-    }, [cartItems]);
 
-  /* =====================================================
+      return total + price * item.quantity;
+    }, 0);
+  }, [cartItems]);
+
+  /* ===================================================
      DELIVERY
-  ===================================================== */
+  =================================================== */
 
   const deliveryCharge =
-    subtotal > 0 ? 50 : 0;
+    subtotal > 0 ? DELIVERY_CHARGE : 0;
 
-  /* =====================================================
+  /* ===================================================
      TOTAL
-  ===================================================== */
+  =================================================== */
 
-  const totalAmount =
-    subtotal +
-    deliveryCharge;
+  const totalAmount = subtotal + deliveryCharge;
 
-  /* =====================================================
-     INCREASE
-  ===================================================== */
+  /* ===================================================
+     INCREASE QUANTITY
+  =================================================== */
 
   const increase = (
     productId: number,
-    weight: Weight
-  ) => {
-    setCart(
-      (previousCart) => {
-        const existingIndex =
-          previousCart.findIndex(
-            (item) =>
-              item.productId ===
-                productId &&
-              item.weight === weight
-          );
+    weight: Weight,
+  ): void => {
+    setCart((previousCart) => {
+      const exists = previousCart.some(
+        (item) =>
+          item.productId === productId &&
+          item.weight === weight,
+      );
 
-        if (
-          existingIndex !== -1
-        ) {
-          return previousCart.map(
-            (item, index) =>
-              index ===
-              existingIndex
-                ? {
-                    ...item,
-                    quantity:
-                      item.quantity +
-                      1,
-                  }
-                : item
-          );
-        }
-
-        return [
-          ...previousCart,
-          {
-            productId,
-            weight,
-            quantity: 1,
-          },
-        ];
+      if (exists) {
+        return previousCart.map((item) =>
+          item.productId === productId &&
+          item.weight === weight
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+              }
+            : item,
+        );
       }
-    );
+
+      return [
+        ...previousCart,
+        {
+          productId,
+          weight,
+          quantity: 1,
+        },
+      ];
+    });
   };
 
-  /* =====================================================
-     DECREASE
-  ===================================================== */
+  /* ===================================================
+     DECREASE QUANTITY
+  =================================================== */
 
   const decrease = (
     productId: number,
-    weight: Weight
-  ) => {
-    setCart(
-      (previousCart) =>
-        previousCart
-          .map((item) => {
-            if (
-              item.productId ===
-                productId &&
-              item.weight === weight
-            ) {
-              return {
+    weight: Weight,
+  ): void => {
+    setCart((previousCart) =>
+      previousCart
+        .map((item) =>
+          item.productId === productId &&
+          item.weight === weight
+            ? {
                 ...item,
-                quantity:
-                  item.quantity - 1,
-              };
-            }
-
-            return item;
-          })
-          .filter(
-            (item) =>
-              item.quantity > 0
-          )
+                quantity: item.quantity - 1,
+              }
+            : item,
+        )
+        .filter((item) => item.quantity > 0),
     );
   };
 
-  /* =====================================================
-     REMOVE
-  ===================================================== */
+  /* ===================================================
+     REMOVE ITEM
+  =================================================== */
 
   const removeItem = (
     productId: number,
-    weight: Weight
-  ) => {
-    setCart(
-      (previousCart) =>
-        previousCart.filter(
-          (item) =>
-            !(
-              item.productId ===
-                productId &&
-              item.weight === weight
-            )
-        )
+    weight: Weight,
+  ): void => {
+    setCart((previousCart) =>
+      previousCart.filter(
+        (item) =>
+          !(
+            item.productId === productId &&
+            item.weight === weight
+          ),
+      ),
     );
   };
 
-  /* =====================================================
-     FORMAT PRICE
-  ===================================================== */
-
-  const formatPrice = (
-    price: number
-  ) =>
-    price.toLocaleString(
-      "en-IN"
-    );
-
-  /* =====================================================
+  /* ===================================================
      PLACE ORDER
-     
-     IMPORTANT:
-     Use CURRENT React cart state,
-     save it first,
-     then navigate.
+  =================================================== */
 
-     This avoids reading an outdated
-     localStorage value.
-  ===================================================== */
+  const handlePlaceOrder = (): void => {
+    if (!loaded || cartItems.length === 0) {
+      console.error("Cart is empty");
+      return;
+    }
 
-  const handlePlaceOrder = () => {
-    if (
-      !loaded ||
-      cartItems.length === 0
-    ) {
-      console.error(
-        "Cart is empty"
-      );
+    const checkoutCart = cart.filter(isValidCartItem);
+
+    if (checkoutCart.length === 0) {
+      console.error("Cart has no valid items");
       return;
     }
 
     try {
-      /*
-        Create clean cart data
-        from the current React state.
-      */
+      saveCart(checkoutCart);
 
-      const checkoutCart =
-        cart
-          .filter(
-            (item) =>
-              products.some(
-                (product) =>
-                  product.id ===
-                  item.productId
-              ) &&
-              isValidWeight(
-                item.weight
-              ) &&
-              typeof item.quantity ===
-                "number" &&
-              Number.isFinite(
-                item.quantity
-              ) &&
-              item.quantity > 0
-          )
-          .map((item) => ({
-            productId:
-              item.productId,
-
-            weight:
-              item.weight,
-
-            quantity:
-              item.quantity,
-          }));
-
-      /*
-        Safety check.
-      */
-
-      if (
-        checkoutCart.length === 0
-      ) {
-        console.error(
-          "Cart has no valid items"
-        );
-        return;
-      }
-
-      /*
-        IMPORTANT:
-        Save latest cart BEFORE
-        navigating to checkout.
-      */
-
-      localStorage.setItem(
-        "prasadam-cart",
-        JSON.stringify(
-          checkoutCart
-        )
-      );
-
-      /*
-        Remove old storage format.
-      */
-
-      localStorage.removeItem(
-        "prasadam-cart-weights"
-      );
-
-      /*
-        Notify cart listeners.
-      */
-
-      window.dispatchEvent(
-        new Event(
-          "prasadam-cart-updated"
-        )
-      );
-
-      /*
-        Now go to checkout.
-      */
-
-      router.push(
-        "/prasadam/checkout"
-      );
+      router.push("/prasadam/checkout");
     } catch (error) {
       console.error(
         "Failed to proceed to checkout:",
-        error
+        error,
       );
     }
   };
 
-  /* =====================================================
+  /* ===================================================
      LOADING
-  ===================================================== */
+  =================================================== */
 
   if (!loaded) {
     return (
@@ -639,13 +418,11 @@ export default function CartPage() {
     );
   }
 
-  /* =====================================================
+  /* ===================================================
      EMPTY CART
-  ===================================================== */
+  =================================================== */
 
-  if (
-    cartItems.length === 0
-  ) {
+  if (cartItems.length === 0) {
     return (
       <main
         className="
@@ -659,9 +436,7 @@ export default function CartPage() {
       >
         <CartHeader
           totalItems={0}
-          onBack={() =>
-            router.back()
-          }
+          onBack={() => router.back()}
         />
 
         <section
@@ -719,17 +494,14 @@ export default function CartPage() {
                 text-[#81756c]
               "
             >
-              Add your favourite
-              prasadam before
+              Add your favourite prasadam before
               placing an order.
             </p>
 
             <button
               type="button"
               onClick={() =>
-                router.push(
-                  "/prasadam"
-                )
+                router.push("/prasadam")
               }
               className="
                 mt-7
@@ -755,18 +527,17 @@ export default function CartPage() {
     );
   }
 
-  /* =====================================================
+  /* ===================================================
      MAIN CART
-  ===================================================== */
+  =================================================== */
 
   return (
     <main
       className="
         min-h-[100dvh]
+        overflow-x-hidden
         bg-[#fffaf3]
-        pb-[185px]
-
-        md:pb-[120px]
+        pb-10
 
         lg:ml-[92px]
         lg:w-[calc(100%-92px)]
@@ -774,12 +545,8 @@ export default function CartPage() {
       "
     >
       <CartHeader
-        totalItems={
-          totalItems
-        }
-        onBack={() =>
-          router.back()
-        }
+        totalItems={totalItems}
+        onBack={() => router.back()}
       />
 
       <div
@@ -788,7 +555,7 @@ export default function CartPage() {
           w-full
           max-w-[1400px]
           px-3
-          py-4
+          py-5
 
           sm:px-5
           sm:py-6
@@ -797,53 +564,6 @@ export default function CartPage() {
           lg:py-8
         "
       >
-        {/* DESKTOP TITLE */}
-
-        <div
-          className="
-            mb-6
-            hidden
-
-            lg:block
-          "
-        >
-          <span
-            className="
-              text-[10px]
-              font-bold
-              uppercase
-              tracking-[1.4px]
-              text-[#c18b32]
-            "
-          >
-            Blessed Offerings
-          </span>
-
-          <h2
-            className="
-              mt-1
-              font-serif
-              text-[30px]
-              font-bold
-              text-[#561010]
-            "
-          >
-            Your Prasadam Cart
-          </h2>
-
-          <p
-            className="
-              mt-1
-              text-sm
-              text-[#81756c]
-            "
-          >
-            Review your selected
-            prasadam before placing
-            your order.
-          </p>
-        </div>
-
         <div
           className="
             grid
@@ -857,47 +577,11 @@ export default function CartPage() {
             xl:grid-cols-[minmax(0,1fr)_390px]
           "
         >
-          {/* CART ITEMS */}
+          {/* =================================================
+              CART ITEMS
+          ================================================= */}
 
-          <section>
-            <div
-              className="
-                mb-3
-                flex
-                items-center
-                justify-between
-
-                lg:hidden
-              "
-            >
-              <h2
-                className="
-                  font-serif
-                  text-lg
-                  font-bold
-                  text-[#561010]
-                "
-              >
-                Cart Items
-              </h2>
-
-              <button
-                type="button"
-                onClick={() =>
-                  router.push(
-                    "/prasadam"
-                  )
-                }
-                className="
-                  text-xs
-                  font-bold
-                  text-[#a71919]
-                "
-              >
-                + Add More
-              </button>
-            </div>
-
+          <section className="min-w-0">
             <div
               className="
                 overflow-hidden
@@ -908,332 +592,332 @@ export default function CartPage() {
                 shadow-[0_8px_25px_rgba(80,45,15,0.05)]
               "
             >
-              {cartItems.map(
-                (
-                  item,
-                  index
-                ) => {
-                  const itemPrice =
-                    getWeightPrice(
-                      item.price,
-                      item.weight
-                    );
+              {cartItems.map((item, index) => {
+                const itemPrice = getWeightPrice(
+                  item.price,
+                  item.weight,
+                );
 
-                  const itemTotal =
-                    itemPrice *
-                    item.quantity;
+                const itemTotal =
+                  itemPrice * item.quantity;
 
-                  return (
-                    <article
-                      key={`${item.productId}-${item.weight}`}
-                      className={`
-                        p-3
+                return (
+                  <article
+                    key={`${item.productId}-${item.weight}`}
+                    className={`
+                      p-3
 
-                        sm:p-4
+                      sm:p-4
 
-                        lg:p-5
+                      lg:p-5
 
-                        ${
-                          index !==
-                          cartItems.length -
-                            1
-                            ? "border-b border-[#eee1cf]"
-                            : ""
-                        }
-                      `}
+                      ${
+                        index !== cartItems.length - 1
+                          ? "border-b border-[#eee1cf]"
+                          : ""
+                      }
+                    `}
+                  >
+                    <div
+                      className="
+                        flex
+                        min-w-0
+                        items-start
+                        gap-3
+
+                        sm:gap-4
+                      "
                     >
+                      {/* IMAGE */}
+
                       <div
                         className="
-                          flex
-                          items-start
-                          gap-3
+                          relative
+                          h-[76px]
+                          w-[76px]
+                          shrink-0
+                          overflow-hidden
+                          rounded-xl
+                          border
+                          border-[#eee1cf]
+                          bg-[#f7eddf]
 
-                          sm:gap-4
+                          sm:h-[100px]
+                          sm:w-[100px]
+
+                          lg:h-[120px]
+                          lg:w-[120px]
                         "
                       >
-                        {/* IMAGE */}
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="
+                            block
+                            h-full
+                            w-full
+                            object-cover
+                            object-center
+                          "
+                        />
+                      </div>
 
+                      {/* INFO */}
+
+                      <div
+                        className="
+                          min-w-0
+                          flex-1
+                        "
+                      >
                         <div
                           className="
-                            h-[82px]
-                            w-[82px]
-                            shrink-0
-                            overflow-hidden
-                            rounded-xl
-                            border
-                            border-[#eee1cf]
-                            bg-[#f7eddf]
-
-                            sm:h-[100px]
-                            sm:w-[100px]
-
-                            lg:h-[120px]
-                            lg:w-[120px]
+                            flex
+                            min-w-0
+                            items-start
+                            justify-between
+                            gap-2
                           "
                         >
-                          <img
-                            src={
-                              item.image
-                            }
-                            alt={
-                              item.name
-                            }
+                          <div
                             className="
-                              h-full
-                              w-full
-                              object-cover
+                              min-w-0
+                              flex-1
                             "
-                          />
+                          >
+                            {/* CATEGORY */}
+
+                            <span
+                              className="
+                                block
+                                text-[9px]
+                                font-bold
+                                uppercase
+                                tracking-[1px]
+                                text-[#c18b32]
+                              "
+                            >
+                              Prasadam
+                            </span>
+
+                            {/* NAME */}
+
+                            <h3
+                              className="
+                                mt-1
+                                truncate
+                                font-serif
+                                text-[15px]
+                                font-bold
+                                text-[#4d1616]
+
+                                sm:text-lg
+                              "
+                            >
+                              {item.name}
+                            </h3>
+
+                            {/* WEIGHT */}
+
+                            <span
+                              className="
+                                mt-1
+                                inline-flex
+                                rounded-md
+                                border
+                                border-[#eadbc5]
+                                bg-[#fff8ea]
+                                px-2
+                                py-1
+                                text-[9px]
+                                font-bold
+                                text-[#8a641f]
+
+                                sm:text-[10px]
+                              "
+                            >
+                              {getWeightLabel(item.weight)}
+                            </span>
+                          </div>
+
+                          {/* REMOVE */}
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removeItem(
+                                item.productId,
+                                item.weight,
+                              )
+                            }
+                            aria-label={`Remove ${
+                              item.name
+                            } ${getWeightLabel(
+                              item.weight,
+                            )}`}
+                            className="
+                              grid
+                              h-8
+                              w-8
+                              shrink-0
+                              place-items-center
+                              rounded-full
+                              text-[#9a8b7e]
+                              transition
+
+                              hover:bg-[#fff0e8]
+                              hover:text-[#a71919]
+                            "
+                          >
+                            <TrashIcon />
+                          </button>
                         </div>
 
-                        {/* INFO */}
+                        {/* PRICE */}
+
+                        <p
+                          className="
+                            mt-2
+                            text-[13px]
+                            font-bold
+                            text-[#a71919]
+
+                            sm:text-base
+                          "
+                        >
+                          ₹{formatPrice(itemPrice)}
+
+                          <span
+                            className="
+                              ml-1
+                              text-[9px]
+                              font-medium
+                              text-[#8d8177]
+                            "
+                          >
+                            /{" "}
+                            {getWeightLabel(
+                              item.weight,
+                            )}
+                          </span>
+                        </p>
+
+                        {/* QUANTITY */}
 
                         <div
                           className="
-                            min-w-0
-                            flex-1
+                            mt-3
+                            flex
+                            flex-wrap
+                            items-center
+                            justify-between
+                            gap-3
                           "
                         >
                           <div
                             className="
                               flex
-                              items-start
-                              justify-between
-                              gap-2
+                              h-9
+                              items-center
+                              overflow-hidden
+                              rounded-lg
+                              border
+                              border-[#dfcdb4]
+                              bg-white
+
+                              sm:h-10
                             "
                           >
-                            <div
-                              className="
-                                min-w-0
-                              "
-                            >
-                              <span
-                                className="
-                                  text-[9px]
-                                  font-bold
-                                  uppercase
-                                  tracking-[1px]
-                                  text-[#c18b32]
-                                "
-                              >
-                                Prasadam
-                              </span>
-
-                              <h3
-                                className="
-                                  mt-1
-                                  truncate
-                                  font-serif
-                                  text-[15px]
-                                  font-bold
-                                  text-[#4d1616]
-
-                                  sm:text-lg
-                                "
-                              >
-                                {
-                                  item.name
-                                }
-                              </h3>
-
-                              {/* WEIGHT */}
-
-                              <span
-                                className="
-                                  mt-1
-                                  inline-flex
-                                  rounded-md
-                                  border
-                                  border-[#eadbc5]
-                                  bg-[#fff8ea]
-                                  px-2
-                                  py-1
-                                  text-[9px]
-                                  font-bold
-                                  text-[#8a641f]
-
-                                  sm:text-[10px]
-                                "
-                              >
-                                {getWeightLabel(
-                                  item.weight
-                                )}
-                              </span>
-                            </div>
-
-                            {/* REMOVE */}
+                            {/* MINUS */}
 
                             <button
                               type="button"
                               onClick={() =>
-                                removeItem(
+                                decrease(
                                   item.productId,
-                                  item.weight
+                                  item.weight,
                                 )
                               }
-                              aria-label={`Remove ${item.name} ${getWeightLabel(item.weight)}`}
+                              aria-label="Decrease quantity"
                               className="
                                 grid
-                                h-8
-                                w-8
-                                shrink-0
+                                h-full
+                                w-9
                                 place-items-center
-                                rounded-full
-                                text-[#9a8b7e]
-                                transition
+                                text-lg
+                                font-bold
+                                text-[#a71919]
 
-                                hover:bg-[#fff0e8]
-                                hover:text-[#a71919]
+                                hover:bg-[#fff3df]
                               "
                             >
-                              <TrashIcon />
+                              −
+                            </button>
+
+                            {/* QUANTITY */}
+
+                            <span
+                              className="
+                                grid
+                                h-full
+                                min-w-[38px]
+                                place-items-center
+                                border-x
+                                border-[#eee1cf]
+                                px-2
+                                text-xs
+                                font-bold
+                              "
+                            >
+                              {item.quantity}
+                            </span>
+
+                            {/* PLUS */}
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                increase(
+                                  item.productId,
+                                  item.weight,
+                                )
+                              }
+                              aria-label="Increase quantity"
+                              className="
+                                grid
+                                h-full
+                                w-9
+                                place-items-center
+                                bg-[#e74b18]
+                                text-lg
+                                font-bold
+                                text-white
+
+                                hover:bg-[#d83f11]
+                              "
+                            >
+                              +
                             </button>
                           </div>
 
-                          {/* PRICE */}
+                          {/* ITEM TOTAL */}
 
-                          <p
+                          <strong
                             className="
-                              mt-2
-                              text-[13px]
-                              font-bold
-                              text-[#a71919]
+                              text-sm
+                              text-[#4d1616]
 
                               sm:text-base
                             "
                           >
-                            ₹
-                            {formatPrice(
-                              itemPrice
-                            )}
-
-                            <span
-                              className="
-                                ml-1
-                                text-[9px]
-                                font-medium
-                                text-[#8d8177]
-                              "
-                            >
-                              /
-                              {" "}
-                              {getWeightLabel(
-                                item.weight
-                              )}
-                            </span>
-                          </p>
-
-                          {/* QUANTITY */}
-
-                          <div
-                            className="
-                              mt-3
-                              flex
-                              items-center
-                              justify-between
-                              gap-3
-                            "
-                          >
-                            <div
-                              className="
-                                flex
-                                h-9
-                                items-center
-                                overflow-hidden
-                                rounded-lg
-                                border
-                                border-[#dfcdb4]
-                                bg-white
-
-                                sm:h-10
-                              "
-                            >
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  decrease(
-                                    item.productId,
-                                    item.weight
-                                  )
-                                }
-                                className="
-                                  grid
-                                  h-full
-                                  w-9
-                                  place-items-center
-                                  text-lg
-                                  font-bold
-                                  text-[#a71919]
-
-                                  hover:bg-[#fff3df]
-                                "
-                              >
-                                −
-                              </button>
-
-                              <span
-                                className="
-                                  grid
-                                  h-full
-                                  min-w-[38px]
-                                  place-items-center
-                                  border-x
-                                  border-[#eee1cf]
-                                  px-2
-                                  text-xs
-                                  font-bold
-                                "
-                              >
-                                {
-                                  item.quantity
-                                }
-                              </span>
-
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  increase(
-                                    item.productId,
-                                    item.weight
-                                  )
-                                }
-                                className="
-                                  grid
-                                  h-full
-                                  w-9
-                                  place-items-center
-                                  bg-[#e74b18]
-                                  text-lg
-                                  font-bold
-                                  text-white
-
-                                  hover:bg-[#d83f11]
-                                "
-                              >
-                                +
-                              </button>
-                            </div>
-
-                            <strong
-                              className="
-                                text-sm
-                                text-[#4d1616]
-
-                                sm:text-base
-                              "
-                            >
-                              ₹
-                              {formatPrice(
-                                itemTotal
-                              )}
-                            </strong>
-                          </div>
+                            ₹{formatPrice(itemTotal)}
+                          </strong>
                         </div>
                       </div>
-                    </article>
-                  );
-                }
-              )}
+                    </div>
+                  </article>
+                );
+              })}
             </div>
 
             {/* ADD MORE */}
@@ -1241,9 +925,7 @@ export default function CartPage() {
             <button
               type="button"
               onClick={() =>
-                router.push(
-                  "/prasadam"
-                )
+                router.push("/prasadam")
               }
               className="
                 mt-4
@@ -1269,13 +951,14 @@ export default function CartPage() {
             </button>
           </section>
 
-          {/* ORDER SUMMARY */}
+          {/* =================================================
+              ORDER SUMMARY
+          ================================================= */}
 
           <aside
             className="
-              hidden
-
-              md:block
+              block
+              w-full
 
               lg:sticky
               lg:top-[100px]
@@ -1287,14 +970,19 @@ export default function CartPage() {
                 border
                 border-[#eadbc5]
                 bg-[#fffdf8]
-                p-5
+                p-4
                 shadow-[0_10px_30px_rgba(80,45,15,0.07)]
+
+                sm:p-5
 
                 lg:p-6
               "
             >
+              {/* TITLE */}
+
               <span
                 className="
+                  block
                   text-[10px]
                   font-bold
                   uppercase
@@ -1309,13 +997,17 @@ export default function CartPage() {
                 className="
                   mt-1
                   font-serif
-                  text-[22px]
+                  text-[21px]
                   font-bold
                   text-[#561010]
+
+                  sm:text-[22px]
                 "
               >
                 Order Summary
               </h2>
+
+              {/* SUMMARY */}
 
               <div
                 className="
@@ -1328,23 +1020,24 @@ export default function CartPage() {
               >
                 <SummaryRow
                   label={`Subtotal (${totalItems} ${
-                    totalItems ===
-                    1
+                    totalItems === 1
                       ? "item"
                       : "items"
                   })`}
                   value={`₹${formatPrice(
-                    subtotal
+                    subtotal,
                   )}`}
                 />
 
                 <SummaryRow
                   label="Delivery"
                   value={`₹${formatPrice(
-                    deliveryCharge
+                    deliveryCharge,
                   )}`}
                 />
               </div>
+
+              {/* TOTAL */}
 
               <div
                 className="
@@ -1355,7 +1048,7 @@ export default function CartPage() {
                   py-5
                 "
               >
-                <div>
+                <div className="min-w-0">
                   <p
                     className="
                       text-xs
@@ -1373,22 +1066,21 @@ export default function CartPage() {
                       text-[#97897d]
                     "
                   >
-                    Inclusive of all
-                    charges
+                    Inclusive of all charges
                   </p>
                 </div>
 
                 <strong
                   className="
+                    shrink-0
                     text-xl
                     font-bold
                     text-[#a71919]
+
+                    sm:text-2xl
                   "
                 >
-                  ₹
-                  {formatPrice(
-                    totalAmount
-                  )}
+                  ₹{formatPrice(totalAmount)}
                 </strong>
               </div>
 
@@ -1396,9 +1088,7 @@ export default function CartPage() {
 
               <button
                 type="button"
-                onClick={
-                  handlePlaceOrder
-                }
+                onClick={handlePlaceOrder}
                 className="
                   flex
                   min-h-[50px]
@@ -1421,10 +1111,10 @@ export default function CartPage() {
               >
                 Place Order
 
-                <span>
-                  →
-                </span>
+                <span>→</span>
               </button>
+
+              {/* SECURE CHECKOUT */}
 
               <p
                 className="
@@ -1438,110 +1128,6 @@ export default function CartPage() {
               </p>
             </div>
           </aside>
-        </div>
-      </div>
-
-      {/* MOBILE ORDER BAR */}
-
-      <div
-        className="
-          fixed
-          bottom-[calc(76px+env(safe-area-inset-bottom))]
-          left-0
-          right-0
-          z-50
-          border-t
-          border-[#eadbc5]
-          bg-[#fffdf8]/95
-          p-3
-          shadow-[0_-8px_25px_rgba(70,40,15,0.08)]
-          backdrop-blur-md
-
-          sm:px-5
-
-          md:hidden
-        "
-      >
-        <div
-          className="
-            mx-auto
-            flex
-            max-w-[600px]
-            items-center
-            gap-3
-          "
-        >
-          <div
-            className="
-              min-w-0
-              flex-1
-            "
-          >
-            <p
-              className="
-                text-[9px]
-                text-[#85776d]
-              "
-            >
-              Total Amount
-            </p>
-
-            <strong
-              className="
-                block
-                text-lg
-                font-bold
-                text-[#641010]
-              "
-            >
-              ₹
-              {formatPrice(
-                totalAmount
-              )}
-            </strong>
-
-            <span
-              className="
-                text-[9px]
-                text-[#9b8e84]
-              "
-            >
-              {totalItems}{" "}
-              {totalItems === 1
-                ? "item"
-                : "items"}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={
-              handlePlaceOrder
-            }
-            className="
-              flex
-              min-h-[50px]
-              min-w-[165px]
-              items-center
-              justify-center
-              gap-2
-              rounded-xl
-              bg-[#a71919]
-              px-5
-              text-sm
-              font-bold
-              text-white
-              shadow-md
-
-              active:scale-[0.98]
-            "
-          >
-            Place Order
-
-            <span>
-              →
-            </span>
-          </button>
         </div>
       </div>
     </main>
@@ -1589,20 +1175,27 @@ function CartHeader({
           lg:px-8
         "
       >
+        {/* LEFT */}
+
         <div
           className="
             flex
+            min-w-0
             items-center
             gap-3
           "
         >
+          {/* BACK */}
+
           <button
             type="button"
             onClick={onBack}
+            aria-label="Go back"
             className="
               grid
               h-9
               w-9
+              shrink-0
               place-items-center
               rounded-full
               border
@@ -1617,14 +1210,21 @@ function CartHeader({
             ←
           </button>
 
-          <div>
+          {/* TITLE */}
+
+          <div className="min-w-0">
             <span
               className="
-                text-[9px]
+                block
+                truncate
+                text-[8px]
                 font-bold
                 uppercase
-                tracking-[1px]
+                tracking-[0.8px]
                 text-[#c18b32]
+
+                sm:text-[9px]
+                sm:tracking-[1px]
               "
             >
               Shri Govardhannath
@@ -1645,24 +1245,29 @@ function CartHeader({
           </div>
         </div>
 
+        {/* TOTAL ITEMS */}
+
         {totalItems > 0 && (
           <span
             className="
+              shrink-0
               rounded-full
               border
               border-[#eadbc5]
               bg-white
-              px-3
-              py-1.5
-              text-[11px]
+              px-2.5
+              py-1
+              text-[9px]
               font-bold
               text-[#75685e]
+
+              sm:px-3
+              sm:py-1.5
+              sm:text-[11px]
             "
           >
             {totalItems}{" "}
-            {totalItems === 1
-              ? "Item"
-              : "Items"}
+            {totalItems === 1 ? "Item" : "Items"}
           </span>
         )}
       </div>
@@ -1691,19 +1296,11 @@ function SummaryRow({
         text-xs
       "
     >
-      <span
-        className="
-          text-[#81756c]
-        "
-      >
+      <span className="min-w-0 text-[#81756c]">
         {label}
       </span>
 
-      <strong
-        className="
-          text-[#4b4038]
-        "
-      >
+      <strong className="shrink-0 text-[#4b4038]">
         {value}
       </strong>
     </div>
@@ -1747,7 +1344,7 @@ function CartIcon() {
 }
 
 /* =====================================================
-   TRASH
+   TRASH ICON
 ===================================================== */
 
 function TrashIcon() {
