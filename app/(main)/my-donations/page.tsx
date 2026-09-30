@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 /* =========================================================
@@ -26,52 +26,8 @@ type Donation = {
 type FilterType = "all" | DonationStatus;
 
 /* =========================================================
-   DEMO DATA
-   Backend connect hone ke baad API data use karna.
+   FILTERS
 ========================================================= */
-
-const donations: Donation[] = [
-  {
-    id: "DON-20260915-001",
-    transactionId: "TXN9852147896",
-    title: "General Temple Donation",
-    date: "15 Sep 2026",
-    amount: 1100,
-    paymentMethod: "UPI",
-    status: "successful",
-    donorName: "Krishna Sharma",
-  },
-  {
-    id: "DON-20260908-002",
-    transactionId: "TXN7854123698",
-    title: "Annadan Seva",
-    date: "08 Sep 2026",
-    amount: 501,
-    paymentMethod: "UPI",
-    status: "successful",
-    donorName: "Krishna Sharma",
-  },
-  {
-    id: "DON-20260828-003",
-    transactionId: "TXN4587213695",
-    title: "Gau Seva",
-    date: "28 Aug 2026",
-    amount: 2100,
-    paymentMethod: "Card",
-    status: "pending",
-    donorName: "Krishna Sharma",
-  },
-  {
-    id: "DON-20260810-004",
-    transactionId: "TXN2587419632",
-    title: "Temple Maintenance",
-    date: "10 Aug 2026",
-    amount: 501,
-    paymentMethod: "UPI",
-    status: "failed",
-    donorName: "Krishna Sharma",
-  },
-];
 
 const filters: {
   key: FilterType;
@@ -102,11 +58,89 @@ const filters: {
 export default function MyDonationsPage() {
   const router = useRouter();
 
+  /* =======================================================
+     STATE
+  ======================================================= */
+
+  const [donations, setDonations] =
+    useState<Donation[]>([]);
+
+  const [loading, setLoading] =
+    useState<boolean>(true);
+
+  const [error, setError] =
+    useState<string>("");
+
   const [activeFilter, setActiveFilter] =
     useState<FilterType>("all");
 
   /* =======================================================
-     FILTER
+     FETCH DONATIONS
+  ======================================================= */
+
+  useEffect(() => {
+    const fetchDonations = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/donations/my-donations`,
+          {
+            method: "GET",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to fetch donations"
+          );
+        }
+
+        const data = await response.json();
+
+        /*
+          Backend can return:
+
+          {
+            donations: [...]
+          }
+
+          OR directly:
+
+          [...]
+        */
+
+        const donationData = Array.isArray(data)
+          ? data
+          : data.donations || [];
+
+        setDonations(donationData);
+      } catch (err) {
+        console.error(
+          "Failed to fetch donations:",
+          err
+        );
+
+        setDonations([]);
+
+        setError(
+          "Unable to load your donations. Please try again."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDonations();
+  }, []);
+
+  /* =======================================================
+     FILTER DONATIONS
   ======================================================= */
 
   const filteredDonations = useMemo(() => {
@@ -118,10 +152,10 @@ export default function MyDonationsPage() {
       (donation) =>
         donation.status === activeFilter
     );
-  }, [activeFilter]);
+  }, [activeFilter, donations]);
 
   /* =======================================================
-     SUMMARY
+     SUCCESSFUL DONATIONS
   ======================================================= */
 
   const successfulDonations = useMemo(() => {
@@ -129,22 +163,157 @@ export default function MyDonationsPage() {
       (donation) =>
         donation.status === "successful"
     );
-  }, []);
+  }, [donations]);
+
+  /* =======================================================
+     TOTAL DONATED
+  ======================================================= */
 
   const totalDonated = useMemo(() => {
     return successfulDonations.reduce(
       (total, donation) =>
-        total + donation.amount,
+        total + Number(donation.amount || 0),
       0
     );
   }, [successfulDonations]);
 
+  /* =======================================================
+     FORMAT PRICE
+  ======================================================= */
+
   const formatPrice = (amount: number) => {
-    return amount.toLocaleString("en-IN");
+    return Number(amount || 0).toLocaleString(
+      "en-IN"
+    );
   };
 
   /* =======================================================
-     UI
+     LOADING UI
+  ======================================================= */
+
+  if (loading) {
+    return (
+      <main
+        className="
+          min-h-[100dvh]
+          bg-[#fffaf1]
+          text-[#40372f]
+
+          lg:ml-[92px]
+          lg:w-[calc(100%-92px)]
+        "
+      >
+        <header
+          className="
+            sticky
+            top-0
+            z-40
+            border-b
+            border-[#eadfce]
+            bg-[#fffaf1]/95
+            backdrop-blur-md
+          "
+        >
+          <div
+            className="
+              mx-auto
+              flex
+              min-h-[64px]
+              max-w-[1400px]
+              items-center
+              gap-3
+              px-4
+
+              sm:min-h-[70px]
+              sm:px-6
+
+              lg:min-h-[82px]
+              lg:px-8
+            "
+          >
+            <button
+              type="button"
+              onClick={() => router.back()}
+              aria-label="Go back"
+              className="
+                grid
+                h-9
+                w-9
+                shrink-0
+                place-items-center
+                rounded-full
+                border
+                border-[#ead7b8]
+                bg-white
+                text-[#a71919]
+                shadow-sm
+              "
+            >
+              <BackIcon />
+            </button>
+
+            <div>
+              <p
+                className="
+                  text-[9px]
+                  font-bold
+                  uppercase
+                  tracking-[0.12em]
+                  text-[#bd8b39]
+                "
+              >
+                Shri Govardhannath
+              </p>
+
+              <h1
+                className="
+                  font-serif
+                  text-[19px]
+                  font-bold
+                  text-[#641010]
+
+                  lg:text-[25px]
+                "
+              >
+                My Donations
+              </h1>
+            </div>
+          </div>
+        </header>
+
+        <section className="flex min-h-[60vh] items-center justify-center">
+          <div className="text-center">
+            <div
+              className="
+                mx-auto
+                h-10
+                w-10
+                animate-spin
+                rounded-full
+                border-4
+                border-[#eadfce]
+                border-t-[#a71919]
+              "
+            />
+
+            <p
+              className="
+                mt-4
+                text-sm
+                font-semibold
+                text-[#76695e]
+              "
+            >
+              Loading your donations...
+            </p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  /* =======================================================
+     MAIN UI
   ======================================================= */
 
   return (
@@ -257,7 +426,7 @@ export default function MyDonationsPage() {
           <button
             type="button"
             onClick={() =>
-              router.push("/donate")
+              router.push("/seva-donation")
             }
             className="
               ml-auto
@@ -436,6 +605,28 @@ export default function MyDonationsPage() {
           lg:py-8
         "
       >
+        {/* ERROR */}
+
+        {error && (
+          <div
+            className="
+              mb-5
+              rounded-xl
+              border
+              border-[#efd0cb]
+              bg-[#fff1ef]
+              px-4
+              py-3
+              text-center
+              text-[11px]
+              font-semibold
+              text-[#a23a32]
+            "
+          >
+            {error}
+          </div>
+        )}
+
         {/* =================================================
             TITLE + FILTER
         ================================================= */}
@@ -622,7 +813,7 @@ export default function MyDonationsPage() {
           <EmptyState
             filter={activeFilter}
             onDonate={() =>
-              router.push("/donate")
+              router.push("/seva-donation")
             }
           />
         )}
@@ -687,7 +878,7 @@ export default function MyDonationsPage() {
         <button
           type="button"
           onClick={() =>
-            router.push("/donate")
+            router.push("/seva-donation")
           }
           className="
             mx-auto
@@ -727,7 +918,9 @@ function DonationCard({
   donation: Donation;
 }) {
   const formatPrice = (amount: number) => {
-    return amount.toLocaleString("en-IN");
+    return Number(amount || 0).toLocaleString(
+      "en-IN"
+    );
   };
 
   return (

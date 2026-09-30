@@ -130,12 +130,7 @@ const ACTION_ITEMS: ActionItem[] = [
     labels: ["seva", "donation"],
     route: "/seva-donation",
   },
-  {
-    key: "goSeva",
-    icon: "cow",
-    labels: ["goSeva"],
-    route: "/seva/go-seva",
-  },
+ 
   {
     key: "darshan",
     icon: "gift",
