@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../../lib/LanguageProvider";
@@ -40,35 +41,17 @@ const events: EventItem[] = [
   },
 ];
 
-const tabClass =
-  "h-9 rounded-lg border-0 text-xs font-bold transition-all " +
-  "sm:h-[42px] sm:text-sm";
-
-const activeTabClass =
-  "bg-[#a71919] text-white shadow-[0_4px_12px_rgba(167,25,25,0.15)]";
-
-const eventCardClass =
-  "group flex w-full min-h-[86px] items-center gap-[11px] rounded-[10px] " +
-  "border border-[#eee0cc] bg-[#fffdf9] p-2 text-left text-[#4b4039] " +
-  "shadow-[0_4px_14px_rgba(79,43,14,0.04)] transition-all " +
-  "sm:min-h-[100px] sm:gap-[13px] sm:p-2.5 " +
-  "md:min-h-[120px] md:gap-[17px] md:rounded-[15px] md:p-[13px] " +
-  "lg:min-h-[165px] lg:gap-[18px] lg:rounded-[17px] lg:p-4 " +
-  "lg:hover:-translate-y-[3px] lg:hover:border-[#d7b97f] " +
-  "lg:hover:shadow-[0_12px_30px_rgba(79,43,14,0.09)] " +
-  "min-[1440px]:min-h-[350px] min-[1440px]:flex-col " +
-  "min-[1440px]:items-stretch min-[1440px]:gap-[14px] min-[1440px]:p-[14px]";
-
-const imageClass =
-  "h-[70px] w-[72px] shrink-0 overflow-hidden rounded-lg bg-[#f4e5c8] " +
-  "sm:h-20 sm:w-[82px] sm:rounded-[10px] " +
-  "md:h-[94px] md:w-[105px] md:rounded-xl " +
-  "lg:h-[130px] lg:w-[145px] lg:rounded-[13px] " +
-  "min-[1440px]:h-[205px] min-[1440px]:w-full min-[1440px]:rounded-[14px]";
+/* =========================================================
+   SECTION TITLE
+========================================================= */
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h2 className="font-serif text-[#641010]">{children}</h2>;
 }
+
+/* =========================================================
+   EVENT CARD
+========================================================= */
 
 function EventCard({
   event,
@@ -80,140 +63,458 @@ function EventCard({
   t: (key: TranslationKey) => string;
 }) {
   return (
-    <button type="button" onClick={onClick} className={eventCardClass}>
-      <div className={imageClass}>
+    <button
+      type="button"
+      onClick={onClick}
+      className="
+        group relative flex w-full overflow-hidden
+        rounded-2xl border border-[#eadbc5]
+        bg-[#fffdf8]
+        text-left text-[#4b4039]
+
+        shadow-[0_5px_20px_rgba(79,43,14,0.05)]
+
+        transition-all duration-300
+
+        hover:-translate-y-1
+        hover:border-[#d7b97f]
+        hover:shadow-[0_14px_35px_rgba(79,43,14,0.11)]
+
+        focus:outline-none
+        focus:ring-2
+        focus:ring-[#a71919]/30
+
+        active:scale-[0.99]
+
+        flex-row
+        min-h-[115px]
+
+        sm:min-h-[130px]
+
+        md:min-h-[145px]
+
+        lg:min-h-[300px]
+        lg:flex-col
+
+        xl:min-h-[320px]
+
+        2xl:min-h-[340px]
+      "
+    >
+      {/* =====================================================
+          IMAGE
+      ===================================================== */}
+
+      <div
+        className="
+          relative
+          shrink-0
+          overflow-hidden
+          bg-[#f4e5c8]
+
+          h-auto
+          w-[38%]
+
+          sm:w-[40%]
+
+          md:w-[38%]
+
+          lg:h-[185px]
+          lg:w-full
+
+          xl:h-[195px]
+
+          2xl:h-[205px]
+        "
+      >
         <img
           src={event.image}
           alt={t(event.titleKey)}
-          className="block h-full w-full object-cover"
-        />
-      </div>
+          className="
+            block
+            h-full
+            w-full
+            object-cover
 
-      <div className="min-w-0 flex-1 min-[1440px]:px-1 min-[1440px]:pt-[3px]">
+            transition-transform
+            duration-500
+
+            group-hover:scale-105
+          "
+        />
+
+        {/* IMAGE OVERLAY */}
+
+        <div
+          className="
+            pointer-events-none
+            absolute
+            inset-0
+            bg-gradient-to-t
+            from-black/30
+            via-transparent
+            to-transparent
+            opacity-70
+          "
+        />
+
+        {/* UTSAV BADGE */}
+
         <span
           className="
-            mb-1 hidden text-[9px] font-bold uppercase
-            tracking-[1px] text-[#c99435]
-            md:block
+            absolute
+            left-2
+            top-2
+
+            rounded-full
+            bg-white/95
+
+            px-2
+            py-1
+
+            text-[8px]
+            font-bold
+            uppercase
+            tracking-[1px]
+
+            text-[#a71919]
+
+            shadow-sm
+            backdrop-blur-sm
+
+            sm:left-3
+            sm:top-3
+            sm:px-2.5
+            sm:py-1
+
+            sm:text-[9px]
+
             lg:text-[10px]
           "
         >
-          Upcoming Event
+          Utsav
         </span>
-
-        <SectionTitle>
-          <span
-            className="
-              block text-sm leading-tight
-              sm:text-base
-              md:text-xl
-              lg:text-[21px]
-              min-[1440px]:text-[22px]
-            "
-          >
-            {t(event.titleKey)}
-          </span>
-        </SectionTitle>
-
-        <p
-          className="
-            mt-1 text-[10px] text-[#8a8077]
-            sm:text-[11px]
-            md:mt-[7px] md:text-xs
-            min-[1440px]:text-[13px]
-          "
-        >
-          {t(event.dateKey)}
-        </p>
       </div>
 
-      <span
+      {/* =====================================================
+          CONTENT
+      ===================================================== */}
+
+      <div
         className="
-          inline-flex shrink-0 items-center justify-center gap-1
-          rounded-md bg-[#fff0df] px-[9px] py-[7px]
-          text-[10px] font-bold text-[#a71919] whitespace-nowrap
-          sm:px-2.5 sm:py-2 sm:text-[11px]
-          md:rounded-lg md:px-3 md:py-[9px] md:text-xs
-          min-[1440px]:ml-auto min-[1440px]:mr-1 min-[1440px]:mt-auto
-          min-[1440px]:mb-[3px] min-[1440px]:w-fit
+          flex
+          min-w-0
+          flex-1
+          flex-col
+          justify-between
+
+          p-3
+
+          sm:p-3.5
+
+          md:p-4
+
+          lg:p-5
+
+          xl:p-5
+
+          2xl:p-5
         "
       >
-        {t("view")}
-        <b className="text-[15px] leading-none">›</b>
-      </span>
+        <div>
+          {/* LABEL */}
+
+          <span
+            className="
+              mb-1.5
+              block
+
+              text-[8px]
+              font-bold
+              uppercase
+              tracking-[1.1px]
+
+              text-[#c99435]
+
+              sm:text-[9px]
+
+              md:text-[10px]
+            "
+          >
+            Upcoming Event
+          </span>
+
+          {/* TITLE */}
+
+          <SectionTitle>
+            <span
+              className="
+                block
+
+                text-[14px]
+                font-semibold
+                leading-[1.3]
+
+                sm:text-[16px]
+
+                md:text-[18px]
+
+                lg:text-[20px]
+
+                xl:text-[21px]
+
+                2xl:text-[22px]
+              "
+            >
+              {t(event.titleKey)}
+            </span>
+          </SectionTitle>
+
+          {/* DATE */}
+
+          <div
+            className="
+              mt-2
+              flex
+              items-center
+              gap-1.5
+
+              text-[9px]
+              text-[#8a8077]
+
+              sm:text-[10px]
+
+              md:text-[11px]
+
+              lg:mt-2.5
+              lg:text-[12px]
+            "
+          >
+            <span
+              className="
+                text-[11px]
+                text-[#a71919]
+
+                md:text-xs
+              "
+            >
+              ◷
+            </span>
+
+            <span className="truncate">{t(event.dateKey)}</span>
+          </div>
+        </div>
+
+        {/* ===================================================
+            VIEW DETAILS
+        =================================================== */}
+
+        <div
+          className="
+            mt-3
+            flex
+            items-center
+
+            text-[9px]
+            font-bold
+            text-[#a71919]
+
+            sm:text-[10px]
+
+            md:text-[11px]
+
+            lg:text-xs
+          "
+        >
+          <span>View Details</span>
+
+          <span
+            className="
+              ml-1
+
+              transition-transform
+              duration-300
+
+              group-hover:translate-x-1
+            "
+          >
+            →
+          </span>
+        </div>
+      </div>
     </button>
   );
 }
+
+/* =========================================================
+   EMPTY EVENTS
+========================================================= */
 
 function EmptyEvents({ t }: { t: (key: TranslationKey) => string }) {
   return (
     <div
       className="
-        rounded-[14px] border border-[#eadbc5] bg-[#fffdf8]
-        px-[15px] py-[45px] text-center text-[#8a8077]
-        md:rounded-[18px] md:px-[30px] md:py-[70px]
-        lg:col-span-full lg:flex lg:min-h-[320px]
-        lg:flex-col lg:items-center lg:justify-center
-        lg:rounded-[20px] lg:p-10
+        col-span-full
+
+        flex
+        min-h-[280px]
+        flex-col
+        items-center
+        justify-center
+
+        rounded-2xl
+
+        border
+        border-[#eadbc5]
+
+        bg-[#fffdf8]
+
+        px-6
+        py-12
+
+        text-center
+
+        shadow-[0_5px_20px_rgba(79,43,14,0.04)]
+
+        sm:min-h-[300px]
+
+        lg:min-h-[340px]
       "
     >
+      {/* ICON */}
+
       <div
         className="
-          mx-auto mb-3 grid h-[58px] w-[58px] place-items-center
-          rounded-full border border-[#e5cfaa] bg-[#fff8eb] text-[27px]
-          lg:mb-4 lg:h-[78px] lg:w-[78px] lg:text-4xl
+          mb-4
+          grid
+          h-[68px]
+          w-[68px]
+          place-items-center
+
+          rounded-full
+
+          border
+          border-[#e5cfaa]
+
+          bg-[#fff7e9]
+
+          text-3xl
+
+          shadow-sm
+
+          sm:h-[72px]
+          sm:w-[72px]
+          sm:text-4xl
         "
       >
         🛕
       </div>
 
+      {/* TITLE */}
+
       <h2
         className="
-          font-serif text-lg text-[#641010]
-          lg:text-2xl
+          font-serif
+          text-xl
+          text-[#641010]
+
+          md:text-2xl
         "
       >
         {t("past")}
       </h2>
 
-      <p className="mt-[7px] text-xs lg:text-[13px]">{t("noPastEvents")}</p>
+      {/* DESCRIPTION */}
+
+      <p
+        className="
+          mt-2
+          max-w-sm
+
+          text-xs
+          leading-relaxed
+
+          text-[#8a8077]
+
+          md:text-sm
+        "
+      >
+        {t("noPastEvents")}
+      </p>
     </div>
   );
 }
+
+/* =========================================================
+   DECORATION
+========================================================= */
 
 function Decoration() {
   return (
     <div
       className="
-        mt-6 flex items-center justify-center gap-1.5 text-[#c99435]
-        lg:mt-[38px]
+        mx-auto
+        mt-8
+        flex
+        max-w-[520px]
+        items-center
+        justify-center
+        gap-2
+        px-6
+
+        text-[#c99435]
+
+        md:mt-10
       "
     >
+      {/* LEFT LINE */}
+
       <span
         className="
-          h-px w-12
-          bg-gradient-to-r from-transparent to-[#d8b66c]
-          lg:w-[100px]
+          h-px
+          flex-1
+
+          bg-gradient-to-r
+          from-transparent
+          to-[#d8b66c]
         "
       />
 
-      <b className="text-[13px] font-normal">❧</b>
-      <b className="text-[13px] font-normal">❧</b>
-      <b className="text-[13px] font-normal">❧</b>
+      {/* CENTER */}
 
       <span
         className="
-          h-px w-12
-          bg-gradient-to-l from-transparent to-[#d8b66c]
-          lg:w-[100px]
+          whitespace-nowrap
+          text-xs
+          tracking-[2px]
+        "
+      >
+        ❧ ❧ ❧
+      </span>
+
+      {/* RIGHT LINE */}
+
+      <span
+        className="
+          h-px
+          flex-1
+
+          bg-gradient-to-l
+          from-transparent
+          to-[#d8b66c]
         "
       />
     </div>
   );
 }
 
+/* =========================================================
+   MAIN EVENTS PAGE
+========================================================= */
+
 export default function Events() {
   const router = useRouter();
+
   const { t } = useLanguage();
 
   const [tab, setTab] = useState<EventTab>("upcoming");
@@ -221,189 +522,476 @@ export default function Events() {
   return (
     <main
       className="
-        min-h-dvh w-full pb-[calc(30px+env(safe-area-inset-bottom))]
+        min-h-dvh
+        w-full
+        overflow-x-hidden
+
         bg-[radial-gradient(circle_at_50%_-10%,#fffef9_0,#fffaf0_42%,#f6ead5_100%)]
+
         text-[#4b4039]
-        lg:min-h-screen lg:bg-[radial-gradient(circle_at_top_right,rgba(201,148,53,0.12),transparent_30%),#fff9ed]
-        lg:px-10 lg:pb-[55px]
+
+        pb-[calc(35px+env(safe-area-inset-bottom))]
+
+        lg:min-h-screen
+
+        lg:bg-[radial-gradient(circle_at_top_right,rgba(201,148,53,0.12),transparent_30%),#fff9ed]
+
+        lg:pb-16
       "
     >
-      {/* HEADER */}
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
+
       <header
         className="
-          relative flex h-[72px] items-center justify-between
-          border-b border-[#eadbc5] bg-[rgba(255,253,248,0.98)] px-[15px]
-          min-[360px]:max-[599px]:h-[78px]
-          md:h-[82px] md:px-7
-          lg:-mx-10 lg:h-[84px] lg:justify-start lg:gap-[18px] lg:px-[42px]
+          sticky
+          top-0
+          z-30
+
+          border-b
+          border-[#eadbc5]
+
+          bg-[#fffdf8]/95
+
+          backdrop-blur-md
         "
       >
-        <button
-          type="button"
-          onClick={() => router.back()}
-          aria-label={t("back")}
-          className="
-            grid h-[38px] w-[38px] shrink-0 place-items-center
-            rounded-full border border-[#eadbc5] bg-[#fffdf8]
-            text-[29px] leading-none text-[#a71919]
-            shadow-[0_3px_10px_rgba(70,40,10,0.05)]
-            md:h-[42px] md:w-[42px]
-            lg:h-11 lg:w-11 lg:text-[31px]
-          "
-        >
-          ‹
-        </button>
-
         <div
           className="
-            flex-1 text-center
-            lg:flex-none lg:text-left
+            mx-auto
+            flex
+            h-[70px]
+            max-w-[1420px]
+            items-center
+
+            px-4
+
+            sm:px-6
+
+            md:h-[78px]
+            md:px-8
+
+            lg:h-[84px]
+            lg:px-10
           "
         >
-          <span
-            className="
-              mb-0.5 hidden text-[10px] font-bold uppercase
-              tracking-[1.3px] text-[#9a762f]
-              lg:block
-            "
-          >
-            Shri Govardhannath Haveli
-          </span>
+          {/* BACK BUTTON */}
 
-          <h1
+          <button
+            type="button"
+            onClick={() => router.back()}
+            aria-label={t("back")}
             className="
-              m-0 font-serif text-[23px] text-[#641010]
-              min-[360px]:text-[25px]
-              md:text-[28px]
-              lg:text-[26px]
+              grid
+              h-10
+              w-10
+              shrink-0
+              place-items-center
+
+              rounded-full
+
+              border
+              border-[#eadbc5]
+
+              bg-white
+
+              text-2xl
+              leading-none
+
+              text-[#a71919]
+
+              shadow-[0_3px_12px_rgba(70,40,10,0.06)]
+
+              transition-all
+
+              hover:bg-[#fff5e7]
+
+              active:scale-95
+
+              focus:outline-none
+              focus:ring-2
+              focus:ring-[#a71919]/20
+
+              md:h-11
+              md:w-11
             "
           >
-            {t("events")}
-          </h1>
+            ‹
+          </button>
+
+          {/* HEADER TITLE */}
+
+          <div
+            className="
+              ml-3
+              flex-1
+              text-center
+
+              md:ml-4
+
+              lg:text-left
+            "
+          >
+            {/* DESKTOP SMALL TITLE */}
+
+            <span
+              className="
+                hidden
+
+                text-[10px]
+                font-bold
+                uppercase
+                tracking-[1.5px]
+
+                text-[#9a762f]
+
+                lg:block
+              "
+            >
+              Shri Govardhannath Haveli
+            </span>
+
+            {/* MAIN TITLE */}
+
+            <h1
+              className="
+                font-serif
+
+                text-[24px]
+                leading-none
+
+                text-[#641010]
+
+                sm:text-[26px]
+
+                md:text-[29px]
+
+                lg:mt-1
+                lg:text-[27px]
+              "
+            >
+              {t("events")}
+            </h1>
+          </div>
+
+          {/* RIGHT SPACE */}
+
+          <div
+            className="
+              h-10
+              w-10
+              shrink-0
+
+              md:h-11
+              md:w-11
+            "
+          />
         </div>
-
-        <div
-          className="
-            h-[38px] w-[38px] shrink-0
-            md:h-[42px] md:w-[42px]
-            lg:hidden
-          "
-        />
       </header>
 
-      {/* DESKTOP HERO */}
-      <section
+      {/* =====================================================
+          PAGE CONTAINER
+      ===================================================== */}
+
+      <div
         className="
-          mx-auto mt-[30px] hidden min-h-[150px] w-full max-w-[1320px]
-          items-center justify-between gap-[30px]
-          rounded-[22px] border border-[#eadbc5]
-          bg-gradient-to-br from-[#fffdf8] to-[#fff3df]
-          px-[34px] py-7
-          shadow-[0_10px_30px_rgba(80,45,15,0.06)]
-          lg:flex
-          min-[1440px]:min-h-[160px] min-[1440px]:max-w-[1420px]
-          min-[1440px]:px-10 min-[1440px]:py-8
+          mx-auto
+          w-full
+          max-w-[1420px]
+
+          px-4
+
+          sm:px-6
+
+          md:px-8
+
+          lg:px-10
         "
       >
-        <div>
-          <span
+        {/* ===================================================
+            HERO
+        =================================================== */}
+
+        <section
+          className="
+            relative
+            mt-5
+            overflow-hidden
+
+            rounded-2xl
+
+            border
+            border-[#eadbc5]
+
+            bg-gradient-to-br
+            from-[#fffdf8]
+            to-[#fff1dc]
+
+            px-5
+            py-6
+
+            shadow-[0_8px_25px_rgba(80,45,15,0.05)]
+
+            sm:mt-6
+            sm:px-7
+            sm:py-7
+
+            md:px-9
+            md:py-8
+
+            lg:mt-8
+            lg:rounded-[24px]
+            lg:px-10
+            lg:py-9
+          "
+        >
+          {/* DECORATIVE CIRCLE */}
+
+          <div
             className="
-              mb-[7px] block text-[11px] font-bold uppercase
-              tracking-[1.4px] text-[#c99435]
+              pointer-events-none
+
+              absolute
+              -right-10
+              -top-16
+
+              h-40
+              w-40
+
+              rounded-full
+
+              bg-[#c99435]/10
+
+              blur-2xl
+            "
+          />
+
+          <div
+            className="
+              relative
+              flex
+              items-center
+              justify-between
+              gap-5
             "
           >
-            Haveli Utsav
-          </span>
+            {/* HERO TEXT */}
 
-          <h2
-            className="
-              m-0 font-serif text-[35px] text-[#641010]
-              min-[1440px]:text-[39px]
-            "
-          >
-            {t("events")}
-          </h2>
+            <div>
+              <span
+                className="
+                  mb-2
+                  block
 
-          <p className="mt-[9px] max-w-[520px] text-sm leading-[1.5] text-[#776d65]">
-            Stay connected with upcoming utsavs, satsang and sacred
-            celebrations.
-          </p>
-        </div>
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-[1.5px]
+
+                  text-[#c99435]
+
+                  md:text-[11px]
+                "
+              >
+                Haveli Utsav
+              </span>
+
+              <h2
+                className="
+                  font-serif
+
+                  text-[28px]
+                  leading-tight
+
+                  text-[#641010]
+
+                  sm:text-[32px]
+
+                  md:text-[38px]
+
+                  lg:text-[42px]
+                "
+              >
+                {t("events")}
+              </h2>
+
+              <p
+                className="
+                  mt-2
+                  max-w-[600px]
+
+                  text-xs
+                  leading-relaxed
+
+                  text-[#776d65]
+
+                  sm:text-sm
+
+                  md:mt-3
+                "
+              >
+                Stay connected with upcoming utsavs, satsang and sacred
+                celebrations.
+              </p>
+            </div>
+
+            {/* TEMPLE ICON */}
+
+            <div
+              className="
+                hidden
+
+                h-20
+                w-20
+                shrink-0
+
+                place-items-center
+
+                rounded-full
+
+                border
+                border-[#dec182]
+
+                bg-white/80
+
+                text-4xl
+
+                shadow-[0_8px_22px_rgba(96,57,18,0.08)]
+
+                sm:grid
+
+                md:h-24
+                md:w-24
+                md:text-5xl
+              "
+            >
+              🛕
+            </div>
+          </div>
+        </section>
+
+        {/* ===================================================
+            TABS
+        =================================================== */}
 
         <div
           className="
-            grid h-[86px] w-[86px] shrink-0 place-items-center
-            rounded-full border border-[#dec182] bg-[#fffdf8]
-            text-[42px]
-            shadow-[0_8px_22px_rgba(96,57,18,0.08)]
-            min-[1440px]:h-[94px] min-[1440px]:w-[94px]
-            min-[1440px]:text-[46px]
+            mx-auto
+            mt-5
+
+            grid
+            w-full
+            max-w-[520px]
+            grid-cols-2
+            gap-1
+
+            rounded-xl
+
+            border
+            border-[#eadbc5]
+
+            bg-[#fffdf8]
+
+            p-1
+
+            shadow-[0_4px_15px_rgba(82,48,18,0.04)]
+
+            md:mt-7
           "
         >
-          🛕
+          {(["upcoming", "past"] as EventTab[]).map((item) => {
+            const active = tab === item;
+
+            return (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setTab(item)}
+                aria-pressed={active}
+                className={`
+                    h-10
+
+                    rounded-lg
+
+                    text-xs
+                    font-bold
+
+                    transition-all
+                    duration-200
+
+                    sm:h-11
+                    sm:text-sm
+
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-[#a71919]/20
+
+                    ${
+                      active
+                        ? "bg-[#a71919] text-white shadow-[0_4px_12px_rgba(167,25,25,0.18)]"
+                        : "text-[#776d65] hover:bg-[#fff1e7] hover:text-[#a71919]"
+                    }
+                  `}
+              >
+                {t(item)}
+              </button>
+            );
+          })}
         </div>
-      </section>
 
-      {/* TABS */}
-      <div
-        className="
-          mx-[15px] my-[14px] grid grid-cols-2 gap-2
-          rounded-[10px] border border-[#eadbc5] bg-[#fffdf8] p-0.5
-          shadow-[0_4px_14px_rgba(82,48,18,0.04)]
-          min-[360px]:max-[599px]:mx-5
-          min-[360px]:max-[599px]:my-[17px_20px_14px]
-          md:mx-auto md:my-[22px_0_18px] md:w-[calc(100%-48px)]
-          md:max-w-[760px] md:rounded-xl md:p-[3px]
-          lg:my-[26px_0_24px] lg:w-full lg:max-w-[520px]
-        "
-      >
-        {(["upcoming", "past"] as EventTab[]).map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setTab(item)}
-            className={`
-              ${tabClass}
-              ${
-                tab === item
-                  ? activeTabClass
-                  : "bg-transparent text-[#776d65] lg:hover:bg-[#fff1e7] lg:hover:text-[#a71919]"
-              }
-            `}
-          >
-            {t(item)}
-          </button>
-        ))}
+        {/* ===================================================
+            EVENTS GRID
+
+            MOBILE      = 1 COLUMN
+            TABLET      = 2 COLUMNS
+            LAPTOP      = 3 COLUMNS
+            SMART/2XL   = 4 COLUMNS
+        =================================================== */}
+
+        <section
+          className="
+            mt-5
+
+            grid
+            grid-cols-1
+            gap-4
+
+            sm:mt-6
+            sm:grid-cols-2
+            sm:gap-5
+
+            lg:mt-7
+            lg:grid-cols-2
+            lg:gap-6
+
+            xl:grid-cols-3
+            xl:gap-6
+
+            2xl:grid-cols-4
+            2xl:gap-7
+          "
+        >
+          {tab === "upcoming" ? (
+            events.map((event) => (
+              <EventCard
+                key={event.id}
+                event={event}
+                t={t}
+                onClick={() => router.push(`/events/${event.id}`)}
+              />
+            ))
+          ) : (
+            <EmptyEvents t={t} />
+          )}
+        </section>
+
+        {/* ===================================================
+            BOTTOM DECORATION
+        =================================================== */}
+
+        <Decoration />
       </div>
-
-      {/* EVENTS */}
-      <section
-        className="
-          flex flex-col gap-[9px] px-[15px]
-          min-[360px]:max-[599px]:gap-[11px] min-[360px]:max-[599px]:px-5
-          md:mx-auto md:w-[calc(100%-48px)] md:max-w-[760px]
-          md:gap-[13px] md:p-0
-          lg:grid lg:w-full lg:max-w-[1320px]
-          lg:grid-cols-2 lg:gap-5
-          min-[1440px]:max-w-[1420px]
-          min-[1440px]:grid-cols-3 min-[1440px]:gap-[22px]
-        "
-      >
-        {tab === "upcoming" ? (
-          events.map((event) => (
-            <EventCard
-              key={event.id}
-              event={event}
-              t={t}
-              onClick={() => router.push(`/events/${event.id}`)}
-            />
-          ))
-        ) : (
-          <EmptyEvents t={t} />
-        )}
-      </section>
-
-      <Decoration />
     </main>
   );
 }

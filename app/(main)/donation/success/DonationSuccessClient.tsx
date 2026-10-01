@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function DonationSuccess() {
@@ -12,9 +11,9 @@ export default function DonationSuccess() {
   const type = params.get("type") || "one-time";
   const frequency = params.get("frequency") || "monthly";
 
-  const transactionId = useMemo(() => {
-    return "DON" + Math.floor(100000 + Math.random() * 900000);
-  }, []);
+  // Get transaction ID from URL instead of Math.random()
+  // This prevents Next.js hydration mismatch.
+  const transactionId = params.get("transactionId") || "DON000000";
 
   const formattedAmount = Number(amount || 0).toLocaleString("en-IN");
 
@@ -497,7 +496,9 @@ export default function DonationSuccess() {
               min-[1440px]:text-[14px]
             "
           >
-            <span className="shrink-0 text-[#8a8077]">Transaction ID</span>
+            <span className="shrink-0 text-[#8a8077]">
+              Transaction ID
+            </span>
 
             <b
               className="

@@ -17,6 +17,7 @@ import { GiCow } from "react-icons/gi";
 import { useLanguage } from "../../lib/LanguageProvider";
 import type { TranslationKey } from "../../lib/i18n";
 import HomeHeader from "@/app/components/Header";
+import ProfileDrawer from "@/app/components/navigation/ProfileDrawer";
 
 /* =========================================================
    TYPES
@@ -119,19 +120,6 @@ const iconMap = {
 
 const ACTION_ITEMS: ActionItem[] = [
   {
-    key: "live",
-    icon: "headset",
-    labels: ["liveDarshan", "darshan"],
-    route: "/live-darshan",
-  },
-  {
-    key: "seva",
-    icon: "seva",
-    labels: ["seva", "donation"],
-    route: "/seva-donation",
-  },
- 
-  {
     key: "darshan",
     icon: "gift",
     labels: ["darshan", "darshanTimings"],
@@ -143,12 +131,7 @@ const ACTION_ITEMS: ActionItem[] = [
     labels: ["events"],
     route: "/events",
   },
-  {
-    key: "reels",
-    icon: "play",
-    labels: ["reelsBhakti"],
-    route: "/reels",
-  },
+
   {
     key: "prasadam",
     icon: "food",
@@ -162,83 +145,51 @@ const ACTION_ITEMS: ActionItem[] = [
   },
 ];
 
-/* =========================================================
-   ICON COMPONENT
-========================================================= */
 
-function ActionIcon({
-  name,
-}: {
-  name: keyof typeof iconMap;
-}) {
-  const IconComponent = iconMap[name];
 
-  return (
-    <IconComponent
-      size={25}
-      strokeWidth={1.8}
-    />
-  );
+function getActionGridColumns(itemCount: number) {
+  if (itemCount <= 4) {
+    return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+  }
+
+  return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
 }
 
 /* =========================================================
    HELPERS
 ========================================================= */
 
-function getMinutesFromMidnight(
-  hour: number,
-  minute: number,
-) {
+function getMinutesFromMidnight(hour: number, minute: number) {
   return hour * 60 + minute;
 }
 
-function getNextDarshan(
-  currentTime: Date | null,
-): DarshanItem {
+function getNextDarshan(currentTime: Date | null): DarshanItem {
   if (!currentTime) {
     return DARSHAN_SCHEDULE[0];
   }
 
-  const currentMinutes =
-    currentTime.getHours() * 60 +
-    currentTime.getMinutes();
+  const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
 
   return (
     DARSHAN_SCHEDULE.find(
       (darshan) =>
-        getMinutesFromMidnight(
-          darshan.hour,
-          darshan.minute,
-        ) > currentMinutes,
+        getMinutesFromMidnight(darshan.hour, darshan.minute) > currentMinutes,
     ) ?? DARSHAN_SCHEDULE[0]
   );
 }
 
-function getCountdown(
-  darshan: DarshanItem,
-  currentTime: Date | null,
-) {
+function getCountdown(darshan: DarshanItem, currentTime: Date | null) {
   if (!currentTime) {
     return "--:--:--";
   }
 
   const target = new Date(currentTime);
 
-  target.setHours(
-    darshan.hour,
-    darshan.minute,
-    0,
-    0,
-  );
+  target.setHours(darshan.hour, darshan.minute, 0, 0);
 
-  const currentMinutes =
-    currentTime.getHours() * 60 +
-    currentTime.getMinutes();
+  const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
 
-  const darshanMinutes = getMinutesFromMidnight(
-    darshan.hour,
-    darshan.minute,
-  );
+  const darshanMinutes = getMinutesFromMidnight(darshan.hour, darshan.minute);
 
   if (darshanMinutes <= currentMinutes) {
     target.setDate(target.getDate() + 1);
@@ -246,27 +197,17 @@ function getCountdown(
 
   const totalSeconds = Math.max(
     0,
-    Math.floor(
-      (target.getTime() -
-        currentTime.getTime()) /
-        1000,
-    ),
+    Math.floor((target.getTime() - currentTime.getTime()) / 1000),
   );
 
-  const hours = Math.floor(
-    totalSeconds / 3600,
-  );
+  const hours = Math.floor(totalSeconds / 3600);
 
-  const minutes = Math.floor(
-    (totalSeconds % 3600) / 60,
-  );
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
 
   const seconds = totalSeconds % 60;
 
   return [hours, minutes, seconds]
-    .map((value) =>
-      String(value).padStart(2, "0"),
-    )
+    .map((value) => String(value).padStart(2, "0"))
     .join(":");
 }
 
@@ -278,42 +219,37 @@ export default function Dashboard() {
   const router = useRouter();
   const { t } = useLanguage();
 
-  const [profileName, setProfileName] =
-    useState("");
+ const [profileName, setProfileName] = useState("");
+const [currentTime, setCurrentTime] = useState<Date | null>(null);
+const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
 
-  const [currentTime, setCurrentTime] =
-    useState<Date | null>(null);
+// ACTION HANDLER
+const handleAction = (item: ActionItem) => {
+  if (item.key === "more") {
+    setIsProfileDrawerOpen(true);
+    return;
+  }
 
-  /* =======================================================
-     LOAD PROFILE
-  ======================================================= */
-
+  if (item.route) {
+    router.push(item.route);
+  }
+};
+ 
   useEffect(() => {
     const loadProfile = () => {
       try {
-        const storedProfile =
-          localStorage.getItem(
-            "profile-data",
-          );
+        const storedProfile = localStorage.getItem("profile-data");
 
         if (!storedProfile) {
           setProfileName("");
           return;
         }
 
-        const profile =
-          JSON.parse(
-            storedProfile,
-          ) as Partial<ProfileData>;
+        const profile = JSON.parse(storedProfile) as Partial<ProfileData>;
 
-        setProfileName(
-          profile.name?.trim() || "",
-        );
+        setProfileName(profile.name?.trim() || "");
       } catch (error) {
-        console.error(
-          "Failed to load profile:",
-          error,
-        );
+        console.error("Failed to load profile:", error);
 
         setProfileName("");
       }
@@ -321,16 +257,10 @@ export default function Dashboard() {
 
     loadProfile();
 
-    window.addEventListener(
-      "profile-updated",
-      loadProfile,
-    );
+    window.addEventListener("profile-updated", loadProfile);
 
     return () => {
-      window.removeEventListener(
-        "profile-updated",
-        loadProfile,
-      );
+      window.removeEventListener("profile-updated", loadProfile);
     };
   }, []);
 
@@ -345,55 +275,40 @@ export default function Dashboard() {
 
     updateTime();
 
-    const timer = window.setInterval(
-      updateTime,
-      1000,
-    );
+    const timer = window.setInterval(updateTime, 1000);
 
-    return () =>
-      window.clearInterval(timer);
+    return () => window.clearInterval(timer);
   }, []);
 
   /* =======================================================
      NEXT DARSHAN
   ======================================================= */
 
-  const nextDarshan = getNextDarshan(
-    currentTime,
-  );
+  const nextDarshan = getNextDarshan(currentTime);
 
-  const countdown = getCountdown(
-    nextDarshan,
-    currentTime,
-  );
+  const countdown = getCountdown(nextDarshan, currentTime);
 
-  /* =======================================================
-     ACTION HANDLER
-  ======================================================= */
 
-  const handleAction = (
-    route?: string,
-  ) => {
-    if (!route) return;
 
-    router.push(route);
-  };
 
   /* =======================================================
      CURRENT TIME
   ======================================================= */
 
   const formattedTime = currentTime
-    ? currentTime.toLocaleTimeString(
-        "en-IN",
-        {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: true,
-        },
-      )
+    ? currentTime.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      })
     : "--:--:--";
+
+  /* =======================================================
+     ACTION GRID
+  ======================================================= */
+
+  const actionGridColumns = getActionGridColumns(ACTION_ITEMS.length);
 
   /* =======================================================
      UI
@@ -431,7 +346,6 @@ export default function Dashboard() {
       "
     >
       <div className="mx-auto w-full max-w-[1800px]">
-
         {/* =================================================
             HEADER
         ================================================= */}
@@ -444,9 +358,7 @@ export default function Dashboard() {
 
         <button
           type="button"
-          onClick={() =>
-            router.push("/live-darshan")
-          }
+          onClick={() => router.push("/live-darshan")}
           className="
             relative
             mt-2
@@ -483,8 +395,6 @@ export default function Dashboard() {
               object-cover
             "
           />
-
-          {/* LIVE OVERLAY */}
 
           <div
             className="
@@ -591,7 +501,7 @@ export default function Dashboard() {
             xl:min-h-[155px]
           "
         >
-          {/* LEFT */}
+          {/* LEFT SIDE */}
 
           <div
             className="
@@ -642,9 +552,7 @@ export default function Dashboard() {
             >
               <img
                 src={nextDarshan.image}
-                alt={t(
-                  nextDarshan.nameKey,
-                )}
+                alt={t(nextDarshan.nameKey)}
                 className="
                   block
                   h-full
@@ -711,53 +619,54 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* RIGHT / COUNTDOWN */}
+          {/* RIGHT SIDE */}
 
           <div
             className="
-              w-[125px]
+              flex
               shrink-0
+              flex-col
+              items-end
+              justify-center
+
+              gap-1
+
+              whitespace-nowrap
+
               text-right
 
-              sm:w-[150px]
+              sm:gap-1.5
 
-              md:w-[190px]
-
-              lg:w-[240px]
+              lg:gap-2
             "
           >
             {/* CURRENT TIME */}
 
-            <div
+            <span
               className="
-                flex
-                items-center
-                justify-between
-                gap-2
+                inline-flex
+                w-max
+                shrink-0
+
+                whitespace-nowrap
 
                 text-[9px]
+                font-medium
+                text-[#81766d]
 
                 sm:text-[10px]
 
                 lg:text-xs
               "
             >
-              <strong>
-                {t(nextDarshan.nameKey)}
-              </strong>
-
-              <span>
-                {formattedTime}
-              </span>
-            </div>
+              {formattedTime}
+            </span>
 
             {/* COUNTDOWN */}
 
-            <div
+            <span
               className="
-                my-1.5
-                ml-auto
-                w-fit
+                whitespace-nowrap
 
                 rounded
 
@@ -773,25 +682,22 @@ export default function Dashboard() {
 
                 sm:text-[13px]
 
-                lg:my-2
                 lg:px-3
                 lg:py-1.5
                 lg:text-base
               "
             >
               {countdown}
-            </div>
+            </span>
 
-            {/* SCHEDULE */}
+            {/* VIEW SCHEDULE */}
 
             <button
               type="button"
-              onClick={() =>
-                router.push(
-                  "/darshan-timings",
-                )
-              }
+              onClick={() => router.push("/darshan-timings")}
               className="
+                whitespace-nowrap
+
                 border-0
                 bg-transparent
                 p-0
@@ -817,12 +723,14 @@ export default function Dashboard() {
         ================================================= */}
 
         <section
-          className="
+          className={`
             mt-3
 
             grid
             w-full
-            grid-cols-4
+
+            ${actionGridColumns}
+
             gap-2
 
             sm:gap-3
@@ -833,110 +741,99 @@ export default function Dashboard() {
             lg:gap-4
 
             xl:gap-5
-          "
+          `}
         >
           {ACTION_ITEMS.map((item) => {
-            const IconComponent =
-              iconMap[item.icon];
+            const IconComponent = iconMap[item.icon];
 
             return (
               <button
                 key={item.key}
                 type="button"
-                disabled={!item.route}
-                onClick={() =>
-                  handleAction(
-                    item.route,
-                  )
-                }
+                onClick={() => handleAction(item)}
                 className="
-                  group
+                    group
 
-                  flex
-                  h-[78px]
-                  min-w-0
-                  flex-col
-                  items-center
-                  justify-center
+                    flex
+                    h-[78px]
+                    min-w-0
+                    flex-col
+                    items-center
+                    justify-center
 
-                  rounded-[10px]
+                    rounded-[10px]
 
-                  border
-                  border-[#efdfc9]
+                    border
+                    border-[#efdfc9]
 
-                  bg-[#fffdf9]
+                    bg-[#fffdf9]
 
-                  px-1
-                  py-2
+                    px-1
+                    py-2
 
-                  text-[#a71919]
+                    text-[#a71919]
 
-                  shadow-[0_2px_8px_rgba(100,60,10,0.04)]
+                    shadow-[0_2px_8px_rgba(100,60,10,0.04)]
 
-                  transition-all
-                  duration-200
+                    transition-all
+                    duration-200
 
-                  active:scale-[0.97]
+                    active:scale-[0.97]
 
-                  disabled:cursor-default
+                    sm:h-[90px]
 
-                  sm:h-[90px]
+                    md:h-[100px]
 
-                  md:h-[100px]
+                    lg:h-[120px]
+                    lg:rounded-[14px]
 
-                  lg:h-[120px]
-                  lg:rounded-[14px]
+                    lg:hover:-translate-y-1
+                    lg:hover:border-[#d7b879]
+                    lg:hover:shadow-[0_10px_25px_rgba(90,50,20,0.10)]
 
-                  lg:hover:-translate-y-1
-                  lg:hover:border-[#d7b879]
-                  lg:hover:shadow-[0_10px_25px_rgba(90,50,20,0.10)]
-
-                  xl:h-[128px]
-                "
+                    xl:h-[128px]
+                  "
               >
                 {/* ICON */}
 
                 <span
                   className="
-                    grid
-                    h-7
-                    place-items-center
+                      grid
+                      h-7
+                      place-items-center
 
-                    transition-transform
-                    duration-200
+                      transition-transform
+                      duration-200
 
-                    group-hover:scale-110
+                      group-hover:scale-110
 
-                    sm:h-8
+                      sm:h-8
 
-                    lg:h-9
-                  "
+                      lg:h-9
+                    "
                 >
-                  <IconComponent
-                    size={25}
-                    strokeWidth={1.8}
-                  />
+                  <IconComponent size={25} strokeWidth={1.8} />
                 </span>
 
                 {/* LABEL */}
 
                 <span
                   className="
-                    mt-1.5
-                    min-w-0
+                      mt-1.5
+                      min-w-0
 
-                    text-center
-                    text-[9px]
-                    leading-[1.2]
-                    text-[#4d453e]
+                      text-center
+                      text-[9px]
+                      leading-[1.2]
+                      text-[#4d453e]
 
-                    sm:text-[10px]
+                      sm:text-[10px]
 
-                    md:text-[11px]
+                      md:text-[11px]
 
-                    lg:mt-2
-                    lg:text-xs
-                  "
+                      lg:mt-2
+                      lg:text-xs
+                    "
                 >
                   <strong className="block font-semibold">
                     {t(item.labels[0])}
@@ -979,6 +876,16 @@ export default function Dashboard() {
           ❧ ❧ ❧ ❧ ❧
         </div>
       </div>
+
+      {/* =================================================
+          PROFILE DRAWER
+      ================================================= */}
+
+     {isProfileDrawerOpen && (
+  <ProfileDrawer
+    onClose={() => setIsProfileDrawerOpen(false)}
+  />
+)}
     </main>
   );
 }
