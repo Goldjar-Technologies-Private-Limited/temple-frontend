@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useLanguage } from "../../lib/LanguageProvider";
+import { Send } from "lucide-react";
 
 /* =========================================================
    STREAM DATA
@@ -12,11 +13,11 @@ import { useLanguage } from "../../lib/LanguageProvider";
 
 const streams = [
   {
-    id: "YOUR_YOUTUBE_LIVE_ID_1",
+    id: "www.youtube.com/@nightcode7-wk7sx",
     image: "/images/live-darshan-1.jpg",
   },
   {
-    id: "YOUR_YOUTUBE_LIVE_ID_2",
+    id: "www.youtube.com/@yourchannel",
     image: "/images/live-darshan-2.jpg",
   },
 ];
@@ -37,6 +38,15 @@ export default function LiveDarshan() {
   const { t } = useLanguage();
 
   const [selected, setSelected] = useState(0);
+  const [message, setMessage] = useState("");
+  const [chatMessages, setChatMessages] = useState(chats);
+
+  /* =========================================================
+     VIDEO CONTROL
+     ========================================================= */
+
+  const playerRef = useRef<HTMLIFrameElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const stream = streams[selected];
 
@@ -55,6 +65,75 @@ export default function LiveDarshan() {
       });
     } catch {
       // User cancelled share
+    }
+  };
+
+  /* =========================================================
+     SEND MESSAGE
+     ========================================================= */
+
+  const handleSendMessage = () => {
+    const trimmedMessage = message.trim();
+
+    if (!trimmedMessage) return;
+
+    setChatMessages((prev) => [
+      ...prev,
+      ["🙏", trimmedMessage, "You"],
+    ]);
+
+    setMessage("");
+  };
+
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key === "Enter") {
+      handleSendMessage();
+    }
+  };
+
+  /* =========================================================
+     PLAY / PAUSE VIDEO
+     ========================================================= */
+
+  const handlePlayPause = () => {
+    if (!playerRef.current?.contentWindow) return;
+
+    const command = isPlaying
+      ? "pauseVideo"
+      : "playVideo";
+
+    playerRef.current.contentWindow.postMessage(
+      JSON.stringify({
+        event: "command",
+        func: command,
+        args: [],
+      }),
+      "https://www.youtube.com"
+    );
+
+    setIsPlaying(!isPlaying);
+  };
+
+  /* =========================================================
+     FULLSCREEN
+     ========================================================= */
+
+  const handleFullscreen = async () => {
+    const iframe = playerRef.current;
+
+    if (!iframe) return;
+
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        return;
+      }
+
+      await iframe.requestFullscreen();
+    } catch {
+      // Fullscreen request failed
     }
   };
 
@@ -188,7 +267,19 @@ export default function LiveDarshan() {
               active:scale-95
             "
           >
-            ↗
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              className="h-5 w-5"
+            >
+              <circle cx="18" cy="5" r="2.5" />
+              <circle cx="6" cy="12" r="2.5" />
+              <circle cx="18" cy="19" r="2.5" />
+              <path d="m8.2 10.8 7.5-4.4" />
+              <path d="m8.2 13.2 7.5 4.4" />
+            </svg>
           </button>
         </header>
 
@@ -282,36 +373,22 @@ export default function LiveDarshan() {
                 active:scale-95
               "
             >
-              ↗
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                className="h-5 w-5"
+              >
+                <circle cx="18" cy="5" r="2.5" />
+                <circle cx="6" cy="12" r="2.5" />
+                <circle cx="18" cy="19" r="2.5" />
+                <path d="m8.2 10.8 7.5-4.4" />
+                <path d="m8.2 13.2 7.5 4.4" />
+              </svg>
             </button>
-
-            <div
-              className="
-                flex
-                h-11
-                items-center
-                justify-center
-                gap-2
-                rounded-full
-                bg-[#d51b1b]
-                px-5
-                text-[11px]
-                font-bold
-                text-white
-                shadow-[0_5px_15px_rgba(213,27,27,0.18)]
-              "
-            >
-              <span className="h-2 w-2 rounded-full bg-white" />
-              {t("live")}
-            </div>
           </div>
         </section>
-
-        {/* =====================================================
-            DESKTOP LAYOUT
-            Left = stream/player
-            Right = chat
-            ===================================================== */}
 
         <div
           className="
@@ -330,17 +407,10 @@ export default function LiveDarshan() {
             2xl:gap-7
           "
         >
-          {/* ===================================================
-              LEFT COLUMN
-              =================================================== */}
 
           <div className="min-w-0">
 
-            {/* =================================================
-                STREAM SELECTORS
-                ================================================= */}
-
-            <section
+            {/* <section
               className="
                 grid
                 grid-cols-2
@@ -366,7 +436,7 @@ export default function LiveDarshan() {
                       overflow-hidden
                       rounded-[13px]
                       border-2
-                      bg-[#eadbc5]
+                      bg-[#f8f2f1]
                       p-0
                       shadow-[0_4px_13px_rgba(70,40,10,0.10)]
                       transition-all
@@ -385,7 +455,7 @@ export default function LiveDarshan() {
 
                       ${
                         active
-                          ? "border-[#c99435] shadow-[0_7px_20px_rgba(117,67,19,0.15)]"
+                          ? "border-[#c95f35] shadow-[0_7px_20px_rgba(117,67,19,0.15)]"
                           : "border-transparent hover:-translate-y-0.5 hover:border-[#e0c28a]"
                       }
                     `}
@@ -405,8 +475,6 @@ export default function LiveDarshan() {
                       "
                     />
 
-                    {/* IMAGE SHADE */}
-
                     <div
                       className="
                         absolute
@@ -415,48 +483,6 @@ export default function LiveDarshan() {
                       "
                     />
 
-                    {/* LIVE */}
-
-                    <div
-                      className="
-                        absolute
-                        left-2
-                        top-2
-                        flex
-                        items-center
-                        rounded-md
-                        bg-[#d51b1b]
-                        px-2
-                        py-1
-                        text-[8px]
-                        font-bold
-                        text-white
-
-                        sm:text-[9px]
-
-                        md:left-3
-                        md:top-3
-                        md:px-2.5
-                        md:py-1.5
-                        md:text-[10px]
-                      "
-                    >
-                      <span
-                        className="
-                          mr-1
-                          inline-block
-                          h-1.5
-                          w-1.5
-                          rounded-full
-                          bg-white
-                        "
-                      />
-
-                      {t("live")}
-                    </div>
-
-                    {/* VIEWER */}
-
                     <div
                       className="
                         absolute
@@ -464,7 +490,7 @@ export default function LiveDarshan() {
                         top-2
                         text-[8px]
                         font-medium
-                        text-white
+                        text-red-600
 
                         sm:text-[9px]
 
@@ -475,8 +501,6 @@ export default function LiveDarshan() {
                     >
                       ◉ {t("live")}
                     </div>
-
-                    {/* STREAM NUMBER */}
 
                     <div
                       className="
@@ -500,15 +524,11 @@ export default function LiveDarshan() {
                   </button>
                 );
               })}
-            </section>
-
-            {/* =================================================
-                PLAYER CARD
-                ================================================= */}
+            </section> */}
 
             <section
               className="
-                mt-3
+                mt-2
                 overflow-hidden
                 rounded-[14px]
                 border
@@ -516,14 +536,13 @@ export default function LiveDarshan() {
                 bg-[#fffdf8]
                 shadow-[0_5px_18px_rgba(70,40,10,0.08)]
 
-                sm:mt-4
+                sm:mt-2
                 sm:rounded-2xl
 
                 lg:mt-5
                 lg:rounded-[18px]
               "
             >
-              {/* PLAYER HEADER */}
 
               <div
                 className="
@@ -559,26 +578,7 @@ export default function LiveDarshan() {
 
                   <strong>{t("liveDarshan")}</strong>
                 </div>
-
-                <span
-                  className="
-                    rounded-md
-                    bg-[#d51b1b]
-                    px-2
-                    py-1
-                    text-[8px]
-                    font-bold
-                    text-white
-
-                    lg:px-2.5
-                    lg:text-[9px]
-                  "
-                >
-                  {t("live")}
-                </span>
               </div>
-
-              {/* YOUTUBE */}
 
               <div
                 className="
@@ -627,8 +627,9 @@ export default function LiveDarshan() {
                   </div>
                 ) : (
                   <iframe
+                    ref={playerRef}
                     key={stream.id}
-                    src={`https://www.youtube.com/embed/${stream.id}?playsinline=1&rel=0`}
+                    src={`https://www.youtube.com/embed/${stream.id}?playsinline=1&rel=0&controls=1&enablejsapi=1`}
                     title={t("liveDarshan")}
                     className="block h-full w-full border-0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -636,6 +637,105 @@ export default function LiveDarshan() {
                   />
                 )}
               </div>
+
+              {/* VIDEO CONTROLS */}
+
+              {!stream.id.startsWith("YOUR_") && (
+                <div
+                  className="
+                    flex
+                    items-center
+                    justify-end
+                    gap-2
+                    border-t
+                    border-[#eadbc5]
+                    bg-[#fff8e9]
+                    px-3
+                    py-2
+
+                    sm:px-4
+
+                    lg:px-[17px]
+                    lg:py-2.5
+                  "
+                >
+                  {/* PLAY / PAUSE BUTTON */}
+
+                  <button
+                    type="button"
+                    onClick={handlePlayPause}
+                    aria-label={
+                      isPlaying
+                        ? "Pause video"
+                        : "Play video"
+                    }
+                    className="
+                      inline-flex
+                      h-9
+                      items-center
+                      gap-1.5
+                      rounded-full
+                      border
+                      border-[#e7d3b2]
+                      bg-[#fffdf8]
+                      px-4
+                      text-[11px]
+                      font-semibold
+                      text-[#9b1d1d]
+                      shadow-[0_3px_8px_rgba(70,40,10,0.06)]
+                      transition
+
+                      hover:bg-white
+                      active:scale-95
+
+                      sm:text-xs
+                    "
+                  >
+                    <span className="text-sm">
+                      {isPlaying ? "❚❚" : "▶"}
+                    </span>
+
+                    {isPlaying ? "Pause" : "Play"}
+                  </button>
+
+                  {/* FULLSCREEN BUTTON */}
+
+                  <button
+                    type="button"
+                    onClick={handleFullscreen}
+                    aria-label="Fullscreen"
+                    className="
+                      grid
+                      h-9
+                      w-9
+                      place-items-center
+                      rounded-full
+                      border
+                      border-[#e7d3b2]
+                      bg-[#fffdf8]
+                      text-[#9b1d1d]
+                      shadow-[0_3px_8px_rgba(70,40,10,0.06)]
+                      transition
+
+                      hover:bg-white
+                      active:scale-95
+                    "
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="h-4 w-4"
+                    >
+                      <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+                      <path d="M16 3h3a2 2 0 0 1 2 2v3" />
+                      <path d="M8 21H5a2 2 0 0 1-2-2v-3" />
+                      <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+                    </svg>
+                  </button>
+                </div>
+              )}
 
               {/* PLAYER INFO */}
 
@@ -771,21 +871,6 @@ export default function LiveDarshan() {
               />
 
               {t("liveChat")}
-
-              <span
-                className="
-                  ml-auto
-                  rounded-md
-                  bg-[#d51b1b]
-                  px-2
-                  py-1
-                  text-[8px]
-                  font-bold
-                  text-white
-                "
-              >
-                {t("live")}
-              </span>
             </div>
 
             {/* CHAT MESSAGES */}
@@ -804,75 +889,77 @@ export default function LiveDarshan() {
                 lg:py-2
               "
             >
-              {chats.map(([avatar, name, user]) => (
-                <div
-                  key={`${name}-${user}`}
-                  className="
-                    flex
-                    items-center
-                    gap-2.5
-                    border-b
-                    border-[#f1e5d3]
-                    py-2
-
-                    last:border-b-0
-
-                    lg:py-3
-                  "
-                >
+              {chatMessages.map(
+                ([avatar, name, user], index) => (
                   <div
+                    key={`${name}-${user}-${index}`}
                     className="
-                      grid
-                      h-9
-                      w-9
-                      shrink-0
-                      place-items-center
-                      rounded-full
-                      border
-                      border-[#ead8ba]
-                      bg-[#fff7e9]
-                      text-base
+                      flex
+                      items-center
+                      gap-2.5
+                      border-b
+                      border-[#f1e5d3]
+                      py-2
 
-                      lg:h-[42px]
-                      lg:w-[42px]
-                      lg:text-lg
+                      last:border-b-0
+
+                      lg:py-3
                     "
                   >
-                    {avatar}
-                  </div>
-
-                  <div className="min-w-0">
-                    <strong
+                    <div
                       className="
-                        block
-                        truncate
-                        text-[11px]
-                        text-[#443b34]
+                        grid
+                        h-9
+                        w-9
+                        shrink-0
+                        place-items-center
+                        rounded-full
+                        border
+                        border-[#ead8ba]
+                        bg-[#fff7e9]
+                        text-base
 
-                        sm:text-xs
-
-                        lg:text-[13px]
+                        lg:h-[42px]
+                        lg:w-[42px]
+                        lg:text-lg
                       "
                     >
-                      {name}
-                    </strong>
+                      {avatar}
+                    </div>
 
-                    <span
-                      className="
-                        mt-0.5
-                        block
-                        truncate
-                        text-[9px]
-                        text-[#91877d]
+                    <div className="min-w-0">
+                      <strong
+                        className="
+                          block
+                          truncate
+                          text-[11px]
+                          text-[#443b34]
 
-                        sm:text-[10px]
-                      "
-                    >
-                      {user}
-                    </span>
+                          sm:text-xs
+
+                          lg:text-[13px]
+                        "
+                      >
+                        {name}
+                      </strong>
+
+                      <span
+                        className="
+                          mt-0.5
+                          block
+                          truncate
+                          text-[9px]
+                          text-[#91877d]
+
+                          sm:text-[10px]
+                        "
+                      >
+                        {user}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
 
             {/* MESSAGE INPUT */}
@@ -897,6 +984,11 @@ export default function LiveDarshan() {
             >
               <input
                 type="text"
+                value={message}
+                onChange={(e) =>
+                  setMessage(e.target.value)
+                }
+                onKeyDown={handleKeyDown}
                 placeholder={t("typeMessage")}
                 className="
                   h-10
@@ -925,6 +1017,7 @@ export default function LiveDarshan() {
 
               <button
                 type="button"
+                onClick={handleSendMessage}
                 aria-label={t("sendMessage")}
                 className="
                   grid
@@ -935,12 +1028,10 @@ export default function LiveDarshan() {
                   rounded-full
                   border-0
                   bg-[#a71919]
-                  text-[23px]
-                  leading-none
                   text-white
                   shadow-[0_4px_10px_rgba(167,25,25,0.18)]
                   transition
-
+                  duration-200
                   hover:bg-[#8f1515]
                   active:scale-95
 
@@ -948,7 +1039,7 @@ export default function LiveDarshan() {
                   lg:w-11
                 "
               >
-                ›
+                <Send size={21} strokeWidth={2.5} />
               </button>
             </div>
           </section>
