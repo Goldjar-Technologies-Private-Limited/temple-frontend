@@ -583,7 +583,7 @@ export default function TempleInformationPage() {
 
           {/* TIMINGS */}
 
-          <section
+          {/* <section
             className="
               rounded-[18px]
               border
@@ -706,7 +706,7 @@ export default function TempleInformationPage() {
                 )
               )}
             </div>
-          </section>
+          </section> */}
         </div>
 
         {/* =================================================

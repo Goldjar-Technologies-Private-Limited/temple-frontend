@@ -315,42 +315,43 @@ const handleAction = (item: ActionItem) => {
   ======================================================= */
 
   return (
-    <main
-      className="
-        min-h-[100dvh]
-        w-full
-        overflow-x-hidden
+<main
+  className="
+    min-h-[100dvh]
+    w-full
+    overflow-x-hidden
 
-        bg-[#fffaf0]
+    bg-[#fffaf0]
 
-        px-3
-        pb-[84px]
-        pt-2
+    px-3
+    pb-[84px]
+    pt-0
 
-        text-[#40372f]
+    text-[#40372f]
 
-        sm:px-4
-        sm:pt-3
+    sm:px-4
+    sm:pt-0
 
-        md:px-6
-        md:pt-4
+    md:px-6
+    md:pt-0
 
-        lg:ml-[92px]
-        lg:w-[calc(100%-92px)]
-        lg:px-8
-        lg:pb-10
-        lg:pt-5
+    lg:ml-[92px]
+    lg:w-[calc(100%-92px)]
+    lg:px-8
+    lg:pb-10
+    lg:pt-0
 
-        xl:px-10
-        2xl:px-12
-      "
-    >
+    xl:px-10
+    2xl:px-12
+  "
+>
       <div className="mx-auto w-full max-w-[1800px]">
         {/* =================================================
             HEADER
         ================================================= */}
 
-        <HomeHeader />
+       
+  <HomeHeader />
 
         {/* =================================================
             LIVE DARSHAN

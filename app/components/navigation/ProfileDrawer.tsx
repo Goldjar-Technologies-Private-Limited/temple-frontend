@@ -59,11 +59,11 @@ const menuSections: MenuSection[] = [
         key: "templeInformation",
         route: "/temple-information",
       },
-      {
-        icon: "booking",
-        key: "myBookings",
-        route: "/my-bookings",
-      },
+      // {
+      //   icon: "booking",
+      //   key: "myBookings",
+      //   route: "/my-bookings",
+      // },
       {
         icon: "booking",
         key: "myOrders",

@@ -1,11 +1,7 @@
-
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../../lib/LanguageProvider";
-
-import DeleteAccountModal from "../../components/navigation/DeleteAccountModal";
 
 type LanguageCode = "en" | "hi" | "gu";
 
@@ -41,8 +37,6 @@ export default function SettingsPage() {
   const router = useRouter();
 
   const { language, setLanguage } = useLanguage();
-
-  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
 
   const handleLanguageChange = (code: LanguageCode) => {
     setLanguage(code);
@@ -197,8 +191,6 @@ export default function SettingsPage() {
             lg:py-8
           "
         >
-          {/* DECORATION */}
-
           <div
             aria-hidden="true"
             className="
@@ -286,8 +278,8 @@ export default function SettingsPage() {
                 lg:leading-6
               "
             >
-              Choose the language you prefer while
-              using Shri Govardhannath Haveli.
+              Choose the language you prefer while using Shri Govardhannath
+              Haveli.
             </p>
           </div>
         </section>
@@ -310,8 +302,6 @@ export default function SettingsPage() {
             lg:rounded-[20px]
           "
         >
-          {/* SECTION HEADER */}
-
           <div
             className="
               flex
@@ -371,23 +361,12 @@ export default function SettingsPage() {
                   lg:text-[11px]
                 "
               >
-                Select the language you want to use
-                across the application.
+                Select the language you want to use across the application.
               </p>
             </div>
           </div>
 
-          {/* LANGUAGES */}
-
-          <div
-            className="
-              p-3
-
-              sm:p-4
-
-              lg:p-5
-            "
-          >
+          <div className="p-3 sm:p-4 lg:p-5">
             <div
               className="
                 grid
@@ -406,9 +385,7 @@ export default function SettingsPage() {
                   <button
                     key={item.code}
                     type="button"
-                    onClick={() =>
-                      handleLanguageChange(item.code)
-                    }
+                    onClick={() => handleLanguageChange(item.code)}
                     aria-pressed={selected}
                     className={`
                       group
@@ -453,8 +430,6 @@ export default function SettingsPage() {
                       }
                     `}
                   >
-                    {/* SELECTED BAR */}
-
                     {selected && (
                       <span
                         className="
@@ -471,8 +446,6 @@ export default function SettingsPage() {
                         "
                       />
                     )}
-
-                    {/* LANGUAGE ICON */}
 
                     <div
                       className={`
@@ -506,8 +479,6 @@ export default function SettingsPage() {
                     >
                       {item.shortName}
                     </div>
-
-                    {/* LANGUAGE NAME */}
 
                     <div className="min-w-0 flex-1">
                       <div
@@ -549,8 +520,6 @@ export default function SettingsPage() {
                           )}
                         </div>
 
-                        {/* MOBILE CHECK */}
-
                         {selected && (
                           <span
                             className="
@@ -571,8 +540,6 @@ export default function SettingsPage() {
                         )}
                       </div>
                     </div>
-
-                    {/* DESKTOP CHECK */}
 
                     {selected && (
                       <span
@@ -700,12 +667,7 @@ export default function SettingsPage() {
             p-4
           "
         >
-          <div
-            className="
-              mt-[1px]
-              text-[#a71919]
-            "
-          >
+          <div className="mt-[1px] text-[#a71919]">
             <InfoIcon />
           </div>
 
@@ -718,9 +680,8 @@ export default function SettingsPage() {
               sm:text-[10px]
             "
           >
-            Your selected language is saved
-            automatically. You do not need to press a
-            separate Save button.
+            Your selected language is saved automatically. You do not need to
+            press a separate Save button.
           </p>
         </div>
 
@@ -731,7 +692,7 @@ export default function SettingsPage() {
         <section className="mt-4">
           <button
             type="button"
-            onClick={() => setShowDeleteAccount(true)}
+            onClick={() => router.push("/delete-account")}
             className="
               group
               flex
@@ -752,8 +713,6 @@ export default function SettingsPage() {
               active:scale-[0.99]
             "
           >
-            {/* ICON */}
-
             <span
               className="
                 grid
@@ -770,8 +729,6 @@ export default function SettingsPage() {
             >
               <DeleteIcon />
             </span>
-
-            {/* TEXT */}
 
             <span className="min-w-0 flex-1">
               <strong
@@ -796,8 +753,6 @@ export default function SettingsPage() {
                 Permanently delete your account
               </span>
             </span>
-
-            {/* ARROW */}
 
             <span
               className="
@@ -831,33 +786,13 @@ export default function SettingsPage() {
               gap-2
             "
           >
-            <span
-              className="
-                h-px
-                w-10
-                bg-[#ddc69b]
-              "
-            />
+            <span className="h-px w-10 bg-[#ddc69b]" />
 
-            <span className="text-[#b8893b]">
-              ❧
-            </span>
+            <span className="text-[#b8893b]">❧</span>
+            <span className="text-[#b8893b]">❧</span>
+            <span className="text-[#b8893b]">❧</span>
 
-            <span className="text-[#b8893b]">
-              ❧
-            </span>
-
-            <span className="text-[#b8893b]">
-              ❧
-            </span>
-
-            <span
-              className="
-                h-px
-                w-10
-                bg-[#ddc69b]
-              "
-            />
+            <span className="h-px w-10 bg-[#ddc69b]" />
           </div>
 
           <p
@@ -873,17 +808,6 @@ export default function SettingsPage() {
           </p>
         </div>
       </div>
-
-      {/* =================================================
-          DELETE ACCOUNT MODAL
-      ================================================= */}
-
-      {showDeleteAccount && (
-        <DeleteAccountModal
-          onClose={() => setShowDeleteAccount(false)}
-          onDrawerClose={() => router.back()}
-        />
-      )}
     </main>
   );
 }
@@ -906,7 +830,7 @@ function getCurrentLanguageName(language: LanguageCode) {
 }
 
 /* =========================================================
-   BACK ICON
+   ICONS
 ========================================================= */
 
 function BackIcon() {
@@ -925,10 +849,6 @@ function BackIcon() {
     </svg>
   );
 }
-
-/* =========================================================
-   SETTINGS ICON
-========================================================= */
 
 function SettingsIcon() {
   return (
@@ -949,10 +869,6 @@ function SettingsIcon() {
   );
 }
 
-/* =========================================================
-   LANGUAGE ICON
-========================================================= */
-
 function LanguageIcon() {
   return (
     <svg
@@ -966,19 +882,12 @@ function LanguageIcon() {
       aria-hidden="true"
     >
       <circle cx="12" cy="12" r="9" />
-
       <path d="M3 12h18" />
-
       <path d="M12 3a14 14 0 0 1 0 18" />
-
       <path d="M12 3a14 14 0 0 0 0 18" />
     </svg>
   );
 }
-
-/* =========================================================
-   GLOBE ICON
-========================================================= */
 
 function GlobeIcon() {
   return (
@@ -993,19 +902,12 @@ function GlobeIcon() {
       aria-hidden="true"
     >
       <circle cx="12" cy="12" r="9" />
-
       <path d="M3 12h18" />
-
       <path d="M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9" />
-
       <path d="M12 3c-2.5 2.5-4 5.5-4 9s1.5 6.5 4 9" />
     </svg>
   );
 }
-
-/* =========================================================
-   CHECK ICON
-========================================================= */
 
 function CheckIcon() {
   return (
@@ -1024,10 +926,6 @@ function CheckIcon() {
   );
 }
 
-/* =========================================================
-   INFO ICON
-========================================================= */
-
 function InfoIcon() {
   return (
     <svg
@@ -1041,17 +939,11 @@ function InfoIcon() {
       aria-hidden="true"
     >
       <circle cx="12" cy="12" r="9" />
-
       <path d="M12 11v5" />
-
       <path d="M12 8h.01" />
     </svg>
   );
 }
-
-/* =========================================================
-   DELETE ICON
-========================================================= */
 
 function DeleteIcon() {
   return (
@@ -1066,15 +958,10 @@ function DeleteIcon() {
       aria-hidden="true"
     >
       <path d="M3 6h18" />
-
       <path d="M8 6V4h8v2" />
-
       <path d="M19 6l-1 14H6L5 6" />
-
       <path d="M10 11v5" />
-
       <path d="M14 11v5" />
     </svg>
   );
 }
-

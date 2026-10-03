@@ -77,72 +77,67 @@ export default function HomeHeader() {
      LOAD CART COUNT
   ========================================================= */
 
-useEffect(() => {
-  const loadCartCount = () => {
-    try {
-      const storedCart = localStorage.getItem(
-        CART_STORAGE_KEY
-      );
-
-      if (!storedCart) {
-        setCartCount(0);
-        return;
-      }
-
-      const parsedCart = JSON.parse(storedCart);
-
-      let totalItems = 0;
-
-      if (Array.isArray(parsedCart)) {
-        totalItems = parsedCart.reduce(
-          (total: number, item: CartItem) => {
-            return total + Number(item.quantity || 0);
-          },
-          0
+  useEffect(() => {
+    const loadCartCount = () => {
+      try {
+        const storedCart = localStorage.getItem(
+          CART_STORAGE_KEY
         );
+
+        if (!storedCart) {
+          setCartCount(0);
+          return;
+        }
+
+        const parsedCart = JSON.parse(storedCart);
+
+        let totalItems = 0;
+
+        if (Array.isArray(parsedCart)) {
+          totalItems = parsedCart.reduce(
+            (total: number, item: CartItem) => {
+              return total + Number(item.quantity || 0);
+            },
+            0
+          );
+        }
+
+        setCartCount(totalItems);
+      } catch (error) {
+        console.error("Failed to load cart:", error);
+        setCartCount(0);
       }
+    };
 
-      setCartCount(totalItems);
-    } catch (error) {
-      console.error(
-        "Failed to load cart:",
-        error
-      );
+    loadCartCount();
 
-      setCartCount(0);
-    }
-  };
-
-  // Load immediately
-  loadCartCount();
-
-  // Same tab update
-  window.addEventListener(
-    "prasadam-cart-updated",
-    loadCartCount
-  );
-
-  // Other tab/window update
-  window.addEventListener(
-    "storage",
-    loadCartCount
-  );
-
-  return () => {
-    window.removeEventListener(
+    // Same tab
+    window.addEventListener(
       "prasadam-cart-updated",
       loadCartCount
     );
 
-    window.removeEventListener(
+    // Other tab/window
+    window.addEventListener(
       "storage",
       loadCartCount
     );
-  };
-}, []);
+
+    return () => {
+      window.removeEventListener(
+        "prasadam-cart-updated",
+        loadCartCount
+      );
+
+      window.removeEventListener(
+        "storage",
+        loadCartCount
+      );
+    };
+  }, []);
 
   /* =========================================================
-     BUTTON STYLE
+     COMMON BUTTON STYLE
   ========================================================= */
 
   const actionButtonClass = `
@@ -150,6 +145,10 @@ useEffect(() => {
     grid
     h-9
     w-9
+    sm:h-10
+    sm:w-10
+    lg:h-11
+    lg:w-11
     shrink-0
     place-items-center
     rounded-full
@@ -165,54 +164,79 @@ useEffect(() => {
     hover:bg-[#fff6e6]
     hover:shadow-[0_5px_14px_rgba(91,53,19,0.11)]
     active:scale-95
-    lg:h-11
-    lg:w-11
   `;
 
   return (
-    <header
-      className="
-        relative
-        flex
-        min-h-[62px]
-        w-full
-        items-center
-        justify-between
-        gap-3
-        border-b
-        border-[#eee2cf]
-        bg-[linear-gradient(180deg,#fffdf9_0%,#fffaf2_100%)]
-        px-0
-        pb-2
-        pt-1
-      "
-    >
+ <header
+  className="
+    relative
+    flex
+    min-h-[62px]
+    w-full
+    items-center
+    justify-between
+    gap-2
+    sm:gap-3
+    md:gap-4
+    lg:gap-5
+    bg-[linear-gradient(180deg,#fffdf9_0%,#fffaf2_100%)]
+    px-3
+    sm:px-4
+    md:px-6
+    lg:px-8
+    xl:px-10
+    py-2
+    sm:py-2.5
+    md:py-3
+  "
+>
       {/* =====================================================
-          LEFT
+          LEFT SECTION
       ===================================================== */}
 
       <div
         className="
           flex
           min-w-0
+          flex-1
           items-center
-          gap-2.5
+
+          gap-2
+          sm:gap-2.5
+          md:gap-3
+          lg:gap-3.5
         "
       >
+        {/* LOGO */}
+
         <div
           className="
             relative
             flex
-            h-10
-            w-10
+            h-9
+            w-9
+            sm:h-10
+            sm:w-10
+            md:h-11
+            md:w-11
+            lg:h-12
+            lg:w-12
+
             shrink-0
             items-center
             justify-center
+
             rounded-full
             border
             border-[#dfc181]
+
             bg-[radial-gradient(circle,#fffdf9_0%,#fff3d9_100%)]
-            text-[20px]
+
+            text-[18px]
+            sm:text-[20px]
+            md:text-[21px]
+            lg:text-[23px]
+
             shadow-[0_4px_12px_rgba(112,71,20,0.08)]
           "
         >
@@ -231,20 +255,35 @@ useEffect(() => {
           </span>
         </div>
 
+        {/* PROFILE TEXT */}
+
         <div className="min-w-0">
+          {/* Greeting */}
+
           <div
             className="
               flex
+              max-w-[150px]
+              sm:max-w-[200px]
+              md:max-w-[280px]
+              lg:max-w-[340px]
+
               items-center
               gap-1
+
               truncate
-              text-[9px]
+
+              text-[8px]
+              sm:text-[9px]
+              md:text-[10px]
+              lg:text-[11px]
+
               font-semibold
               tracking-[0.2px]
               text-[#8a7968]
             "
           >
-            <span className="text-[#c99435]">
+            <span className="shrink-0 text-[#c99435]">
               ✦
             </span>
 
@@ -252,21 +291,35 @@ useEffect(() => {
               {t("jaiShreeKrishna")}
             </span>
 
-            <span className="text-[#c99435]">
+            <span className="shrink-0 text-[#c99435]">
               ✦
             </span>
           </div>
+
+          {/* NAME */}
 
           <h1
             className="
               m-0
               mt-0.5
-              max-w-[180px]
+
+              max-w-[150px]
+              sm:max-w-[200px]
+              md:max-w-[280px]
+              lg:max-w-[340px]
+
               truncate
+
               font-serif
-              text-[15px]
+
+              text-[14px]
+              sm:text-[15px]
+              md:text-[17px]
+              lg:text-[19px]
+
               font-bold
               leading-tight
+
               text-[#302923]
             "
           >
@@ -276,7 +329,7 @@ useEffect(() => {
       </div>
 
       {/* =====================================================
-          RIGHT
+          RIGHT SECTION
       ===================================================== */}
 
       <div
@@ -284,10 +337,16 @@ useEffect(() => {
           flex
           shrink-0
           items-center
+
           gap-1.5
+          sm:gap-2
+          md:gap-2.5
+          lg:gap-3
         "
       >
-        {/* NOTIFICATION */}
+        {/* ===================================================
+            NOTIFICATION
+        =================================================== */}
 
         <button
           type="button"
@@ -305,7 +364,16 @@ useEffect(() => {
             strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="h-[18px] w-[18px]"
+            className="
+              h-[17px]
+              w-[17px]
+              sm:h-[18px]
+              sm:w-[18px]
+              md:h-[19px]
+              md:w-[19px]
+              lg:h-[20px]
+              lg:w-[20px]
+            "
             aria-hidden="true"
           >
             <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
@@ -313,13 +381,20 @@ useEffect(() => {
             <path d="M10 21h4" />
           </svg>
 
+          {/* Notification Dot */}
+
           <span
             className="
               absolute
-              right-[5px]
+              right-[4px]
               top-[4px]
-              h-[7px]
-              w-[7px]
+
+              h-[6px]
+              w-[6px]
+
+              sm:h-[7px]
+              sm:w-[7px]
+
               rounded-full
               border
               border-[#fffdf8]
@@ -328,88 +403,105 @@ useEffect(() => {
           />
         </button>
 
-        {/* =================================================
+        {/* ===================================================
             CART
-        ================================================= */}
+        =================================================== */}
 
         <button
-  type="button"
-  onClick={() =>
-    router.push("/prasadam/cart")
-  }
-  aria-label="Open Cart"
-  title="Open Cart"
-  className={actionButtonClass}
->
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="h-[18px] w-[18px]"
-    aria-hidden="true"
-  >
-    <circle
-      cx="9"
-      cy="20"
-      r="1"
-    />
+          type="button"
+          onClick={() =>
+            router.push("/prasadam/cart")
+          }
+          aria-label="Open Cart"
+          title="Open Cart"
+          className={actionButtonClass}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="
+              h-[17px]
+              w-[17px]
+              sm:h-[18px]
+              sm:w-[18px]
+              md:h-[19px]
+              md:w-[19px]
+              lg:h-[20px]
+              lg:w-[20px]
+            "
+            aria-hidden="true"
+          >
+            <circle
+              cx="9"
+              cy="20"
+              r="1"
+            />
 
-    <circle
-      cx="18"
-      cy="20"
-      r="1"
-    />
+            <circle
+              cx="18"
+              cy="20"
+              r="1"
+            />
 
-    <path d="M3 4h2l2.4 10.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 8H6" />
-  </svg>
+            <path d="M3 4h2l2.4 10.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 8H6" />
+          </svg>
 
-  {/* CART BADGE */}
-  {cartCount > 0 && (
-    <span
-      className="
-        absolute
-        -right-1
-        -top-1
-        grid
-        min-h-[17px]
-        min-w-[17px]
-        place-items-center
-        rounded-full
-        bg-[#e74b18]
-        px-1
-        text-[8px]
-        font-bold
-        text-white
-      "
-    >
-      {cartCount}
-    </span>
-  )}
-</button>
+          {/* CART BADGE */}
+
+          {cartCount > 0 && (
+            <span
+              className="
+                absolute
+                -right-1
+                -top-1
+
+                grid
+
+                min-h-[16px]
+                min-w-[16px]
+
+                sm:min-h-[17px]
+                sm:min-w-[17px]
+
+                md:min-h-[18px]
+                md:min-w-[18px]
+
+                place-items-center
+
+                rounded-full
+
+                bg-[#e74b18]
+
+                px-1
+
+                text-[7px]
+                sm:text-[8px]
+                md:text-[9px]
+
+                font-bold
+                leading-none
+                text-white
+
+                shadow-sm
+              "
+            >
+              {cartCount > 99
+                ? "99+"
+                : cartCount}
+            </span>
+          )}
+        </button>
       </div>
 
-      {/* BOTTOM DECORATION */}
+      {/* =====================================================
+          BOTTOM DECORATION
+      ===================================================== */}
 
-      <div
-        className="
-          pointer-events-none
-          absolute
-          bottom-[-1px]
-          left-1/2
-          h-[2px]
-          w-14
-          -translate-x-1/2
-          rounded-full
-          bg-gradient-to-r
-          from-transparent
-          via-[#d0a24e]
-          to-transparent
-          opacity-70
-        "
-      />
+     
     </header>
   );
 }

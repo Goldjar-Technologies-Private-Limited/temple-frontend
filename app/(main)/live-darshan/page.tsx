@@ -13,11 +13,11 @@ import { Send } from "lucide-react";
 
 const streams = [
   {
-    id: "www.youtube.com/@nightcode7-wk7sx",
+    id: "https://www.youtube.com/watch?v=WTjZxav7naU&list=RDc441pyXlM4M&index=13",
     image: "/images/live-darshan-1.jpg",
   },
   {
-    id: "www.youtube.com/@yourchannel",
+    id: "https://www.youtube.com/watch?v=iw4-7aG_CQ0&list=RDiw4-7aG_CQ0&start_radio=1",
     image: "/images/live-darshan-2.jpg",
   },
 ];
@@ -97,45 +97,45 @@ export default function LiveDarshan() {
      PLAY / PAUSE VIDEO
      ========================================================= */
 
-  const handlePlayPause = () => {
-    if (!playerRef.current?.contentWindow) return;
+  // const handlePlayPause = () => {
+  //   if (!playerRef.current?.contentWindow) return;
 
-    const command = isPlaying
-      ? "pauseVideo"
-      : "playVideo";
+  //   const command = isPlaying
+  //     ? "pauseVideo"
+  //     : "playVideo";
 
-    playerRef.current.contentWindow.postMessage(
-      JSON.stringify({
-        event: "command",
-        func: command,
-        args: [],
-      }),
-      "https://www.youtube.com"
-    );
+  //   playerRef.current.contentWindow.postMessage(
+  //     JSON.stringify({
+  //       event: "command",
+  //       func: command,
+  //       args: [],
+  //     }),
+  //     "https://www.youtube.com"
+  //   );
 
-    setIsPlaying(!isPlaying);
-  };
+  //   setIsPlaying(!isPlaying);
+  // };
 
-  /* =========================================================
-     FULLSCREEN
-     ========================================================= */
+  // /* =========================================================
+  //    FULLSCREEN
+  //    ========================================================= */
 
-  const handleFullscreen = async () => {
-    const iframe = playerRef.current;
+  // const handleFullscreen = async () => {
+  //   const iframe = playerRef.current;
 
-    if (!iframe) return;
+  //   if (!iframe) return;
 
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-        return;
-      }
+  //   try {
+  //     if (document.fullscreenElement) {
+  //       await document.exitFullscreen();
+  //       return;
+  //     }
 
-      await iframe.requestFullscreen();
-    } catch {
-      // Fullscreen request failed
-    }
-  };
+  //     await iframe.requestFullscreen();
+  //   } catch {
+  //     // Fullscreen request failed
+  //   }
+  // };
 
   return (
     <main
@@ -661,7 +661,7 @@ export default function LiveDarshan() {
                 >
                   {/* PLAY / PAUSE BUTTON */}
 
-                  <button
+                  {/* <button
                     type="button"
                     onClick={handlePlayPause}
                     aria-label={
@@ -696,11 +696,11 @@ export default function LiveDarshan() {
                     </span>
 
                     {isPlaying ? "Pause" : "Play"}
-                  </button>
+                  </button> */}
 
                   {/* FULLSCREEN BUTTON */}
 
-                  <button
+                  {/* <button
                     type="button"
                     onClick={handleFullscreen}
                     aria-label="Fullscreen"
@@ -733,13 +733,13 @@ export default function LiveDarshan() {
                       <path d="M8 21H5a2 2 0 0 1-2-2v-3" />
                       <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
                     </svg>
-                  </button>
+                  </button> */}
                 </div>
               )}
 
               {/* PLAYER INFO */}
 
-              <div
+              {/* <div
                 className="
                   flex
                   items-center
@@ -806,7 +806,7 @@ export default function LiveDarshan() {
                 >
                   ♡ 2.1K
                 </div>
-              </div>
+              </div> */}
             </section>
           </div>
 
