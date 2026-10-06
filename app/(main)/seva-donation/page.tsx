@@ -116,16 +116,23 @@ export default function SevaDonation() {
     category === "all"
       ? sevas
       : sevas.filter(
-          (seva) => seva.category === category
+          (seva) => seva.category === category,
         );
 
   return (
     <main
       className="
-        min-h-screen
+        min-h-[100dvh]
+        overflow-x-hidden
         bg-[#fff9ed]
-        pb-[30px]
+        pb-[105px]
         text-[#4b4039]
+
+        sm:pb-[110px]
+
+        lg:ml-[92px]
+        lg:w-[calc(100%-92px)]
+        lg:pb-12
       "
     >
       {/* ==================================================
@@ -134,71 +141,142 @@ export default function SevaDonation() {
 
       <header
         className="
-          relative
-
-          flex
-          h-[74px]
-          items-center
-          justify-center
-
+          sticky
+          top-0
+          z-40
           border-b
-          border-[#f0e4d2]
-
-          bg-[#fffdf7]
-
-          sm:h-[78px]
-
-          lg:h-[82px]
+          border-[#eadfce]
+          bg-[#fffaf1]/95
+          backdrop-blur-xl
         "
       >
-        <button
-          type="button"
-          onClick={() => router.back()}
-          aria-label={t("back")}
+        <div
           className="
-            absolute
-            left-[17px]
-            top-1/2
-
+            relative
+            mx-auto
             flex
-            h-[38px]
-            w-[38px]
-
-            -translate-y-1/2
-
+            min-h-[64px]
+            max-w-[1400px]
             items-center
-            justify-center
+            px-3
 
-            border-0
-            bg-transparent
+            sm:min-h-[70px]
+            sm:px-6
 
-            text-[35px]
-            font-light
-            leading-none
-            text-[#a71919]
+            lg:px-8
 
-            lg:left-[32px]
+            xl:px-10
           "
         >
-          ‹
-        </button>
+          {/* ==================================================
+              BACK BUTTON
+          ================================================== */}
 
-        <h1
-          className="
-            m-0
+          <button
+            type="button"
+            onClick={() => router.back()}
+            aria-label={t("back")}
+            className="
+              group
+              flex
+              h-9
+              w-9
+              shrink-0
+              items-center
+              justify-center
+              rounded-full
+              border
+              border-[#e7d7c2]
+              bg-[#fffdf8]
+              text-[#8b251d]
+              shadow-[0_3px_12px_rgba(97,45,25,0.05)]
+              transition-all
+              duration-200
+              hover:border-[#cfae83]
+              hover:bg-[#fff8ec]
+              hover:shadow-[0_5px_16px_rgba(97,45,25,0.08)]
+              active:scale-95
 
-            font-serif
-            text-[24px]
-            font-bold
-            text-[#641010]
+              sm:h-10
+              sm:w-10
+            "
+          >
+            <span
+              className="
+                text-[23px]
+                font-light
+                leading-none
+                transition-transform
+                duration-200
+                group-hover:-translate-x-[1px]
 
-            sm:text-[25px]
+                sm:text-[24px]
+              "
+            >
+              ‹
+            </span>
+          </button>
 
-            lg:text-[27px]
-          "
-        >
-          {t("sevaDonation")}
-        </h1>
+          {/* ==================================================
+              TITLE AREA
+          ================================================== */}
+
+          <div
+            className="
+              min-w-0
+              flex-1
+              pl-3
+
+              sm:pl-4
+            "
+          >
+            <p
+              className="
+                mb-0.5
+                truncate
+                text-[8px]
+                font-bold
+                uppercase
+                tracking-[0.18em]
+                text-[#b07a26]
+
+                sm:text-[9px]
+              "
+            >
+              SHRI GOVARDHANNATH
+            </p>
+
+            <h1
+              className="
+                truncate
+                font-serif
+                text-[18px]
+                font-bold
+                leading-tight
+                text-[#641010]
+
+                sm:text-xl
+              "
+            >
+              {t("sevaDonation")}
+            </h1>
+
+            <p
+              className="
+                mt-0.5
+                hidden
+                truncate
+                text-[10px]
+                text-[#8c796c]
+
+                sm:block
+                sm:text-[11px]
+              "
+            >
+              Seva and devotional offerings
+            </p>
+          </div>
+        </div>
       </header>
 
       {/* ==================================================
@@ -207,44 +285,117 @@ export default function SevaDonation() {
 
       <div
         className="
+          relative
           mx-auto
           w-full
+          max-w-[1400px]
+          px-3
+          py-5
 
-          lg:max-w-[1200px]
+          sm:px-5
+          sm:py-7
+
+          md:px-6
+
           lg:px-8
+          lg:py-9
 
-          xl:max-w-[1400px]
+          xl:px-10
         "
       >
-        {/* ================================================
-            CATEGORY TABS
-        ================================================ */}
+        {/* ==================================================
+            PAGE INTRO
+        ================================================== */}
 
-        <div
+        <section
           className="
+            mb-5
+            sm:mb-7
+            lg:mb-8
+          "
+        >
+          <p
+            className="
+              mb-1.5
+              text-[9px]
+              font-bold
+              uppercase
+              tracking-[0.18em]
+              text-[#b07a26]
+
+              sm:text-[10px]
+
+              lg:text-[11px]
+            "
+          >
+            DEVOTIONAL SERVICES
+          </p>
+
+          <h2
+            className="
+              font-serif
+              text-[25px]
+              font-bold
+              leading-tight
+              text-[#641010]
+
+              sm:text-[30px]
+
+              lg:text-[34px]
+
+              xl:text-[36px]
+            "
+          >
+            Seva & Donation
+          </h2>
+
+          <p
+            className="
+              mt-1.5
+              max-w-[650px]
+              text-[11px]
+              leading-5
+              text-[#806f63]
+
+              sm:text-xs
+              sm:leading-5
+
+              lg:text-sm
+              lg:leading-6
+            "
+          >
+            Offer your seva and support the sacred activities
+            of Shri Govardhannath Haveli.
+          </p>
+        </section>
+
+        {/* ==================================================
+            CATEGORY TABS
+        ================================================== */}
+
+        <section
+          className="
+            -mx-3
+            mb-5
             flex
             items-center
             gap-2
-
             overflow-x-auto
-
-            px-[15px]
-            pb-[10px]
-            pt-[14px]
+            px-3
+            pb-1
 
             [scrollbar-width:none]
             [&::-webkit-scrollbar]:hidden
 
-            sm:justify-center
-            sm:gap-[10px]
-            sm:px-6
-            sm:pb-4
-            sm:pt-5
+            sm:mx-0
+            sm:mb-7
+            sm:justify-start
+            sm:gap-2.5
+            sm:px-0
 
-            lg:justify-start
-            lg:px-0
-            lg:pb-6
-            lg:pt-7
+            md:gap-3
+
+            lg:mb-8
           "
         >
           {categories.map((item) => {
@@ -261,33 +412,27 @@ export default function SevaDonation() {
                 className={`
                   h-[34px]
                   shrink-0
-
                   whitespace-nowrap
-
                   rounded-[10px]
                   border
-
-                  px-[17px]
-
-                  text-[12px]
+                  px-4
+                  text-[11px]
                   font-semibold
-
                   transition-all
-                  duration-150
-
+                  duration-200
                   active:scale-[0.98]
 
                   sm:h-[38px]
                   sm:px-5
+                  sm:text-[12px]
 
-                  lg:h-[42px]
-                  lg:px-6
-                  lg:text-[13px]
+                  lg:h-[40px]
+                  lg:px-5
 
                   ${
                     selected
-                      ? "border-[#a71919] bg-[#a71919] text-white"
-                      : "border-[#eadbc5] bg-[#fffdf8] text-[#776d65] hover:border-[#a71919] hover:text-[#a71919]"
+                      ? "border-[#a71919] bg-[#a71919] text-white shadow-[0_4px_12px_rgba(167,25,25,0.14)]"
+                      : "border-[#eadbc5] bg-[#fffdf8] text-[#776d65] hover:border-[#cfae83] hover:bg-[#fff9ef] hover:text-[#8e241d]"
                   }
                 `}
               >
@@ -295,33 +440,25 @@ export default function SevaDonation() {
               </button>
             );
           })}
-        </div>
+        </section>
 
-        {/* ================================================
-            SEVA LIST
-        ================================================ */}
+        {/* ==================================================
+            SEVA CARDS
+        ================================================== */}
 
         <section
           className="
-            flex
-            flex-col
-            gap-[9px]
+            grid
+            grid-cols-1
+            gap-3
 
-            px-[15px]
-            pt-[5px]
-
-            sm:grid
             sm:grid-cols-2
             sm:gap-4
-            sm:px-6
-            sm:pt-0
 
-            lg:grid-cols-3
+            lg:grid-cols-2
             lg:gap-5
-            lg:px-0
 
-            xl:grid-cols-3
-            xl:gap-6
+            xl:gap-5
           "
         >
           {filteredSevas.map((seva) => (
@@ -332,95 +469,104 @@ export default function SevaDonation() {
                 router.push(seva.route)
               }
               className="
+                group
                 flex
-                min-h-[82px]
+                min-h-[96px]
                 w-full
+                min-w-0
                 items-center
-
-                rounded-[12px]
+                rounded-[15px]
                 border
-                border-[#f0e3d0]
-
-                bg-[#fffdf8]
-
-                p-[7px]
-
+                border-[#eadfd2]
+                bg-[#fffdf9]
+                p-3
                 text-left
-
-                shadow-[0_2px_7px_rgba(100,50,20,0.05)]
-
+                shadow-[0_3px_12px_rgba(97,45,25,0.045)]
                 transition-all
-                duration-150
+                duration-300
+                active:scale-[0.99]
 
-                active:scale-[0.985]
-                active:bg-[#fff7e8]
+                sm:min-h-[112px]
+                sm:gap-1
+                sm:p-3.5
+                sm:rounded-[17px]
 
-                sm:min-h-[105px]
-                sm:p-[9px]
+                lg:min-h-[132px]
+                lg:p-4
 
-                lg:min-h-[135px]
-                lg:rounded-[14px]
-                lg:p-[10px]
-
-                lg:hover:-translate-y-[2px]
-                lg:hover:border-[#dfc89f]
-                lg:hover:shadow-[0_7px_20px_rgba(100,50,20,0.08)]
+                hover:-translate-y-[2px]
+                hover:border-[#dfc9ad]
+                hover:shadow-[0_12px_35px_rgba(97,45,25,0.08)]
               "
             >
-              {/* IMAGE */}
+              {/* ==================================================
+                  IMAGE
+              ================================================== */}
 
-              <img
-                src={seva.image}
-                alt={t(seva.titleKey)}
+              <div
                 className="
-                  block
-
-                  h-[68px]
-                  w-[84px]
-
+                  relative
+                  h-[72px]
+                  w-[86px]
                   shrink-0
-
+                  overflow-hidden
                   rounded-[9px]
-
                   bg-[#eadbc5]
 
-                  object-cover
+                  sm:h-[88px]
+                  sm:w-[105px]
+                  sm:rounded-[10px]
 
-                  sm:h-[86px]
-                  sm:w-[100px]
-
-                  lg:h-[110px]
-                  lg:w-[125px]
+                  lg:h-[100px]
+                  lg:w-[120px]
                   lg:rounded-[11px]
-                "
-              />
 
-              {/* INFO */}
+                  xl:h-[104px]
+                  xl:w-[125px]
+                "
+              >
+                <img
+                  src={seva.image}
+                  alt={t(seva.titleKey)}
+                  className="
+                    h-full
+                    w-full
+                    object-cover
+                    transition-transform
+                    duration-500
+                    group-hover:scale-[1.04]
+                  "
+                />
+              </div>
+
+              {/* ==================================================
+                  INFO
+              ================================================== */}
 
               <div
                 className="
                   min-w-0
                   flex-1
+                  overflow-hidden
+                  px-3
 
-                  px-[10px]
+                  sm:px-4
 
-                  lg:px-[14px]
+                  lg:px-5
                 "
               >
                 <h2
                   className="
-                    mb-1
-                    mt-0
-
+                    truncate
                     font-serif
                     text-[16px]
                     font-bold
-                    leading-[1.2]
+                    leading-tight
                     text-[#332820]
 
                     sm:text-[17px]
 
-                    lg:text-[18px]
+                    lg:text-[19px]
                   "
                 >
                   {t(seva.titleKey)}
@@ -428,40 +574,50 @@ export default function SevaDonation() {
 
                 <p
                   className="
-                    m-0
-
+                    mt-1
+                    line-clamp-2
+                    break-words
                     text-[11px]
-                    leading-[1.25]
+                    leading-[18px]
                     text-[#8a8077]
 
-                    sm:text-[12px]
+                    sm:text-xs
+                    sm:leading-5
 
-                    lg:text-[13px]
-                    lg:leading-[1.4]
+                    lg:text-sm
+                    lg:leading-5
                   "
                 >
                   {t(seva.subtitleKey)}
                 </p>
               </div>
 
-              {/* ARROW */}
+              {/* ==================================================
+                  ARROW
+              ================================================== */}
 
               <span
                 className="
                   flex
-                  w-[27px]
+                  h-8
+                  w-5
                   shrink-0
                   items-center
                   justify-center
-
-                  font-sans
-                  text-[30px]
+                  text-[25px]
                   font-light
                   leading-none
                   text-[#d3832d]
+                  transition-transform
+                  duration-200
+                  group-hover:translate-x-1
 
-                  lg:w-[30px]
-                  lg:text-[32px]
+                  sm:h-9
+                  sm:w-6
+                  sm:text-[28px]
+
+                  lg:w-7
+                  lg:text-[30px]
                 "
               >
                 ›
@@ -469,23 +625,26 @@ export default function SevaDonation() {
             </button>
           ))}
 
-          {/* ================================================
-              EMPTY
-          ================================================ */}
+          {/* ==================================================
+              EMPTY STATE
+          ================================================== */}
 
           {filteredSevas.length === 0 && (
             <div
               className="
+                rounded-[16px]
+                border
+                border-[#eadfd2]
+                bg-[#fffdf9]
                 px-5
-                py-10
-
+                py-12
                 text-center
-                text-[14px]
+                text-[13px]
                 text-[#8a8077]
 
                 sm:col-span-2
 
-                lg:col-span-3
+                lg:col-span-2
               "
             >
               {t("noSevaAvailable")}
@@ -493,23 +652,21 @@ export default function SevaDonation() {
           )}
         </section>
 
-        {/* ================================================
+        {/* ==================================================
             DECORATION
-        ================================================ */}
+        ================================================== */}
 
         <div
           className="
-            mt-[22px]
-
+            mt-7
             text-center
-
-            text-[17px]
-            tracking-[8px]
+            text-[14px]
+            tracking-[7px]
             text-[#c99435]
-
             opacity-70
 
-            sm:mt-8
+            sm:mt-9
+            sm:text-[16px]
 
             lg:mt-10
           "
@@ -517,7 +674,12 @@ export default function SevaDonation() {
           ❧ ❧ ❧
         </div>
       </div>
-      <BottomNavigation/>
+
+      {/* ==================================================
+          BOTTOM NAVIGATION
+      ================================================== */}
+
+      <BottomNavigation />
     </main>
   );
 }
