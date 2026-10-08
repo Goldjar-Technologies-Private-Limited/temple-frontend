@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 const slides = [
   {
-    image: "/images/thakurji-1.jpg",
+    image: "/images/thakurji-6.png",
     title: (
       <>
         Experience
@@ -23,7 +23,7 @@ const slides = [
     ),
   },
   {
-    image: "/images/thakurji-2.jpg",
+    image: "/images/thakurji-1.jpg",
     title: (
       <>
         Daily
@@ -41,7 +41,7 @@ const slides = [
     ),
   },
   {
-    image: "/images/thakurji-3.jpg",
+    image: "/images/thakurji-5.jpg",
     title: (
       <>
         Be a Part
@@ -109,83 +109,144 @@ export default function Onboarding() {
         text-center
         text-[#3d2920]
 
-        lg:grid
-        lg:h-screen
-        lg:grid-cols-[minmax(0,1.2fr)_minmax(420px,0.8fr)]
-        lg:overflow-hidden
-        lg:text-left
-
-        2xl:grid-cols-[minmax(0,1.28fr)_minmax(500px,0.72fr)]
+        /* =====================================
+           TABLET + DESKTOP
+        ===================================== */
+        md:grid
+        md:h-screen
+        md:grid-cols-2
+        md:text-left
       "
     >
-      {/* =====================================================
-          IMAGE
-      ===================================================== */}
+   
+{/* =====================================================
+    IMAGE SECTION
+===================================================== */}
 
-      <div
-        className="
-          absolute
-          left-0
-          top-0
-          h-[61%]
-          w-full
-          overflow-hidden
-
-          max-[359px]:h-[58%]
-
-          max-h-[700px]:max-[599px]:h-[57%]
-
-          min-[430px]:max-[599px]:h-[63%]
-
-          /* TABLET */
-          md:h-[57%]
-
-          /* DESKTOP */
-          lg:relative
-          lg:h-screen
-        "
-      >
-        <img
-          src={slide.image}
-          alt="Shri Govardhannathji"
-          className="
-            block
-            h-full
-            w-full
-            object-cover
-            object-[center_top]
-
-            md:object-[center_15%]
-
-            lg:object-[center_top]
-          "
-        />
-
-        {/* Gradient */}
-  <div
+<div
   className="
-    pointer-events-none
     absolute
-    inset-x-0
-    bottom-0
-    h-[35%]
+    left-0
+    top-0
+    h-[61%]
+    w-full
+    overflow-hidden
 
-    bg-gradient-to-b
-    from-transparent
-    via-[#fff9ed]/70
-    to-[#fff9ed]
+    max-[359px]:h-[58%]
 
-    md:h-[40%]
+    max-h-[700px]:max-[599px]:h-[57%]
 
-    lg:inset-0
-    lg:h-auto
-    lg:bg-[linear-gradient(to_right,transparent_55%,rgba(255,249,237,0.12)_72%,#fff9ed_100%)]
+    min-[430px]:max-[599px]:h-[63%]
+
+    /* TABLET + DESKTOP */
+    md:relative
+    md:h-screen
+    md:w-full
+    md:bg-[#fff9ed]
   "
-/>
-      </div>
+>
+  {/* =================================================
+      BLURRED BACKGROUND
+      Tablet + Desktop only
+  ================================================= */}
+
+  <img
+    src={slide.image}
+    alt=""
+    aria-hidden="true"
+    className="
+      pointer-events-none
+      absolute
+      inset-0
+      hidden
+      h-full
+      w-full
+      scale-110
+      object-cover
+      blur-[22px]
+      opacity-60
+
+      md:block
+    "
+  />
+
+  {/* =================================================
+      BLURRED OVERLAY
+  ================================================= */}
+
+  <div
+    className="
+      pointer-events-none
+      absolute
+      inset-0
+      hidden
+      bg-[#fff9ed]/10
+
+      md:block
+    "
+  />
+
+  {/* =================================================
+      MAIN IMAGE
+      MOBILE = COVER
+      TABLET/DESKTOP = CONTAIN
+  ================================================= */}
+
+  <img
+    src={slide.image}
+    alt="Shri Govardhannathji"
+    className="
+      relative
+      z-[1]
+      block
+      h-full
+      w-full
+
+      /* MOBILE */
+      object-cover
+      object-[center_top]
+
+      max-[767px]:block
+
+      /* TABLET + DESKTOP */
+      md:object-contain
+      md:object-center
+    "
+  />
+
+  {/* =================================================
+      MOBILE BOTTOM GRADIENT
+  ================================================= */}
+
+  <div
+    className="
+      pointer-events-none
+      absolute
+      inset-x-0
+      bottom-0
+      z-[2]
+      h-[35%]
+
+      bg-gradient-to-b
+      from-transparent
+      via-[#fff9ed]/70
+      to-[#fff9ed]
+
+      /* TABLET + DESKTOP */
+      md:inset-y-0
+      md:right-0
+      md:left-auto
+      md:h-full
+      md:w-[25%]
+      md:bg-[linear-gradient(to_right,transparent,rgba(255,249,237,0.35),#fff9ed)]
+    "
+  />
+</div>
+
+
 
       {/* =====================================================
-          CONTENT
+          CONTENT SECTION
       ===================================================== */}
 
       <section
@@ -204,34 +265,43 @@ export default function Onboarding() {
 
           min-[430px]:max-[599px]:px-10
 
-          /* TABLET */
-          md:bottom-0
-          md:h-[48%]
-          md:px-8
-          md:pb-5
-          md:pt-2
+          /* =====================================
+             TABLET
+          ===================================== */
+
+          md:relative
+          md:bottom-auto
+          md:left-auto
+          md:right-auto
           md:flex
+          md:h-screen
+          md:w-full
           md:items-center
           md:justify-center
+          md:px-6
+          md:py-8
 
-          /* DESKTOP */
-          lg:relative
-          lg:bottom-auto
-          lg:left-auto
-          lg:right-auto
-          lg:h-screen
-          lg:w-full
-          lg:px-[50px]
-          lg:py-[60px]
-          lg:flex
-          lg:items-center
-          lg:justify-center
-          lg:bg-[radial-gradient(circle_at_top_right,rgba(201,148,53,0.11),transparent_34%),#fff9ed]
+          /* =====================================
+             DESKTOP
+          ===================================== */
 
-          2xl:px-[70px]
-          2xl:py-[70px]
+          lg:px-10
+          lg:py-10
+
+          /* =====================================
+             LARGE DESKTOP
+          ===================================== */
+
+          2xl:px-16
+          2xl:py-16
+
+          bg-[radial-gradient(circle_at_top_right,rgba(201,148,53,0.11),transparent_34%),#fff9ed]
         "
       >
+        {/* =================================================
+            CARD
+        ================================================= */}
+
         <div
           className="
             mx-auto
@@ -240,26 +310,37 @@ export default function Onboarding() {
 
             min-[430px]:max-[599px]:max-w-[420px]
 
-            /* TABLET CARD */
-            md:max-w-[540px]
+            /* =====================================
+               TABLET
+            ===================================== */
+
+            md:max-w-[440px]
             md:rounded-[24px]
             md:border
             md:border-[#e7dccb]
             md:bg-[#fffdf8]
-            md:px-10
-            md:py-5
+            md:px-8
+            md:py-8
+            md:text-center
             md:shadow-[0_18px_45px_rgba(84,47,15,0.09)]
 
-            /* DESKTOP CARD */
-            lg:mx-0
+            /* =====================================
+               DESKTOP
+            ===================================== */
+
             lg:max-w-[480px]
             lg:rounded-[28px]
-            lg:p-[44px_42px]
-            lg:text-center
+            lg:px-10
+            lg:py-10
             lg:shadow-[0_22px_55px_rgba(82,46,15,0.11)]
 
+            /* =====================================
+               LARGE DESKTOP
+            ===================================== */
+
             2xl:max-w-[520px]
-            2xl:p-[50px_48px]
+            2xl:px-12
+            2xl:py-12
           "
         >
           {/* =================================================
@@ -271,26 +352,24 @@ export default function Onboarding() {
               hidden
 
               md:mx-auto
-              md:mb-2
+              md:mb-4
               md:grid
-              md:h-[50px]
-              md:w-[50px]
+              md:h-[54px]
+              md:w-[54px]
               md:place-items-center
               md:rounded-full
               md:border
               md:border-[#e3c98b]
               md:bg-[#fffaf0]
-              md:text-[24px]
+              md:text-[26px]
 
-              lg:mb-[18px]
-              lg:h-[68px]
-              lg:w-[68px]
-              lg:text-[32px]
-              lg:shadow-[0_7px_20px_rgba(111,67,18,0.07)]
+              lg:h-[64px]
+              lg:w-[64px]
+              lg:text-[30px]
 
-              2xl:h-[74px]
-              2xl:w-[74px]
-              2xl:text-[35px]
+              2xl:h-[70px]
+              2xl:w-[70px]
+              2xl:text-[34px]
             "
           >
             🛕
@@ -315,10 +394,13 @@ export default function Onboarding() {
 
               min-[430px]:max-[599px]:text-[32px]
 
+              /* TABLET */
               md:text-[32px]
 
+              /* DESKTOP */
               lg:text-[38px]
 
+              /* LARGE DESKTOP */
               2xl:text-[42px]
             "
           >
@@ -345,10 +427,13 @@ export default function Onboarding() {
               min-[430px]:max-[599px]:mt-3
               min-[430px]:max-[599px]:text-sm
 
-              md:mt-2
-              md:text-[15px]
+              /* TABLET */
+              md:mt-3
+              md:text-[14px]
 
+              /* DESKTOP */
               lg:mt-4
+              lg:text-[15px]
 
               2xl:text-base
             "
@@ -375,9 +460,11 @@ export default function Onboarding() {
 
               min-[430px]:max-[599px]:text-[15px]
 
-              md:mt-1
-              md:text-[15px]
+              /* TABLET */
+              md:mt-2
+              md:text-[14px]
 
+              /* DESKTOP */
               lg:mt-[9px]
               lg:text-base
 
@@ -403,9 +490,13 @@ export default function Onboarding() {
 
               max-h-[700px]:max-[599px]:my-[7px]
 
-              md:my-2
+              /* TABLET */
+              md:my-4
 
-              lg:my-[21px]
+              /* DESKTOP */
+              lg:my-5
+
+              2xl:my-6
             "
           >
             {slides.map((_, i) => (
@@ -431,8 +522,8 @@ export default function Onboarding() {
                       : "bg-[#d2cdc4]"
                   }
 
-                  lg:h-[10px]
-                  lg:w-[10px]
+                  md:h-[10px]
+                  md:w-[10px]
                 `}
               />
             ))}
@@ -478,10 +569,11 @@ export default function Onboarding() {
 
               /* DESKTOP */
               lg:h-[56px]
-
+              lg:text-base
               lg:hover:-translate-y-px
               lg:hover:bg-[#4f0909]
 
+              /* LARGE DESKTOP */
               2xl:h-[58px]
             "
           >
@@ -518,13 +610,13 @@ export default function Onboarding() {
 
               /* TABLET */
               md:mt-1
-              md:h-[26px]
+              md:h-[28px]
               md:text-[13px]
 
               /* DESKTOP */
               lg:mt-[9px]
               lg:h-[34px]
-
+              lg:text-sm
               lg:hover:text-[#711111]
             "
           >
@@ -535,6 +627,7 @@ export default function Onboarding() {
 
       {/* =====================================================
           GOLD DECORATION - LEFT
+          MOBILE + TABLET
       ===================================================== */}
 
       <div
@@ -637,6 +730,7 @@ export default function Onboarding() {
 
       {/* =====================================================
           GOLD DECORATION - RIGHT
+          MOBILE + TABLET
       ===================================================== */}
 
       <div
