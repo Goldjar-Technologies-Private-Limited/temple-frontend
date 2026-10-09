@@ -6,28 +6,6 @@ import { useRouter } from "next/navigation";
    DATA
 ========================================================= */
 
-const timings = [
-  {
-    title: "Mangla Darshan",
-    time: "Morning",
-    icon: "sunrise",
-  },
-  {
-    title: "Shringar Darshan",
-    time: "Morning",
-    icon: "flower",
-  },
-  {
-    title: "Rajbhog Darshan",
-    time: "Afternoon",
-    icon: "temple",
-  },
-  {
-    title: "Sandhya Aarti",
-    time: "Evening",
-    icon: "diya",
-  },
-];
 
 const facilities = [
   {

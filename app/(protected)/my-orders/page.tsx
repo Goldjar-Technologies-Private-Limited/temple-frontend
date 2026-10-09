@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Package, ChevronRight, HelpCircle, ShoppingBag } from "lucide-react";
+import { Package, ChevronRight, HelpCircle} from "lucide-react";
 
 const ORDERS_KEY = "prasadam-orders";
 const LAST_ORDER_KEY = "last-prasadam-order";

@@ -816,39 +816,7 @@ function SectionHeading({
    QUICK INFO
 ============================================================= */
 
-function QuickInfo({
-  icon,
-  label,
-  value,
-  border = false,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  border?: boolean;
-}) {
-  return (
-    <div
-      className={`flex items-center gap-4 p-5 sm:p-6 ${
-        border ? "border-t border-[#eee3d4] sm:border-l sm:border-t-0" : ""
-      }`}
-    >
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#fff4df] text-[#a71919]">
-        {icon}
-      </div>
 
-      <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#a28c7d]">
-          {label}
-        </p>
-
-        <p className="mt-1 truncate text-sm font-bold text-[#4f3830]">
-          {value}
-        </p>
-      </div>
-    </div>
-  );
-}
 
 /* =============================================================
    HIGHLIGHT

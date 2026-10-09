@@ -23,13 +23,7 @@ import ProfileDrawer from "@/components/navigation/ProfileDrawer";
    TYPES
 ========================================================= */
 
-type ProfileData = {
-  name: string;
-  phone: string;
-  email: string;
-  city: string;
-  image: string;
-};
+// 
 
 type DarshanItem = {
   nameKey: TranslationKey;
@@ -219,7 +213,7 @@ export default function Dashboard() {
   const router = useRouter();
   const { t } = useLanguage();
 
- const [profileName, setProfileName] = useState("");
+
 const [currentTime, setCurrentTime] = useState<Date | null>(null);
 const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
 
@@ -235,34 +229,7 @@ const handleAction = (item: ActionItem) => {
   }
 };
  
-  useEffect(() => {
-    const loadProfile = () => {
-      try {
-        const storedProfile = localStorage.getItem("profile-data");
 
-        if (!storedProfile) {
-          setProfileName("");
-          return;
-        }
-
-        const profile = JSON.parse(storedProfile) as Partial<ProfileData>;
-
-        setProfileName(profile.name?.trim() || "");
-      } catch (error) {
-        console.error("Failed to load profile:", error);
-
-        setProfileName("");
-      }
-    };
-
-    loadProfile();
-
-    window.addEventListener("profile-updated", loadProfile);
-
-    return () => {
-      window.removeEventListener("profile-updated", loadProfile);
-    };
-  }, []);
 
   /* =======================================================
      LIVE CLOCK

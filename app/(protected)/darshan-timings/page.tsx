@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 import { useLanguage } from "@/contexts/LanguageProvider";
 import type { TranslationKey } from "@/utils/i18n";
@@ -76,24 +75,16 @@ const DARSHANS: DarshanItem[] = [
   },
 ];
 
-const getMinutes = (hour: number, minute: number) =>
-  hour * 60 + minute;
+const getMinutes = (hour: number, minute: number) => hour * 60 + minute;
 
-function getStatus(
-  index: number,
-  currentTime: Date | null,
-): DarshanStatus {
+function getStatus(index: number, currentTime: Date | null): DarshanStatus {
   if (!currentTime) return "upcoming";
 
-  const currentMinutes =
-    currentTime.getHours() * 60 + currentTime.getMinutes();
+  const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
 
   const currentDarshan = DARSHANS[index];
 
-  const startTime = getMinutes(
-    currentDarshan.hour,
-    currentDarshan.minute,
-  );
+  const startTime = getMinutes(currentDarshan.hour, currentDarshan.minute);
 
   const nextDarshan = DARSHANS[index + 1];
 
@@ -105,31 +96,20 @@ function getStatus(
     return "openNow";
   }
 
-  const nextTime = getMinutes(
-    nextDarshan.hour,
-    nextDarshan.minute,
-  );
+  const nextTime = getMinutes(nextDarshan.hour, nextDarshan.minute);
 
-  return currentMinutes < nextTime
-    ? "openNow"
-    : "completed";
+  return currentMinutes < nextTime ? "openNow" : "completed";
 }
 
-function getCurrentDarshan(
-  currentTime: Date | null,
-): DarshanItem | null {
+function getCurrentDarshan(currentTime: Date | null): DarshanItem | null {
   if (!currentTime) return null;
 
-  const currentMinutes =
-    currentTime.getHours() * 60 + currentTime.getMinutes();
+  const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
 
   for (let i = DARSHANS.length - 1; i >= 0; i--) {
     const darshan = DARSHANS[i];
 
-    if (
-      currentMinutes >=
-      getMinutes(darshan.hour, darshan.minute)
-    ) {
+    if (currentMinutes >= getMinutes(darshan.hour, darshan.minute)) {
       return darshan;
     }
   }
@@ -145,14 +125,11 @@ function StatusBadge({
   t: ReturnType<typeof useLanguage>["t"];
 }) {
   const styles = {
-    completed:
-      "border-gray-200 bg-gray-100 text-gray-500",
+    completed: "border-gray-200 bg-gray-100 text-gray-500",
 
-    openNow:
-      "border-emerald-200 bg-emerald-50 text-emerald-700",
+    openNow: "border-emerald-200 bg-emerald-50 text-emerald-700",
 
-    upcoming:
-      "border-amber-200 bg-amber-50 text-amber-700",
+    upcoming: "border-amber-200 bg-amber-50 text-amber-700",
   };
 
   const labels = {
@@ -188,9 +165,7 @@ function ProfileImage({
   size?: "normal" | "large";
 }) {
   const sizeClass =
-    size === "large"
-      ? "h-20 w-20 sm:h-24 sm:w-24"
-      : "h-16 w-16";
+    size === "large" ? "h-20 w-20 sm:h-24 sm:w-24" : "h-16 w-16";
 
   return (
     <div
@@ -207,11 +182,9 @@ function ProfileImage({
 }
 
 export default function DarshanTimings() {
-  const router = useRouter();
   const { t, language } = useLanguage();
 
-  const [currentTime, setCurrentTime] =
-    useState<Date | null>(null);
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   /* ---------------------------------------
      LIVE CLOCK
@@ -224,29 +197,21 @@ export default function DarshanTimings() {
 
     updateTime();
 
-    const interval = window.setInterval(
-      updateTime,
-      1000,
-    );
+    const interval = window.setInterval(updateTime, 1000);
 
     return () => {
       window.clearInterval(interval);
     };
   }, []);
 
-  const currentDarshan =
-    getCurrentDarshan(currentTime);
+  const currentDarshan = getCurrentDarshan(currentTime);
 
   /* ---------------------------------------
      LANGUAGE / DATE
   ---------------------------------------- */
 
   const locale =
-    language === "hi"
-      ? "hi-IN"
-      : language === "gu"
-        ? "gu-IN"
-        : "en-IN";
+    language === "hi" ? "hi-IN" : language === "gu" ? "gu-IN" : "en-IN";
 
   const currentDate = currentTime
     ? currentTime.toLocaleDateString(locale, {
@@ -267,8 +232,8 @@ export default function DarshanTimings() {
     : "--:--:--";
 
   return (
- <main
-  className="
+    <main
+      className="
     min-h-screen
     bg-[#fffaf0]
     px-4
@@ -280,9 +245,8 @@ export default function DarshanTimings() {
     lg:ml-[92px]
     lg:px-10
   "
->
+    >
       <div className="mx-auto max-w-7xl ">
-
         {/* ---------------------------------------
            COMMON HEADER
         ---------------------------------------- */}
@@ -293,8 +257,8 @@ export default function DarshanTimings() {
            RESPONSIVE DARSHAN HEADER
         ---------------------------------------- */}
 
-     <section
-  className="
+        <section
+          className="
     mt-1
     mb-4
 
@@ -319,14 +283,14 @@ export default function DarshanTimings() {
     lg:mt-6
     lg:mb-6
   "
->
-  {/* CONTENT */}
+        >
+          {/* CONTENT */}
 
-  <div className="min-w-0 flex-1">
-    {/* DARSHAN NAME */}
+          <div className="min-w-0 flex-1">
+            {/* DARSHAN NAME */}
 
-    <h1
-      className="
+            <h1
+              className="
         truncate
 
         font-serif
@@ -339,16 +303,14 @@ export default function DarshanTimings() {
 
         lg:text-2xl
       "
-    >
-      {currentDarshan
-        ? t(currentDarshan.nameKey)
-        : t("darshan")}
-    </h1>
+            >
+              {currentDarshan ? t(currentDarshan.nameKey) : t("darshan")}
+            </h1>
 
-    {/* DATE */}
+            {/* DATE */}
 
-    <p
-      className="
+            <p
+              className="
         mt-1
         truncate
 
@@ -359,14 +321,14 @@ export default function DarshanTimings() {
 
         lg:text-sm
       "
-    >
-      {currentDate}
-    </p>
+            >
+              {currentDate}
+            </p>
 
-    {/* LIVE CLOCK */}
+            {/* LIVE CLOCK */}
 
-    <div
-      className="
+            <div
+              className="
         mt-1.5
 
         inline-flex
@@ -385,9 +347,9 @@ export default function DarshanTimings() {
 
         lg:text-sm
       "
-    >
-      <span
-        className="
+            >
+              <span
+                className="
           h-1.5
           w-1.5
 
@@ -398,22 +360,22 @@ export default function DarshanTimings() {
           sm:h-2
           sm:w-2
         "
-      />
+              />
 
-      {currentFormattedTime}
-    </div>
-  </div>
+              {currentFormattedTime}
+            </div>
+          </div>
 
-  {/* CURRENT DARSHAN IMAGE */}
+          {/* CURRENT DARSHAN IMAGE */}
 
-  {currentDarshan && (
-    <ProfileImage
-      src={currentDarshan.image}
-      alt={t(currentDarshan.nameKey)}
-      size="normal"
-    />
-  )}
-</section>
+          {currentDarshan && (
+            <ProfileImage
+              src={currentDarshan.image}
+              alt={t(currentDarshan.nameKey)}
+              size="normal"
+            />
+          )}
+        </section>
 
         {/* ---------------------------------------
            TITLE
@@ -445,9 +407,7 @@ export default function DarshanTimings() {
               {t("darshan")}
             </p>
 
-            <span className="text-xs text-[#b18a4d]">
-              Daily Timings
-            </span>
+            <span className="text-xs text-[#b18a4d]">Daily Timings</span>
           </div>
 
           <div className="h-px flex-1 bg-[#e3cfaa]" />
@@ -466,13 +426,9 @@ export default function DarshanTimings() {
           "
         >
           {DARSHANS.map((darshan, index) => {
-            const status = getStatus(
-              index,
-              currentTime,
-            );
+            const status = getStatus(index, currentTime);
 
-            const isCurrent =
-              status === "openNow";
+            const isCurrent = status === "openNow";
 
             return (
               <article
@@ -502,24 +458,18 @@ export default function DarshanTimings() {
                   }
                 `}
               >
-
                 {/* ---------------------------------------
                    PROFILE IMAGE
                 ---------------------------------------- */}
 
-                <ProfileImage
-                  src={darshan.image}
-                  alt={t(darshan.nameKey)}
-                />
+                <ProfileImage src={darshan.image} alt={t(darshan.nameKey)} />
 
                 {/* ---------------------------------------
                    DETAILS
                 ---------------------------------------- */}
 
                 <div className="min-w-0 flex-1">
-
                   <div className="mb-1 flex items-center gap-2">
-
                     <span
                       className="
                         text-[11px]
@@ -528,10 +478,7 @@ export default function DarshanTimings() {
                         text-[#c99435]
                       "
                     >
-                      {String(index + 1).padStart(
-                        2,
-                        "0",
-                      )}
+                      {String(index + 1).padStart(2, "0")}
                     </span>
 
                     {isCurrent && (
@@ -549,7 +496,6 @@ export default function DarshanTimings() {
                         LIVE
                       </span>
                     )}
-
                   </div>
 
                   <h2
@@ -580,7 +526,6 @@ export default function DarshanTimings() {
                         ? t("darshanCompleted")
                         : t("darshanUpcoming")}
                   </p>
-
                 </div>
 
                 {/* ---------------------------------------
@@ -596,7 +541,6 @@ export default function DarshanTimings() {
                     gap-2
                   "
                 >
-
                   <time
                     className="
                       text-xs
@@ -609,13 +553,8 @@ export default function DarshanTimings() {
                     {darshan.time}
                   </time>
 
-                  <StatusBadge
-                    status={status}
-                    t={t}
-                  />
-
+                  <StatusBadge status={status} t={t} />
                 </div>
-
               </article>
             );
           })}
@@ -670,7 +609,6 @@ export default function DarshanTimings() {
             "
           />
         </div>
-
       </div>
     </main>
   );

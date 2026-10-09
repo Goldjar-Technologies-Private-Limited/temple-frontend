@@ -7,14 +7,14 @@ import {
   Package,
   MapPin,
   CreditCard,
-  Phone,
   XCircle,
   CheckCircle2,
   Clock3,
   ShoppingBag,
-  Receipt,
   User,
 } from "lucide-react";
+
+
 
 const ORDERS_KEY = "prasadam-orders";
 const LAST_ORDER_KEY = "last-prasadam-order";

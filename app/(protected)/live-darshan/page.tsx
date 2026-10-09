@@ -41,7 +41,7 @@ export default function LiveDarshan() {
   const router = useRouter();
   const { t } = useLanguage();
 
-  const [selected, setSelected] = useState(0);
+  const selected = 0;
   const [message, setMessage] = useState("");
   const [chatMessages, setChatMessages] = useState(chats);
 
@@ -50,7 +50,7 @@ export default function LiveDarshan() {
      ========================================================= */
 
   const playerRef = useRef<HTMLIFrameElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+ 
 
   const stream = streams[selected];
 

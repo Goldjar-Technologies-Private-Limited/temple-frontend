@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 
 const reels = [
@@ -40,7 +39,7 @@ const reels = [
 ];
 
 export default function Reels() {
-  const router = useRouter();
+ 
 
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const touchStartY = useRef(0);
