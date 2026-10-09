@@ -1,36 +1,7 @@
 "use client";
 
-import {
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { LanguageProvider } from "@/contexts/LanguageProvider";
 
-import {
-  useState,
-} from "react";
-
-import {
-  LanguageProvider,
-} from "./lib/LanguageProvider";
-
-export default function Providers({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [queryClient] =
-    useState(
-      () =>
-        new QueryClient()
-    );
-
-  return (
-    <LanguageProvider>
-      <QueryClientProvider
-        client={queryClient}
-      >
-        {children}
-      </QueryClientProvider>
-    </LanguageProvider>
-  );
+export default function Providers({ children }: { children: React.ReactNode }) {
+  return <LanguageProvider>{children}</LanguageProvider>;
 }

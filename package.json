@@ -15,8 +15,6 @@
     "@capacitor/core": "^8.5.2",
     "@google-cloud/translate": "^10.1.0",
     "@hookform/resolvers": "^5.9.1",
-    "@tanstack/react-query": "^5.102.8",
-    "axios": "^1.20.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "embla-carousel-react": "^8.6.0",
@@ -28,8 +26,7 @@
     "react-hook-form": "^7.87.0",
     "react-icons": "^5.7.0",
     "tailwind-merge": "^3.6.0",
-    "zod": "^4.6.2",
-    "zustand": "^5.0.15"
+    "zod": "^4.6.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
