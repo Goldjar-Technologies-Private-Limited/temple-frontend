@@ -13,12 +13,16 @@ import { Send } from "lucide-react";
 
 const streams = [
   {
-    id: "https://www.youtube.com/watch?v=WTjZxav7naU&list=RDc441pyXlM4M&index=13",
+    id: "xVU2UDaFOfE",
     image: "/images/live-darshan-1.jpg",
+    videoUrl:
+      "https://www.youtube.com/watch?v=xVU2UDaFOfE&list=RDxVU2UDaFOfE&start_radio=1",
   },
   {
-    id: "https://www.youtube.com/watch?v=iw4-7aG_CQ0&list=RDiw4-7aG_CQ0&start_radio=1",
+    id: "WTjZxav7naU",
     image: "/images/live-darshan-2.jpg",
+    videoUrl:
+      "https://www.youtube.com/watch?v=WTjZxav7naU&list=RDc441pyXlM4M&index=13",
   },
 ];
 
@@ -77,17 +81,12 @@ export default function LiveDarshan() {
 
     if (!trimmedMessage) return;
 
-    setChatMessages((prev) => [
-      ...prev,
-      ["🙏", trimmedMessage, "You"],
-    ]);
+    setChatMessages((prev) => [...prev, ["🙏", trimmedMessage, "You"]]);
 
     setMessage("");
   };
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSendMessage();
     }
@@ -167,7 +166,6 @@ export default function LiveDarshan() {
       "
     >
       <div className="mx-auto w-full max-w-[1800px]">
-
         {/* =====================================================
             MOBILE / TABLET HEADER
             ===================================================== */}
@@ -347,9 +345,7 @@ export default function LiveDarshan() {
               {t("liveDarshan")}
             </h1>
 
-            <p className="mt-2 text-sm text-[#776d65]">
-              {t("haveliName")}
-            </p>
+            <p className="mt-2 text-sm text-[#776d65]">{t("haveliName")}</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -407,9 +403,7 @@ export default function LiveDarshan() {
             2xl:gap-7
           "
         >
-
           <div className="min-w-0">
-
             {/* <section
               className="
                 grid
@@ -543,7 +537,6 @@ export default function LiveDarshan() {
                 lg:rounded-[18px]
               "
             >
-
               <div
                 className="
                   flex
@@ -604,9 +597,7 @@ export default function LiveDarshan() {
                       text-white
                     "
                   >
-                    <span className="text-[34px] text-[#d51b1b]">
-                      ▶
-                    </span>
+                    <span className="text-[34px] text-[#d51b1b]">▶</span>
 
                     <strong className="text-sm sm:text-base">
                       YouTube Live
@@ -629,7 +620,7 @@ export default function LiveDarshan() {
                   <iframe
                     ref={playerRef}
                     key={stream.id}
-                    src={`https://www.youtube.com/embed/${stream.id}?playsinline=1&rel=0&controls=1&enablejsapi=1`}
+                    src={`https://www.youtube.com/embed/${stream.id}?playsinline=1&rel=0&controls=1`}
                     title={t("liveDarshan")}
                     className="block h-full w-full border-0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -889,11 +880,10 @@ export default function LiveDarshan() {
                 lg:py-2
               "
             >
-              {chatMessages.map(
-                ([avatar, name, user], index) => (
-                  <div
-                    key={`${name}-${user}-${index}`}
-                    className="
+              {chatMessages.map(([avatar, name, user], index) => (
+                <div
+                  key={`${name}-${user}-${index}`}
+                  className="
                       flex
                       items-center
                       gap-2.5
@@ -905,9 +895,9 @@ export default function LiveDarshan() {
 
                       lg:py-3
                     "
-                  >
-                    <div
-                      className="
+                >
+                  <div
+                    className="
                         grid
                         h-9
                         w-9
@@ -923,13 +913,13 @@ export default function LiveDarshan() {
                         lg:w-[42px]
                         lg:text-lg
                       "
-                    >
-                      {avatar}
-                    </div>
+                  >
+                    {avatar}
+                  </div>
 
-                    <div className="min-w-0">
-                      <strong
-                        className="
+                  <div className="min-w-0">
+                    <strong
+                      className="
                           block
                           truncate
                           text-[11px]
@@ -939,12 +929,12 @@ export default function LiveDarshan() {
 
                           lg:text-[13px]
                         "
-                      >
-                        {name}
-                      </strong>
+                    >
+                      {name}
+                    </strong>
 
-                      <span
-                        className="
+                    <span
+                      className="
                           mt-0.5
                           block
                           truncate
@@ -953,13 +943,12 @@ export default function LiveDarshan() {
 
                           sm:text-[10px]
                         "
-                      >
-                        {user}
-                      </span>
-                    </div>
+                    >
+                      {user}
+                    </span>
                   </div>
-                )
-              )}
+                </div>
+              ))}
             </div>
 
             {/* MESSAGE INPUT */}
@@ -985,9 +974,7 @@ export default function LiveDarshan() {
               <input
                 type="text"
                 value={message}
-                onChange={(e) =>
-                  setMessage(e.target.value)
-                }
+                onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={t("typeMessage")}
                 className="

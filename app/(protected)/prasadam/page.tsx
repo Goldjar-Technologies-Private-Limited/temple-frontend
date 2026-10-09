@@ -2,18 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { useLanguage } from "@/contexts/LanguageProvider";
+
 import type { TranslationKey } from "@/utils/i18n";
 
-/* =========================================================
+
+/* =====================================================
    TYPES
-========================================================= */
+===================================================== */
 
 type Category = "all" | "sweets" | "mahaprasad" | "gifts";
-
 type ProductCategory = Exclude<Category, "all">;
-
 type Weight = "250g" | "500g" | "1kg";
 
 type CategoryItem = {
@@ -24,6 +23,7 @@ type CategoryItem = {
 type Product = {
   id: number;
   titleKey: TranslationKey;
+  description: string;
   price: number;
   image: string;
   category: ProductCategory;
@@ -35,39 +35,38 @@ type CartItem = {
   quantity: number;
 };
 
-/* =========================================================
+/* =====================================================
    CONSTANTS
-========================================================= */
+===================================================== */
 
 const CART_STORAGE_KEY = "prasadam-cart";
 const OLD_WEIGHT_STORAGE_KEY = "prasadam-cart-weights";
 const CART_UPDATED_EVENT = "prasadam-cart-updated";
+const WISHLIST_STORAGE_KEY = "prasadam-wishlist";
 
 const DEFAULT_WEIGHT: Weight = "500g";
 
+/* =====================================================
+   CATEGORIES
+===================================================== */
+
 const categories: CategoryItem[] = [
-  {
-    id: "all",
-    labelKey: "all",
-  },
-  {
-    id: "sweets",
-    labelKey: "sweets",
-  },
-  {
-    id: "mahaprasad",
-    labelKey: "mahaprasad",
-  },
-  {
-    id: "gifts",
-    labelKey: "gifts",
-  },
+  { id: "all", labelKey: "all" },
+  { id: "sweets", labelKey: "sweets" },
+  { id: "mahaprasad", labelKey: "mahaprasad" },
+  { id: "gifts", labelKey: "gifts" },
 ];
+
+/* =====================================================
+   PRODUCTS
+===================================================== */
 
 const products: Product[] = [
   {
     id: 1,
     titleKey: "makhanaPrasadam",
+    description:
+      "Delicious and crunchy makhana prasadam, perfect for devotional offerings.",
     price: 200,
     image: "/images/makhana-prasadam.jpg",
     category: "mahaprasad",
@@ -75,6 +74,8 @@ const products: Product[] = [
   {
     id: 2,
     titleKey: "peda",
+    description:
+      "Traditional Indian milk sweet with a rich, creamy and delicious taste.",
     price: 180,
     image: "/images/peda.jpg",
     category: "sweets",
@@ -82,6 +83,8 @@ const products: Product[] = [
   {
     id: 3,
     titleKey: "dryPrasadam",
+    description:
+      "A devotional dry prasadam selection, perfect for offerings and gifting.",
     price: 250,
     image: "/images/dry-prasadam.jpg",
     category: "mahaprasad",
@@ -89,593 +92,407 @@ const products: Product[] = [
   {
     id: 4,
     titleKey: "panchamrit",
+    description: "A traditional sacred offering prepared with devotional care.",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+    category: "mahaprasad",
+  },
+  {
+    id: 5,
+    titleKey: "panchamrit",
+    description: "A traditional sacred offering prepared with devotional care.",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+    category: "mahaprasad",
+  },
+  {
+    id: 6,
+    titleKey: "panchamrit",
+    description: "A traditional sacred offering prepared with devotional care.",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+    category: "mahaprasad",
+  },
+  {
+    id: 7,
+    titleKey: "panchamrit",
+    description: "A traditional sacred offering prepared with devotional care.",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+    category: "mahaprasad",
+  },
+  {
+    id: 8,
+    titleKey: "panchamrit",
+    description: "A traditional sacred offering prepared with devotional care.",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+    category: "mahaprasad",
+  },
+  {
+    id: 9,
+    titleKey: "panchamrit",
+    description: "A traditional sacred offering prepared with devotional care.",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+    category: "mahaprasad",
+  },
+  {
+    id: 10,
+    titleKey: "panchamrit",
+    description: "A traditional sacred offering prepared with devotional care.",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+    category: "mahaprasad",
+  },
+  {
+    id: 11,
+    titleKey: "panchamrit",
+    description: "A traditional sacred offering prepared with devotional care.",
     price: 300,
     image: "/images/panchamrit.jpg",
     category: "mahaprasad",
   },
 ];
 
-/* =========================================================
-   HELPERS
-========================================================= */
+/* =====================================================
+   WEIGHT HELPERS
+===================================================== */
 
 function isValidWeight(value: unknown): value is Weight {
-  return (
-    value === "250g" ||
-    value === "500g" ||
-    value === "1kg"
-  );
+  return value === "250g" || value === "500g" || value === "1kg";
 }
 
-function getWeightPrice(
-  basePrice: number,
-  weight: Weight
-): number {
-  if (weight === "250g") {
-    return basePrice * 0.5;
-  }
-
-  if (weight === "1kg") {
-    return basePrice * 2;
-  }
-
+function getWeightPrice(basePrice: number, weight: Weight): number {
+  if (weight === "250g") return basePrice * 0.5;
+  if (weight === "1kg") return basePrice * 2;
   return basePrice;
 }
 
+/* =====================================================
+   CART HELPERS
+===================================================== */
+
 function cleanCart(value: unknown): CartItem[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
+  if (!Array.isArray(value)) return [];
 
   return value
-    .filter(
-      (item): item is Record<string, unknown> =>
-        Boolean(
-          item &&
-            typeof item === "object" &&
-            !Array.isArray(item)
-        )
+    .filter((item): item is Record<string, unknown> =>
+      Boolean(item && typeof item === "object" && !Array.isArray(item)),
     )
     .map((item) => ({
       productId: Number(item.productId),
-      weight: item.weight,
+      weight: item.weight as Weight,
       quantity: Math.floor(Number(item.quantity)),
     }))
     .filter(
-      (item): item is CartItem =>
+      (item) =>
         Number.isInteger(item.productId) &&
-        item.productId > 0 &&
+        products.some((p) => p.id === item.productId) &&
         isValidWeight(item.weight) &&
         Number.isFinite(item.quantity) &&
-        item.quantity > 0
+        item.quantity > 0,
     );
 }
 
-/* =========================================================
-   OLD CART MIGRATION
-========================================================= */
-
-function migrateOldCart(
-  oldCart: unknown,
-  oldWeights: unknown
-): CartItem[] {
-  if (
-    !oldCart ||
-    typeof oldCart !== "object" ||
-    Array.isArray(oldCart)
-  ) {
+function migrateOldCart(oldCart: unknown, oldWeights: unknown): CartItem[] {
+  if (!oldCart || typeof oldCart !== "object" || Array.isArray(oldCart)) {
     return [];
   }
 
-  const cartObject =
-    oldCart as Record<string, unknown>;
+  const cartObject = oldCart as Record<string, unknown>;
 
   const weightsObject =
-    oldWeights &&
-    typeof oldWeights === "object" &&
-    !Array.isArray(oldWeights)
+    oldWeights && typeof oldWeights === "object" && !Array.isArray(oldWeights)
       ? (oldWeights as Record<string, unknown>)
       : {};
 
   return Object.entries(cartObject)
     .map(([productId, quantity]) => {
       const id = Number(productId);
-      const count = Number(quantity);
+      const count = Math.floor(Number(quantity));
 
       if (
         !Number.isInteger(id) ||
-        id <= 0 ||
+        !products.some((p) => p.id === id) ||
         !Number.isFinite(count) ||
         count <= 0
       ) {
         return null;
       }
 
-      const savedWeight =
-        weightsObject[productId];
+      const savedWeight = weightsObject[productId];
 
       return {
         productId: id,
-        weight: isValidWeight(savedWeight)
-          ? savedWeight
-          : DEFAULT_WEIGHT,
-        quantity: Math.floor(count),
+        weight: isValidWeight(savedWeight) ? savedWeight : DEFAULT_WEIGHT,
+        quantity: count,
       };
     })
-    .filter(
-      (item): item is CartItem =>
-        item !== null
-    );
+    .filter((item): item is CartItem => item !== null);
 }
-
-/* =========================================================
-   LOAD CART FROM LOCAL STORAGE
-========================================================= */
 
 function loadCart(): CartItem[] {
   try {
-    const savedCart =
-      localStorage.getItem(
-        CART_STORAGE_KEY
-      );
+    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
 
-    if (!savedCart) {
-      return [];
-    }
+    if (!savedCart) return [];
 
-    const parsedCart: unknown =
-      JSON.parse(savedCart);
-
-    /* New cart format */
+    const parsedCart: unknown = JSON.parse(savedCart);
 
     if (Array.isArray(parsedCart)) {
       return cleanCart(parsedCart);
     }
 
-    /* Old cart format */
-
     let oldWeights: unknown = {};
 
-    const savedWeights =
-      localStorage.getItem(
-        OLD_WEIGHT_STORAGE_KEY
-      );
+    const savedWeights = localStorage.getItem(OLD_WEIGHT_STORAGE_KEY);
 
     if (savedWeights) {
       try {
-        oldWeights =
-          JSON.parse(savedWeights);
+        oldWeights = JSON.parse(savedWeights);
       } catch {
         oldWeights = {};
       }
     }
 
-    return migrateOldCart(
-      parsedCart,
-      oldWeights
-    );
+    return migrateOldCart(parsedCart, oldWeights);
   } catch (error) {
-    console.error(
-      "Failed to load prasadam cart:",
-      error
-    );
-
+    console.error("Unable to load cart:", error);
     return [];
   }
 }
 
-/* =========================================================
-   SAVE CART
-========================================================= */
-
 function saveCart(cart: CartItem[]) {
   try {
-    localStorage.setItem(
-      CART_STORAGE_KEY,
-      JSON.stringify(cart)
-    );
-
-    localStorage.removeItem(
-      OLD_WEIGHT_STORAGE_KEY
-    );
-
-    window.dispatchEvent(
-      new Event(CART_UPDATED_EVENT)
-    );
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    localStorage.removeItem(OLD_WEIGHT_STORAGE_KEY);
+    window.dispatchEvent(new Event(CART_UPDATED_EVENT));
   } catch (error) {
-    console.error(
-      "Failed to save prasadam cart:",
-      error
-    );
+    console.error("Unable to save cart:", error);
   }
 }
 
-/* =========================================================
-   PAGE
-========================================================= */
+/* =====================================================
+   WISHLIST HELPERS
+===================================================== */
+
+function loadWishlist(): number[] {
+  try {
+    const saved = localStorage.getItem(WISHLIST_STORAGE_KEY);
+
+    if (!saved) return [];
+
+    const parsed: unknown = JSON.parse(saved);
+
+    if (!Array.isArray(parsed)) return [];
+
+    return [
+      ...new Set(
+        parsed.filter(
+          (id): id is number =>
+            typeof id === "number" &&
+            Number.isInteger(id) &&
+            products.some((p) => p.id === id),
+        ),
+      ),
+    ];
+  } catch {
+    return [];
+  }
+}
+
+/* =====================================================
+   MAIN PAGE
+===================================================== */
 
 export default function PrasadamPage() {
   const router = useRouter();
-
   const { t } = useLanguage();
 
-  const [category, setCategory] =
-    useState<Category>("all");
+  const [category, setCategory] = useState<Category>("all");
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cartLoaded, setCartLoaded] = useState(false);
 
-  const [cart, setCart] =
-    useState<CartItem[]>([]);
+  const [selectedWeights, setSelectedWeights] = useState<
+    Record<number, Weight>
+  >({});
 
-  const [cartLoaded, setCartLoaded] =
-    useState(false);
+  const [wishlist, setWishlist] = useState<number[]>([]);
 
-  const [selectedWeights, setSelectedWeights] =
-    useState<Record<number, Weight>>({});
-
-  /* =======================================================
-     LOAD CART
-  ======================================================= */
+  /* LOAD SAVED DATA */
 
   useEffect(() => {
-    const loadedCart = loadCart();
-
-    setCart(loadedCart);
+    setCart(loadCart());
+    setWishlist(loadWishlist());
     setCartLoaded(true);
   }, []);
 
-  /* =======================================================
-     SAVE CART
-  ======================================================= */
+  /* SAVE CART */
 
   useEffect(() => {
-    if (!cartLoaded) {
-      return;
-    }
-
+    if (!cartLoaded) return;
     saveCart(cart);
   }, [cart, cartLoaded]);
 
-  /* =======================================================
-     FILTER PRODUCTS
-  ======================================================= */
+  /* SAVE WISHLIST */
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlist));
+    } catch (error) {
+      console.error("Unable to save wishlist:", error);
+    }
+  }, [wishlist]);
+
+  /* FILTER PRODUCTS */
 
   const filteredProducts = useMemo(() => {
-    if (category === "all") {
-      return products;
-    }
+    if (category === "all") return products;
 
-    return products.filter(
-      (product) =>
-        product.category === category
-    );
+    return products.filter((product) => product.category === category);
   }, [category]);
 
-  /* =======================================================
-     GET SELECTED WEIGHT
-  ======================================================= */
+  /* SELECTED WEIGHT */
 
-  const getSelectedWeight = (
-    productId: number
-  ): Weight => {
+  const getSelectedWeight = (productId: number): Weight =>
+    selectedWeights[productId] ?? DEFAULT_WEIGHT;
+
+  /* CART QUANTITY */
+
+  const getQuantity = (productId: number, weight: Weight): number => {
     return (
-      selectedWeights[productId] ??
-      DEFAULT_WEIGHT
-    );
-  };
-
-  /* =======================================================
-     GET CART ITEM
-  ======================================================= */
-
-  const findCartItem = (
-    productId: number,
-    weight: Weight
-  ) => {
-    return cart.find(
-      (item) =>
-        item.productId === productId &&
-        item.weight === weight
-    );
-  };
-
-  /* =======================================================
-     GET QUANTITY
-  ======================================================= */
-
-  const getQuantity = (
-    productId: number,
-    weight: Weight
-  ): number => {
-    return (
-      findCartItem(
-        productId,
-        weight
+      cart.find(
+        (item) => item.productId === productId && item.weight === weight,
       )?.quantity ?? 0
     );
   };
 
-  /* =======================================================
-     CHANGE WEIGHT
-  ======================================================= */
+  /* CHANGE WEIGHT */
 
-  const changeWeight = (
-    productId: number,
-    weight: Weight
-  ) => {
-    setSelectedWeights(
-      (previousWeights) => ({
-        ...previousWeights,
-        [productId]: weight,
-      })
-    );
+  const changeWeight = (productId: number, weight: Weight) => {
+    setSelectedWeights((previous) => ({
+      ...previous,
+      [productId]: weight,
+    }));
   };
 
-  /* =======================================================
-     INCREASE
-  ======================================================= */
+  /* ADD ITEM */
 
-  const increase = (
-    productId: number,
-    weight: Weight
-  ) => {
+  const increase = (productId: number, weight: Weight) => {
     setCart((previousCart) => {
-      const existingItem =
-        previousCart.find(
-          (item) =>
-            item.productId ===
-              productId &&
-            item.weight === weight
-        );
+      const existing = previousCart.find(
+        (item) => item.productId === productId && item.weight === weight,
+      );
 
-      if (existingItem) {
-        return previousCart.map(
-          (item) =>
-            item.productId ===
-              productId &&
-            item.weight === weight
-              ? {
-                  ...item,
-                  quantity:
-                    item.quantity + 1,
-                }
-              : item
+      if (existing) {
+        return previousCart.map((item) =>
+          item.productId === productId && item.weight === weight
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
         );
       }
 
-      return [
-        ...previousCart,
-        {
-          productId,
-          weight,
-          quantity: 1,
-        },
-      ];
+      return [...previousCart, { productId, weight, quantity: 1 }];
     });
   };
 
-  /* =======================================================
-     DECREASE
-  ======================================================= */
+  /* REMOVE ITEM */
 
-  const decrease = (
-    productId: number,
-    weight: Weight
-  ) => {
+  const decrease = (productId: number, weight: Weight) => {
     setCart((previousCart) => {
-      const existingItem =
-        previousCart.find(
-          (item) =>
-            item.productId ===
-              productId &&
-            item.weight === weight
-        );
+      const existing = previousCart.find(
+        (item) => item.productId === productId && item.weight === weight,
+      );
 
-      if (!existingItem) {
-        return previousCart;
-      }
+      if (!existing) return previousCart;
 
-      if (existingItem.quantity <= 1) {
+      if (existing.quantity <= 1) {
         return previousCart.filter(
-          (item) =>
-            !(
-              item.productId ===
-                productId &&
-              item.weight === weight
-            )
+          (item) => !(item.productId === productId && item.weight === weight),
         );
       }
 
-      return previousCart.map(
-        (item) =>
-          item.productId ===
-              productId &&
-          item.weight === weight
-            ? {
-                ...item,
-                quantity:
-                  item.quantity - 1,
-              }
-            : item
+      return previousCart.map((item) =>
+        item.productId === productId && item.weight === weight
+          ? { ...item, quantity: item.quantity - 1 }
+          : item,
       );
     });
   };
 
-  /* =======================================================
-     CART COUNT
-  ======================================================= */
+  /* TOGGLE WISHLIST */
 
-  const cartCount = useMemo(() => {
-    return cart.reduce(
-      (total, item) =>
-        total + item.quantity,
-      0
+  const toggleWishlist = (productId: number) => {
+    setWishlist((previous) =>
+      previous.includes(productId)
+        ? previous.filter((id) => id !== productId)
+        : [...previous, productId],
     );
-  }, [cart]);
+  };
 
-  /* =======================================================
-     UI
-  ======================================================= */
+  /* CART COUNT */
+
+  const cartCount = useMemo(
+    () => cart.reduce((total, item) => total + item.quantity, 0),
+    [cart],
+  );
+
+  /* RENDER */
 
   return (
     <main
       className="
-        min-h-[100dvh]
-        w-full
-        overflow-x-hidden
-        bg-[radial-gradient(circle_at_50%_-10%,#fffef9_0%,#fffaf0_42%,#f6ead5_100%)]
-        pb-[110px]
-        text-[#4b4039]
-
-        lg:ml-[92px]
-        lg:w-[calc(100%-92px)]
-        lg:bg-[#fff9ed]
-        lg:pb-14
+        min-h-screen w-full overflow-x-hidden
+        bg-[#fffaf1] pb-12 text-[#332820]
+        lg:ml-[92px] lg:w-[calc(100%-92px)]
       "
     >
-      {/* ===================================================
-          HEADER
-      =================================================== */}
+      {/* HEADER */}
 
       <header
         className="
-          sticky
-          top-0
-          z-30
-          flex
-          h-[68px]
-          items-center
-          justify-between
-          border-b
-          border-[#eadbc5]
-          bg-[#fffdf8]/95
-          px-3
-          backdrop-blur-md
-
-          sm:h-[74px]
-          sm:px-5
-
-          md:h-[80px]
-          md:px-7
-
-          lg:static
-          lg:h-[84px]
-          lg:px-10
+          sticky top-0 z-30
+          flex h-[68px] items-center justify-between
+          border-b border-[#eadbc5]
+          bg-white/95 px-3 backdrop-blur-md
+          sm:h-[76px] sm:px-5
+          lg:static lg:h-[84px] lg:px-8
         "
       >
-        {/* BACK */}
-
         <button
           type="button"
           onClick={() => router.back()}
-          aria-label={t("back")}
+          aria-label="Go back"
           className="
-            grid
-            h-9
-            w-9
-            shrink-0
-            place-items-center
-            rounded-full
-            border
-            border-[#eadbc5]
-            bg-[#fffdf8]
-            text-[27px]
-            leading-none
-            text-[#a71919]
-            shadow-sm
-            transition
-
-            active:scale-95
-
-            sm:h-10
-            sm:w-10
-
-            lg:h-11
-            lg:w-11
-            lg:hover:border-[#c99435]
-            lg:hover:bg-[#fff8ea]
+            grid h-10 w-10 place-items-center
+            rounded-full border border-[#eadbc5]
+            bg-white text-2xl text-[#8c1717]
+            transition hover:bg-[#fff4e4]
           "
         >
           ‹
         </button>
 
-        {/* TITLE */}
-
-        <div
-          className="
-            flex-1
-            text-center
-
-            lg:ml-4
-            lg:flex-none
-            lg:text-left
-          "
-        >
-          <span
-            className="
-              hidden
-              text-[10px]
-              font-bold
-              uppercase
-              tracking-[1.3px]
-              text-[#9a762f]
-
-              lg:block
-            "
-          >
+        <div className="flex-1 text-center lg:ml-4 lg:text-left">
+          <p className="hidden text-[10px] font-bold uppercase tracking-[2px] text-[#a17b37] lg:block">
             Shri Govardhannath Haveli
-          </span>
+          </p>
 
-          <h1
-            className="
-              m-0
-              font-serif
-              text-[22px]
-              font-semibold
-              text-[#641010]
-
-              sm:text-2xl
-
-              md:text-[27px]
-            "
-          >
+          <h1 className="font-serif text-xl font-bold text-[#641010] sm:text-2xl">
             {t("prasadam")}
           </h1>
         </div>
 
-        {/* CART ICON */}
-
         <button
           type="button"
-          onClick={() =>
-            router.push(
-              "/prasadam/cart"
-            )
-          }
-          aria-label="Open Cart"
+          onClick={() => router.push("/prasadam/cart")}
+          aria-label="Open shopping cart"
           className="
-            relative
-            grid
-            h-9
-            w-9
-            shrink-0
-            place-items-center
-            rounded-full
-            border
-            border-[#eadbc5]
-            bg-[#fffdf8]
-            text-[#a71919]
-            shadow-sm
-            transition
-
-            active:scale-95
-
-            sm:h-10
-            sm:w-10
-
-            lg:ml-auto
-            lg:h-11
-            lg:w-11
-            lg:hover:border-[#c99435]
-            lg:hover:bg-[#fff8ea]
+            relative grid h-10 w-10 place-items-center
+            rounded-full border border-[#eadbc5]
+            bg-white text-[#8c1717]
+            transition hover:bg-[#fff4e4]
           "
         >
           <CartIcon />
@@ -683,19 +500,11 @@ export default function PrasadamPage() {
           {cartCount > 0 && (
             <span
               className="
-                absolute
-                -right-1
-                -top-1
-                grid
-                min-h-[17px]
-                min-w-[17px]
-                place-items-center
-                rounded-full
-                bg-[#e74b18]
-                px-1
-                text-[8px]
-                font-bold
-                text-white
+                absolute -right-1 -top-1
+                grid h-[19px] min-w-[19px]
+                place-items-center rounded-full
+                bg-[#e87519] px-1 text-[10px]
+                font-bold text-white
               "
             >
               {cartCount}
@@ -704,175 +513,35 @@ export default function PrasadamPage() {
         </button>
       </header>
 
-      {/* ===================================================
-          CONTENT
-      =================================================== */}
-
-      <div
-        className="
-          mx-auto
-          w-full
-          max-w-[1420px]
-
-          lg:px-8
-
-          xl:px-10
-        "
-      >
-        {/* =================================================
-            DESKTOP HERO
-        ================================================= */}
-
-        <section
-          className="
-            hidden
-
-            lg:mt-7
-            lg:flex
-            lg:min-h-[150px]
-            lg:items-center
-            lg:justify-between
-            lg:gap-8
-            lg:rounded-[22px]
-            lg:border
-            lg:border-[#eadbc5]
-            lg:bg-gradient-to-br
-            lg:from-[#fffdf8]
-            lg:to-[#fff3df]
-            lg:px-8
-            lg:py-7
-            lg:shadow-[0_10px_30px_rgba(80,45,15,0.06)]
-          "
-        >
-          <div>
-            <span
-              className="
-                mb-2
-                block
-                text-[11px]
-                font-bold
-                uppercase
-                tracking-[1.4px]
-                text-[#c99435]
-              "
-            >
-              Sacred Offering
-            </span>
-
-            <h2
-              className="
-                m-0
-                font-serif
-                text-[35px]
-                font-semibold
-                text-[#641010]
-              "
-            >
-              {t("prasadam")}
-            </h2>
-
-            <p
-              className="
-                mt-2
-                max-w-[540px]
-                text-sm
-                leading-6
-                text-[#776d65]
-              "
-            >
-              Choose blessed prasadam and sacred
-              offerings from Shri Govardhannath Haveli.
-            </p>
-          </div>
-
-          <div
-            className="
-              grid
-              h-[86px]
-              w-[86px]
-              shrink-0
-              place-items-center
-              rounded-full
-              border
-              border-[#dec182]
-              bg-[#fffdf8]
-              text-[42px]
-            "
-          >
-            🛕
-          </div>
-        </section>
-
-        {/* =================================================
-            CATEGORIES
-        ================================================= */}
+      <div className="mx-auto w-full max-w-[1500px]">
+        {/* CATEGORY FILTERS */}
 
         <div
           className="
-            flex
-            w-full
-            gap-2
-            overflow-x-auto
-            px-3
-            py-3
+            flex gap-2 overflow-x-auto px-3 py-4
             [scrollbar-width:none]
             [&::-webkit-scrollbar]:hidden
-
-            sm:px-5
-            sm:py-4
-
-            md:justify-center
-            md:px-6
-
-            lg:justify-start
-            lg:px-0
-            lg:py-5
+            sm:px-5 md:justify-center
+            lg:justify-start lg:px-8
           "
         >
           {categories.map((item) => {
-            const active =
-              category === item.id;
+            const active = category === item.id;
 
             return (
               <button
                 key={item.id}
                 type="button"
-                onClick={() =>
-                  setCategory(item.id)
-                }
+                onClick={() => setCategory(item.id)}
+                aria-pressed={active}
                 className={`
-                  h-9
-                  shrink-0
-                  rounded-lg
-                  border
-                  px-4
-                  text-[10px]
-                  font-semibold
-                  transition-all
-
-                  sm:h-10
-                  sm:px-5
-                  sm:text-[11px]
-
-                  md:text-xs
-
+                  shrink-0 rounded-lg border
+                  px-4 py-2.5 text-xs font-semibold
+                  transition sm:px-5 sm:text-sm
                   ${
                     active
-                      ? `
-                        border-[#e74b18]
-                        bg-[#e74b18]
-                        text-white
-                        shadow-sm
-                      `
-                      : `
-                        border-[#eadbc5]
-                        bg-[#fffdf8]
-                        text-[#776d65]
-
-                        lg:hover:-translate-y-0.5
-                        lg:hover:border-[#e74b18]
-                        lg:hover:text-[#e74b18]
-                      `
+                      ? "border-[#e87519] bg-[#e87519] text-white shadow-sm"
+                      : "border-[#e5d7c4] bg-white text-[#66584b] hover:border-[#e87519] hover:text-[#b55d17]"
                   }
                 `}
               >
@@ -882,485 +551,310 @@ export default function PrasadamPage() {
           })}
         </div>
 
-        {/* =================================================
-            PRODUCT GRID
-        ================================================= */}
+        {/* SECTION HEADING */}
+
+        <div className="mb-4 flex items-end justify-between px-3 sm:px-5 lg:px-8">
+          <div>
+            <h2 className="font-serif text-lg font-bold text-[#641010] sm:text-xl">
+              {category === "all"
+                ? "Explore Prasadam"
+                : categories.find((item) => item.id === category)?.labelKey
+                  ? t(categories.find((item) => item.id === category)!.labelKey)
+                  : "Prasadam"}
+            </h2>
+
+            <p className="mt-1 text-[11px] text-gray-500 sm:text-xs">
+              Sacred offerings, sweets and devotional gifts
+            </p>
+          </div>
+
+          <span className="text-[10px] text-gray-500 sm:text-xs">
+            {filteredProducts.length} products
+          </span>
+        </div>
+
+        {/* COMPACT PRODUCT GRID */}
 
         <section
           className="
-            grid
-            grid-cols-1
-            gap-3
-            px-3
-
-            sm:px-5
-
-            md:grid-cols-2
-            md:gap-4
-            md:px-6
-
-            lg:grid-cols-3
-            lg:px-0
-
-            xl:grid-cols-4
-            xl:gap-5
+            grid grid-cols-2 gap-3 px-3
+            sm:grid-cols-4 sm:gap-4 sm:px-5
+            md:gap-5 md:px-6
+            lg:grid-cols-6 lg:gap-4 lg:px-8
           "
         >
-          {filteredProducts.map(
-            (product) => {
-              const selectedWeight =
-                getSelectedWeight(
-                  product.id
-                );
+          {filteredProducts.map((product) => {
+            const selectedWeight = getSelectedWeight(product.id);
+            const quantity = getQuantity(product.id, selectedWeight);
+            const currentPrice = getWeightPrice(product.price, selectedWeight);
+            const isWishlisted = wishlist.includes(product.id);
 
-              const quantity =
-                getQuantity(
-                  product.id,
-                  selectedWeight
-                );
+            return (
+              <article
+                key={product.id}
+                className="
+                  group relative flex min-w-0 flex-col
+                  overflow-hidden rounded-xl
+                  border border-[#e8e8e8]
+                  bg-white
+                  shadow-[0_2px_8px_rgba(0,0,0,0.04)]
+                  transition-all duration-200
+                  hover:border-[#d8c5a3]
+                  hover:shadow-[0_6px_18px_rgba(0,0,0,0.09)]
+                "
+              >
+                {/* PRODUCT IMAGE — REDUCED HEIGHT */}
 
-              const currentPrice =
-                getWeightPrice(
-                  product.price,
-                  selectedWeight
-                );
-
-              return (
-                <article
-                  key={product.id}
+                <div
                   className="
-                    flex
-                    min-w-0
-                    items-center
-                    gap-3
-                    rounded-xl
-                    border
-                    border-[#eee0cc]
-                    bg-[#fffdf9]
-                    p-2.5
-                    shadow-[0_4px_14px_rgba(79,43,14,0.04)]
-                    transition-all
-
-                    sm:p-3
-
-                    md:min-h-[125px]
-
-                    lg:min-h-[310px]
-                    lg:flex-col
-                    lg:items-stretch
-                    lg:p-3.5
-                    lg:hover:-translate-y-1
-                    lg:hover:border-[#d7b97f]
-                    lg:hover:shadow-[0_12px_30px_rgba(79,43,14,0.09)]
+                    relative flex h-[110px]
+                    items-center justify-center
+                    overflow-hidden bg-[#faf8f3]
+                    p-2 sm:h-[125px] sm:p-3
+                    lg:h-[115px]
                   "
                 >
-                  {/* =======================================
-                      PRODUCT IMAGE
-                  ======================================= */}
-
-                  <div
+                  <img
+                    src={product.image}
+                    alt={t(product.titleKey)}
+                    loading="lazy"
                     className="
-                      relative
-                      h-[72px]
-                      w-[72px]
-                      shrink-0
-                      overflow-hidden
-                      rounded-lg
-                      border
-                      border-[#eee0cc]
-                      bg-[#f4e5c8]
+                      h-full w-full object-contain
+                      transition-transform duration-300
+                      group-hover:scale-105
+                    "
+                  />
 
-                      sm:h-[82px]
-                      sm:w-[82px]
+                  {/* WISHLIST BUTTON */}
 
-                      md:h-[94px]
-                      md:w-[94px]
-                      md:rounded-xl
-
-                      lg:h-[175px]
-                      lg:w-full
-                      lg:rounded-xl
+                  <button
+                    type="button"
+                    onClick={() => toggleWishlist(product.id)}
+                    aria-label={
+                      isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+                    }
+                    aria-pressed={isWishlisted}
+                    className="
+                      absolute right-2 top-2
+                      grid h-8 w-8 place-items-center
+                      rounded-full border border-gray-200
+                      bg-white/95 text-[#b42323]
+                      shadow-sm transition
+                      hover:bg-[#fff0f0]
+                      sm:right-3 sm:top-3
                     "
                   >
-                    <img
-                      src={product.image}
-                      alt={t(product.titleKey)}
-                      loading="lazy"
+                    <HeartIcon filled={isWishlisted} />
+                  </button>
+
+                  {/* CATEGORY BADGE */}
+                </div>
+
+                {/* PRODUCT DETAILS — REDUCED PADDING */}
+
+                <div className="flex flex-1 flex-col p-2 sm:p-2.5">
+                  {/* PRODUCT NAME + CATEGORY */}
+
+                  <div className="flex items-center justify-between gap-1">
+                    <h3
+                      title={t(product.titleKey)}
                       className="
-                        absolute
-                        inset-0
-                        block
-                        h-full
-                        w-full
-                        object-cover
-                        object-center
-                        transition-transform
-                        duration-300
-
-                        lg:hover:scale-[1.03]
-                      "
-                    />
-                  </div>
-
-                  {/* =======================================
-                      PRODUCT INFO
-                  ======================================= */}
-
-                  <div
-                    className="
-                      min-w-0
-                      flex-1
-
-                      lg:px-1
-                    "
-                  >
-                    <span
-                      className="
-                        hidden
-                        text-[9px]
-                        font-bold
-                        uppercase
-                        tracking-[1px]
-                        text-[#c99435]
-
-                        md:block
-                      "
-                    >
-                      {t("prasadam")}
-                    </span>
-
-                    <h2
-                      className="
-                        truncate
-                        font-serif
-                        text-[14px]
-                        font-semibold
-                        text-[#332820]
-
-                        sm:text-[15px]
-
-                        md:mt-1
-                        md:text-[17px]
-
-                        lg:whitespace-normal
-                        lg:text-[19px]
-                      "
+                      min-w-0 flex-1 line-clamp-2
+                      text-xs font-semibold leading-4
+                      text-[#252525]
+                      sm:text-sm sm:leading-[18px]"
                     >
                       {t(product.titleKey)}
-                    </h2>
+                    </h3>
 
-                    {/* WEIGHT */}
-
-                    <div className="mt-2">
-                      <select
-                        value={selectedWeight}
-                        onChange={(event) =>
-                          changeWeight(
-                            product.id,
-                            event.target
-                              .value as Weight
-                          )
-                        }
-                        aria-label="Select weight"
-                        className="
-                          h-7
-                          w-[82px]
-                          cursor-pointer
-                          rounded-md
-                          border
-                          border-[#eadbc5]
-                          bg-[#fffdf8]
-                          px-2
-                          text-[10px]
-                          font-semibold
-                          text-[#641010]
-                          outline-none
-                          transition
-                          focus:border-[#e74b18]
-                          focus:ring-1
-                          focus:ring-[#e74b18]/20
-
-                          sm:h-9
-                          sm:text-[11px]
-
-                          lg:h-9
-                          lg:text-xs
-                        "
-                      >
-                        <option value="250g">
-                          250 Gram
-                        </option>
-
-                        <option value="500g">
-                          500 Gram
-                        </option>
-
-                        <option value="1kg">
-                          1 Kg
-                        </option>
-                      </select>
-                    </div>
-
-                    {/* PRICE */}
-
-                    <p
-                      className="
-                        mt-1
-                        text-[12px]
-                        font-bold
-                        text-[#a71919]
-
-                        md:mt-2
-                        md:text-[13px]
-
-                        lg:text-sm
-                      "
+                    <span
+                      className={`
+        shrink-0 whitespace-nowrap rounded-full
+        px-1.5 py-0.5 text-[8px] font-semibold
+        sm:text-[9px]
+        ${
+          product.category === "sweets"
+            ? "bg-pink-50 text-pink-700"
+            : product.category === "gifts"
+              ? "bg-purple-50 text-purple-700"
+              : "bg-amber-50 text-amber-700"
+                                            }
+                                          `}
                     >
-                      ₹
-                      {currentPrice.toLocaleString(
-                        "en-IN"
-                      )}
-                    </p>
+                      {product.category === "sweets"
+                        ? "Sweets"
+                        : product.category === "gifts"
+                          ? "Gift Pack"
+                          : "Mahaprasad"}
+                    </span>
                   </div>
 
-                  {/* =======================================
-                      ADD TO CART / QUANTITY
-                  ======================================= */}
+                  {/* DESCRIPTION */}
 
-                  <div
+                  <p
+                    title={product.description}
                     className="
-                      shrink-0
-
-                      lg:mt-auto
-                      lg:w-full
-                    "
+                    mt-0.5 line-clamp-1 min-h-[14px]
+                    text-[10px] leading-[14px]
+                    text-gray-500 sm:text-[11px]
+                  "
                   >
+                    {product.description}
+                  </p>
+
+                  {/* KEEP YOUR EXISTING WEIGHT SELECTOR BELOW */}
+
+                  {/* WEIGHT SELECTOR */}
+
+                  <div className="mt-2">
+                    <label
+                      htmlFor={`weight-${product.id}`}
+                      className="
+                        mb-1 block text-[10px]
+                        font-medium text-gray-600
+                      "
+                    >
+                      Select weight
+                    </label>
+
+                    <select
+                      id={`weight-${product.id}`}
+                      value={selectedWeight}
+                      onChange={(event) =>
+                        changeWeight(product.id, event.target.value as Weight)
+                      }
+                      className="
+                        h-8 w-full rounded-md
+                        border border-gray-200
+                        bg-white px-2 text-[11px]
+                        text-gray-700 outline-none
+                        focus:border-[#e87519]
+                        focus:ring-1 focus:ring-[#e87519]
+                        sm:text-xs
+                      "
+                    >
+                      <option value="250g">250 g</option>
+                      <option value="500g">500 g</option>
+                      <option value="1kg">1 kg</option>
+                    </select>
+                  </div>
+
+                  {/* PRICE */}
+
+                  <div className="mt-2">
+                    <div className="flex flex-wrap items-baseline gap-1">
+                      <span className="text-base font-bold text-[#202020] sm:text-lg">
+                        ₹{currentPrice.toLocaleString("en-IN")}
+                      </span>
+
+                      {selectedWeight !== "500g" && (
+                        <span className="text-[10px] text-gray-400">
+                          {selectedWeight === "250g"
+                            ? "250 g pack"
+                            : "1 kg pack"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ADD TO CART / QUANTITY */}
+
+                  <div className="mt-auto pt-2">
                     {quantity === 0 ? (
                       <button
                         type="button"
-                        onClick={() =>
-                          increase(
-                            product.id,
-                            selectedWeight
-                          )
-                        }
+                        onClick={() => increase(product.id, selectedWeight)}
                         className="
-                          flex
-                          h-9
-                          min-w-[100px]
-                          items-center
-                          justify-center
-                          gap-1.5
-                          rounded-lg
-                          border
-                          border-[#e74b18]
-                          bg-[#e74b18]
-                          px-3
-                          text-[10px]
-                          font-bold
-                          text-white
-                          shadow-sm
-                          transition-all
-
-                          active:scale-[0.97]
-
-                          sm:h-10
-                          sm:min-w-[110px]
-                          sm:text-[11px]
-
-                          lg:w-full
-                          lg:text-xs
-                          lg:hover:bg-[#d83f11]
+                          flex h-9 w-full
+                          items-center justify-center gap-1.5
+                          rounded-lg bg-[#e87519]
+                          px-1 text-[11px] font-bold
+                          text-white transition
+                          hover:bg-[#cf5f0d]
+                          active:scale-[0.98]
+                          sm:text-xs
                         "
                       >
+                        <CartIcon />
                         Add to Cart
                       </button>
                     ) : (
                       <div
                         className="
-                          flex
-                          flex-col
-                          gap-1
-
-                          lg:w-full
+                          flex h-9 w-full items-center
+                          justify-between overflow-hidden
+                          rounded-lg border border-[#e87519]
+                          bg-white
                         "
                       >
-                        <div
+                        <button
+                          type="button"
+                          onClick={() => decrease(product.id, selectedWeight)}
+                          aria-label="Decrease quantity"
                           className="
-                            flex
-                            h-9
-                            items-center
-                            overflow-hidden
-                            rounded-lg
-                            border
-                            border-[#e74b18]
-                            bg-white
-                            shadow-sm
-
-                            sm:h-10
-
-                            lg:w-full
+                            h-full flex-1 bg-[#fff7ef]
+                            text-lg font-semibold
+                            text-[#c45a0c]
+                            hover:bg-[#ffead8]
                           "
                         >
-                          {/* MINUS */}
+                          −
+                        </button>
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              decrease(
-                                product.id,
-                                selectedWeight
-                              )
-                            }
-                            aria-label="Decrease quantity"
-                            className="
-                              grid
-                              h-full
-                              w-9
-                              shrink-0
-                              place-items-center
-                              bg-white
-                              text-lg
-                              font-bold
-                              text-[#e74b18]
-                              transition
+                        <span className="flex-1 text-center text-xs font-bold text-gray-800">
+                          {quantity}
+                        </span>
 
-                              active:bg-[#fff2eb]
-
-                              sm:w-10
-
-                              lg:hover:bg-[#fff2eb]
-                            "
-                          >
-                            −
-                          </button>
-
-                          {/* NUMBER */}
-
-                          <span
-                            className="
-                              grid
-                              h-full
-                              min-w-[34px]
-                              flex-1
-                              place-items-center
-                              border-x
-                              border-[#f1d6cb]
-                              bg-[#fffaf7]
-                              px-2
-                              text-xs
-                              font-bold
-                              text-[#641010]
-
-                              sm:text-[13px]
-                            "
-                          >
-                            {quantity}
-                          </span>
-
-                          {/* PLUS */}
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              increase(
-                                product.id,
-                                selectedWeight
-                              )
-                            }
-                            aria-label="Increase quantity"
-                            className="
-                              grid
-                              h-full
-                              w-9
-                              shrink-0
-                              place-items-center
-                              bg-[#e74b18]
-                              text-lg
-                              font-bold
-                              text-white
-                              transition
-
-                              active:bg-[#c83c10]
-
-                              sm:w-10
-
-                              lg:hover:bg-[#d83f11]
-                            "
-                          >
-                            +
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => increase(product.id, selectedWeight)}
+                          aria-label="Increase quantity"
+                          className="
+                            h-full flex-1 bg-[#e87519]
+                            text-lg font-semibold text-white
+                            hover:bg-[#cf5f0d]
+                          "
+                        >
+                          +
+                        </button>
                       </div>
                     )}
                   </div>
-                </article>
-              );
-            }
-          )}
+                </div>
+              </article>
+            );
+          })}
         </section>
 
-        {/* =================================================
-            DECORATION
-        ================================================= */}
+        {/* EMPTY STATE */}
 
-        <div
-          className="
-            mt-8
-            flex
-            items-center
-            justify-center
-            gap-1.5
-            px-4
-            text-[#c99435]
+        {filteredProducts.length === 0 && (
+          <div className="px-4 py-16 text-center">
+            <p className="text-3xl">🪔</p>
+            <h3 className="mt-3 font-serif text-lg font-semibold text-[#641010]">
+              No products found
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Please select another category.
+            </p>
+          </div>
+        )}
 
-            lg:mt-12
-          "
-        >
-          <span
-            className="
-              h-px
-              w-12
-              bg-gradient-to-r
-              from-transparent
-              to-[#d8b66c]
+        {/* FOOTER DECORATION */}
 
-              lg:w-24
-            "
-          />
-
-          <b className="font-normal">
-            ❧
-          </b>
-
-          <b className="font-normal">
-            ❧
-          </b>
-
-          <b className="font-normal">
-            ❧
-          </b>
-
-          <span
-            className="
-              h-px
-              w-12
-              bg-gradient-to-l
-              from-transparent
-              to-[#d8b66c]
-
-              lg:w-24
-            "
-          />
+        <div className="mt-10 flex items-center justify-center gap-2 px-4 text-[#c99435]">
+          <span className="h-px w-12 bg-gradient-to-r from-transparent to-[#d8b66c] lg:w-24" />
+          <span>❧ ❧ ❧</span>
+          <span className="h-px w-12 bg-gradient-to-l from-transparent to-[#d8b66c] lg:w-24" />
         </div>
       </div>
     </main>
   );
 }
 
-/* =========================================================
+/* =====================================================
    CART ICON
-========================================================= */
+===================================================== */
 
 function CartIcon() {
   return (
@@ -1371,55 +865,33 @@ function CartIcon() {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="h-[18px] w-[18px]"
+      className="h-[18px] w-[18px] shrink-0"
       aria-hidden="true"
     >
-      <circle
-        cx="9"
-        cy="20"
-        r="1"
-      />
-
-      <circle
-        cx="18"
-        cy="20"
-        r="1"
-      />
-
+      <circle cx="9" cy="20" r="1" />
+      <circle cx="18" cy="20" r="1" />
       <path d="M3 4h2l2.4 10.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 8H6" />
     </svg>
   );
 }
 
-/* =========================================================
-   WHITE CART ICON
-========================================================= */
+/* =====================================================
+   HEART ICON
+===================================================== */
 
-function CartIconWhite() {
+function HeartIcon({ filled }: { filled: boolean }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      fill="none"
+      fill={filled ? "currentColor" : "none"}
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="h-3.5 w-3.5 sm:h-4 sm:w-4"
+      className="h-[18px] w-[18px]"
       aria-hidden="true"
     >
-      <circle
-        cx="9"
-        cy="20"
-        r="1"
-      />
-
-      <circle
-        cx="18"
-        cy="20"
-        r="1"
-      />
-
-      <path d="M3 4h2l2.4 10.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 8H6" />
+      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />
     </svg>
   );
 }
