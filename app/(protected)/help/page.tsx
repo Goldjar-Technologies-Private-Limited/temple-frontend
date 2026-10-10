@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 type FAQ = {
   id: number;
@@ -111,36 +112,36 @@ export default function HelpSupportPage() {
           "
         >
           {/* BACK BUTTON */}
-
           <button
             type="button"
-            onClick={() => router.back()}
-            aria-label="Go back"
+            onClick={() => router.push("/dashboard")}
+            aria-label="Back to Dashboard"
             className="
-              grid
-              h-8
-              w-8
-              shrink-0
-              place-items-center
-              rounded-full
-              border
-              border-[#ead7b8]
-              bg-white
-              text-[#a71919]
-              shadow-sm
-              transition
+    group
+    grid
+    h-9
+    w-9
+    shrink-0
+    place-items-center
+    rounded-full
+    border
+    border-[#ead7b8]
+    bg-white
+    text-[#641010]
+    shadow-sm
+    transition-all
+    hover:border-[#b8893b]
+    hover:bg-[#fff8eb]
+    hover:shadow-sm
+    active:scale-95
 
-              hover:bg-[#fff4e6]
-              active:scale-95
-
-              sm:h-9
-              sm:w-9
-
-              md:h-10
-              md:w-10
-            "
+    sm:h-10
+    sm:w-10
+  "
           >
-            <BackIcon />
+            <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
+               <ArrowLeft size={19} strokeWidth={1.8} />
+            </span>
           </button>
 
           {/* HEADER TEXT */}
@@ -346,8 +347,6 @@ export default function HelpSupportPage() {
             </p>
 
             {/* QUICK TAGS */}
-
-            
           </div>
         </section>
 
@@ -1006,10 +1005,6 @@ function SupportCard({
     </article>
   );
 }
-
-
-
-
 
 /* =========================================================
    ICONS

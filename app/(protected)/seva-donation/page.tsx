@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import type { TranslationKey } from "@/utils/i18n";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
+import { ArrowLeft } from "lucide-react";
 
 /* ======================================================
    CATEGORY TYPES
@@ -172,50 +173,38 @@ export default function SevaDonation() {
               BACK BUTTON
           ================================================== */}
 
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label={t("back")}
-            className="
-              group
-              flex
-              h-9
-              w-9
-              shrink-0
-              items-center
-              justify-center
-              rounded-full
-              border
-              border-[#e7d7c2]
-              bg-[#fffdf8]
-              text-[#8b251d]
-              shadow-[0_3px_12px_rgba(97,45,25,0.05)]
-              transition-all
-              duration-200
-              hover:border-[#cfae83]
-              hover:bg-[#fff8ec]
-              hover:shadow-[0_5px_16px_rgba(97,45,25,0.08)]
-              active:scale-95
+         {/* BACK BUTTON */}
 
-              sm:h-10
-              sm:w-10
-            "
-          >
-            <span
-              className="
-                text-[23px]
-                font-light
-                leading-none
-                transition-transform
-                duration-200
-                group-hover:-translate-x-[1px]
-
-                sm:text-[24px]
-              "
-            >
-              ‹
-            </span>
-          </button>
+<button
+  type="button"
+  onClick={() => router.back()}
+  aria-label={t("back")}
+  className="
+    group
+    grid
+    h-9
+    w-9
+    shrink-0
+    place-items-center
+    rounded-full
+    border
+    border-[#ead7b8]
+    bg-white
+    text-[#641010]
+    shadow-sm
+    transition-all
+    hover:border-[#b8893b]
+    hover:bg-[#fff8eb]
+    hover:shadow-sm
+    active:scale-95
+    sm:h-10
+    sm:w-10
+  "
+>
+  <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
+    <ArrowLeft size={19} strokeWidth={1.8} />
+  </span>
+</button>
 
           {/* ==================================================
               TITLE AREA

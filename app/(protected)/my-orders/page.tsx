@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Package, ChevronRight, HelpCircle} from "lucide-react";
+import { Package, ChevronRight, HelpCircle, ArrowLeft } from "lucide-react";
 
 const ORDERS_KEY = "prasadam-orders";
 const LAST_ORDER_KEY = "last-prasadam-order";
@@ -407,18 +407,31 @@ export default function MyOrdersPage() {
       ===================================================== */}
 
       <header className="border-b border-[#ead8c8] bg-white">
-        <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6 sm:py-4">
-          <div>
-            <h5 className="text-xl font-bold tracking-tight text-[#5e1919]">
-              My Orders
-            </h5>
+  <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
+    {/* Back Button */}
+    <button
+      type="button"
+      onClick={() => router.push("/dashboard")}
+      aria-label="Back to Dashboard"
+      className="group grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#ead7b8] bg-white text-[#641010] shadow-sm transition-all hover:border-[#b8893b] hover:bg-[#fff8eb] active:scale-95 sm:h-10 sm:w-10"
+    >
+      <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
+        <ArrowLeft size={19} strokeWidth={1.8} />
+      </span>
+    </button>
 
-            <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">
-              Track and manage your prasadam orders
-            </p>
-          </div>
-        </div>
-      </header>
+    {/* Header Title */}
+    <div className="min-w-0 flex-1">
+      <h5 className="text-xl font-bold tracking-tight text-[#5e1919]">
+        My Orders
+      </h5>
+
+      <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">
+        Track and manage your prasadam orders
+      </p>
+    </div>
+  </div>
+</header>
 
       <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
         {/* ===================================================

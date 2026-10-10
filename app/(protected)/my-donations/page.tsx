@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 /* =========================================================
    TYPES
@@ -222,35 +223,41 @@ export default function MyDonationsPage() {
             lg:px-8
           "
         >
-          {/* BACK */}
+          {/* BACK BUTTON */}
 
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label="Go back"
-            className="
-              grid
-              h-9
-              w-9
-              shrink-0
-              place-items-center
-              rounded-full
-              border
-              border-[#ead7b8]
-              bg-white
-              text-[#a71919]
-              shadow-sm
-              transition
+<button
+  type="button"
+  onClick={() => router.back()}
+  aria-label="Go back"
+  className="
+    group
+    grid
+    h-9
+    w-9
+    shrink-0
+    place-items-center
+    rounded-full
+    border
+    border-[#ead7b8]
+    bg-white
+    text-[#641010]
+    shadow-sm
+    transition-all
 
-              hover:bg-[#fff4e6]
-              active:scale-95
+    hover:border-[#b8893b]
+    hover:bg-[#fff8eb]
+    hover:shadow-sm
 
-              lg:h-11
-              lg:w-11
-            "
-          >
-            <BackIcon />
-          </button>
+    active:scale-95
+
+    lg:h-11
+    lg:w-11
+  "
+>
+  <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
+    <ArrowLeft size={19} strokeWidth={1.8} />
+  </span>
+</button>
 
           {/* TITLE */}
 

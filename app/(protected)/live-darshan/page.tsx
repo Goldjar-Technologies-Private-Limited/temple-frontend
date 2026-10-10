@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useLanguage } from "@/contexts/LanguageProvider";
-import { Send } from "lucide-react";
+import { Send, Share2 } from "lucide-react";
 
 /* =========================================================
    STREAM DATA
@@ -50,7 +50,6 @@ export default function LiveDarshan() {
      ========================================================= */
 
   const playerRef = useRef<HTMLIFrameElement>(null);
- 
 
   const stream = streams[selected];
 
@@ -166,225 +165,7 @@ export default function LiveDarshan() {
       "
     >
       <div className="mx-auto w-full max-w-[1800px]">
-        {/* =====================================================
-            MOBILE / TABLET HEADER
-            ===================================================== */}
-
-        <header
-          className="
-            flex
-            min-h-[58px]
-            items-center
-            justify-between
-            gap-3
-
-            sm:min-h-[64px]
-
-            md:min-h-[70px]
-
-            lg:hidden
-          "
-        >
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label={t("back")}
-            className="
-              grid
-              h-10
-              w-10
-              shrink-0
-              place-items-center
-              rounded-full
-              border
-              border-[#eadbc5]
-              bg-[#fffdf8]
-              text-[27px]
-              leading-none
-              text-[#a71919]
-              shadow-[0_3px_10px_rgba(70,40,10,0.05)]
-              transition
-
-              active:scale-95
-            "
-          >
-            ‹
-          </button>
-
-          <div className="min-w-0 flex-1 text-center">
-            <h1
-              className="
-                m-0
-                truncate
-                font-serif
-                text-xl
-                font-bold
-                text-[#941616]
-
-                sm:text-[22px]
-                md:text-2xl
-              "
-            >
-              {t("liveDarshan")}
-            </h1>
-
-            <p
-              className="
-                mt-0.5
-                truncate
-                text-[9px]
-                text-[#81766d]
-
-                sm:text-[10px]
-                md:text-[11px]
-              "
-            >
-              {t("haveliName")}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleShare}
-            aria-label={t("share")}
-            className="
-              grid
-              h-10
-              w-10
-              shrink-0
-              place-items-center
-              rounded-full
-              border
-              border-[#eadbc5]
-              bg-[#fffdf8]
-              text-lg
-              text-[#a71919]
-              shadow-[0_3px_10px_rgba(70,40,10,0.05)]
-              transition
-
-              active:scale-95
-            "
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              className="h-5 w-5"
-            >
-              <circle cx="18" cy="5" r="2.5" />
-              <circle cx="6" cy="12" r="2.5" />
-              <circle cx="18" cy="19" r="2.5" />
-              <path d="m8.2 10.8 7.5-4.4" />
-              <path d="m8.2 13.2 7.5 4.4" />
-            </svg>
-          </button>
-        </header>
-
-        {/* =====================================================
-            DESKTOP HEADER / HERO
-            ===================================================== */}
-
-        <section
-          className="
-            mb-6
-            hidden
-            min-h-[130px]
-            items-center
-            justify-between
-            gap-6
-            overflow-hidden
-            rounded-[20px]
-            border
-            border-[#eadbc5]
-            bg-[linear-gradient(135deg,#fffdf8_0%,#fff6e8_60%,#f8e4c5_100%)]
-            px-8
-            py-6
-            shadow-[0_8px_28px_rgba(82,48,18,0.07)]
-
-            lg:flex
-
-            xl:min-h-[145px]
-            xl:px-10
-          "
-        >
-          <div>
-            <div
-              className="
-                mb-2
-                inline-flex
-                items-center
-                gap-1.5
-                rounded-full
-                bg-[#a71919]
-                px-3
-                py-1.5
-                text-[10px]
-                font-bold
-                uppercase
-                tracking-wide
-                text-white
-              "
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-white" />
-              {t("live")}
-            </div>
-
-            <h1
-              className="
-                m-0
-                font-serif
-                text-[32px]
-                font-bold
-                leading-tight
-                text-[#641010]
-
-                xl:text-[38px]
-              "
-            >
-              {t("liveDarshan")}
-            </h1>
-
-            <p className="mt-2 text-sm text-[#776d65]">{t("haveliName")}</p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleShare}
-              className="
-                grid
-                h-11
-                w-11
-                place-items-center
-                rounded-full
-                border
-                border-[#e7d3b2]
-                bg-white/80
-                text-xl
-                text-[#9b1d1d]
-                transition
-
-                hover:bg-white
-                active:scale-95
-              "
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                className="h-5 w-5"
-              >
-                <circle cx="18" cy="5" r="2.5" />
-                <circle cx="6" cy="12" r="2.5" />
-                <circle cx="18" cy="19" r="2.5" />
-                <path d="m8.2 10.8 7.5-4.4" />
-                <path d="m8.2 13.2 7.5 4.4" />
-              </svg>
-            </button>
-          </div>
-        </section>
+        {/* RESPONSIVE HEADER — MOBILE, TABLET & DESKTOP */}
 
         <div
           className="
@@ -571,6 +352,15 @@ export default function LiveDarshan() {
 
                   <strong>{t("liveDarshan")}</strong>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  aria-label={t("share")}
+                  className=" grid h-10 w-10 shrink-0 place-items-center text-[#ce3131] transition-colors hover:text-[#8d0b0b] active:scale-95">
+
+                  <Share2 size={20} strokeWidth={1.8} />
+                </button>
               </div>
 
               <div

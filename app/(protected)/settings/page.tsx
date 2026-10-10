@@ -2,6 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
+import {
+  ArrowLeft,
+  Settings,
+  Languages,
+  Globe,
+  Check,
+  Info,
+  Trash2,
+  ChevronRight,
+} from "lucide-react";
 
 type LanguageCode = "en" | "hi" | "gu";
 
@@ -35,7 +45,6 @@ const languages: LanguageOption[] = [
 
 export default function SettingsPage() {
   const router = useRouter();
-
   const { language, setLanguage } = useLanguage();
 
   const handleLanguageChange = (code: LanguageCode) => {
@@ -49,16 +58,12 @@ export default function SettingsPage() {
         bg-[#fffaf1]
         pb-[105px]
         text-[#40372f]
-
         lg:ml-[92px]
         lg:w-[calc(100%-92px)]
         lg:pb-12
       "
     >
-      {/* ===================================================
-          HEADER
-      =================================================== */}
-
+      {/* HEADER */}
       <header
         className="
           sticky
@@ -80,21 +85,19 @@ export default function SettingsPage() {
             items-center
             gap-3
             px-4
-
             sm:min-h-[70px]
             sm:px-6
-
             lg:min-h-[82px]
             lg:px-8
           "
         >
-          {/* BACK */}
-
+          {/* BACK BUTTON */}
           <button
             type="button"
-            onClick={() => router.back()}
-            aria-label="Go back"
+            onClick={() => router.push("/dashboard")}
+            aria-label="Back to Dashboard"
             className="
+              group
               grid
               h-9
               w-9
@@ -104,22 +107,28 @@ export default function SettingsPage() {
               border
               border-[#ead7b8]
               bg-white
-              text-[#a71919]
+              text-[#641010]
               shadow-sm
-              transition
-
-              hover:bg-[#fff4e6]
+              transition-all
+              hover:border-[#b8893b]
+              hover:bg-[#fff8eb]
+              hover:shadow-sm
               active:scale-95
-
+              sm:h-10
+              sm:w-10
               lg:h-11
               lg:w-11
             "
           >
-            <BackIcon />
+            <ArrowLeft
+              size={19}
+              strokeWidth={1.8}
+              className="transition-transform duration-200 group-hover:-translate-x-0.5"
+              aria-hidden="true"
+            />
           </button>
 
           {/* TITLE */}
-
           <div className="min-w-0">
             <p
               className="
@@ -140,7 +149,6 @@ export default function SettingsPage() {
                 text-[19px]
                 font-bold
                 text-[#641010]
-
                 lg:text-[25px]
               "
             >
@@ -150,10 +158,7 @@ export default function SettingsPage() {
         </div>
       </header>
 
-      {/* ===================================================
-          PAGE CONTENT
-      =================================================== */}
-
+      {/* PAGE CONTENT */}
       <div
         className="
           mx-auto
@@ -161,18 +166,13 @@ export default function SettingsPage() {
           max-w-[1100px]
           px-3
           py-5
-
           sm:px-5
           sm:py-7
-
           lg:px-8
           lg:py-9
         "
       >
-        {/* =================================================
-            INTRO
-        ================================================= */}
-
+        {/* INTRO */}
         <section
           className="
             relative
@@ -183,10 +183,8 @@ export default function SettingsPage() {
             py-6
             text-white
             shadow-[0_10px_30px_rgba(94,28,17,0.14)]
-
             sm:px-6
             sm:py-7
-
             lg:px-8
             lg:py-8
           "
@@ -233,7 +231,7 @@ export default function SettingsPage() {
                 text-[#ffe3a7]
               "
             >
-              <SettingsIcon />
+              <Settings size={21} strokeWidth={1.8} aria-hidden="true" />
             </div>
 
             <p
@@ -255,9 +253,7 @@ export default function SettingsPage() {
                 font-serif
                 text-[23px]
                 font-bold
-
                 sm:text-[27px]
-
                 lg:text-[31px]
               "
             >
@@ -271,9 +267,7 @@ export default function SettingsPage() {
                 text-[11px]
                 leading-5
                 text-white/75
-
                 sm:text-xs
-
                 lg:text-[13px]
                 lg:leading-6
               "
@@ -284,10 +278,7 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        {/* =================================================
-            LANGUAGE SECTION
-        ================================================= */}
-
+        {/* LANGUAGE SECTION */}
         <section
           className="
             mt-5
@@ -297,7 +288,6 @@ export default function SettingsPage() {
             border-[#eadfce]
             bg-[#fffdf9]
             shadow-[0_6px_24px_rgba(74,42,16,0.045)]
-
             lg:mt-7
             lg:rounded-[20px]
           "
@@ -311,9 +301,7 @@ export default function SettingsPage() {
               border-[#f0e5d6]
               px-4
               py-4
-
               sm:px-5
-
               lg:px-6
               lg:py-5
             "
@@ -330,7 +318,7 @@ export default function SettingsPage() {
                 text-[#a71919]
               "
             >
-              <LanguageIcon />
+              <Languages size={19} strokeWidth={1.8} aria-hidden="true" />
             </div>
 
             <div className="min-w-0">
@@ -340,9 +328,7 @@ export default function SettingsPage() {
                   text-[17px]
                   font-bold
                   text-[#641010]
-
                   sm:text-lg
-
                   lg:text-xl
                 "
               >
@@ -355,9 +341,7 @@ export default function SettingsPage() {
                   text-[9px]
                   leading-4
                   text-[#918479]
-
                   sm:text-[10px]
-
                   lg:text-[11px]
                 "
               >
@@ -372,9 +356,7 @@ export default function SettingsPage() {
                 grid
                 grid-cols-1
                 gap-2.5
-
                 sm:grid-cols-3
-
                 lg:gap-4
               "
             >
@@ -402,36 +384,23 @@ export default function SettingsPage() {
                       text-left
                       transition-all
                       duration-200
-
                       sm:min-h-[115px]
                       sm:flex-col
                       sm:items-start
                       sm:justify-center
                       sm:p-4
-
                       lg:min-h-[130px]
                       lg:p-5
-
                       ${
                         selected
-                          ? `
-                            border-[#b72c22]
-                            bg-[#fff2e3]
-                            shadow-[0_6px_18px_rgba(167,25,25,0.08)]
-                          `
-                          : `
-                            border-[#eadfce]
-                            bg-white
-
-                            hover:border-[#d9bc8b]
-                            hover:bg-[#fffaf1]
-                            hover:shadow-[0_6px_18px_rgba(74,42,16,0.05)]
-                          `
+                          ? "border-[#b72c22] bg-[#fff2e3] shadow-[0_6px_18px_rgba(167,25,25,0.08)]"
+                          : "border-[#eadfce] bg-white hover:border-[#d9bc8b] hover:bg-[#fffaf1] hover:shadow-[0_6px_18px_rgba(74,42,16,0.05)]"
                       }
                     `}
                   >
                     {selected && (
                       <span
+                        aria-hidden="true"
                         className="
                           absolute
                           bottom-0
@@ -439,7 +408,6 @@ export default function SettingsPage() {
                           top-0
                           w-[3px]
                           bg-[#a71919]
-
                           sm:bottom-auto
                           sm:h-[3px]
                           sm:w-full
@@ -459,21 +427,10 @@ export default function SettingsPage() {
                         text-[14px]
                         font-bold
                         transition
-
                         ${
                           selected
-                            ? `
-                              border-[#a71919]
-                              bg-[#a71919]
-                              text-white
-                            `
-                            : `
-                              border-[#f0dfc5]
-                              bg-[#fff4e3]
-                              text-[#a71919]
-
-                              group-hover:bg-[#ffedd2]
-                            `
+                            ? "border-[#a71919] bg-[#a71919] text-white"
+                            : "border-[#f0dfc5] bg-[#fff4e3] text-[#a71919] group-hover:bg-[#ffedd2]"
                         }
                       `}
                     >
@@ -481,40 +438,21 @@ export default function SettingsPage() {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div
-                        className="
-                          flex
-                          items-center
-                          justify-between
-                          gap-2
-                        "
-                      >
+                      <div className="flex items-center justify-between gap-2">
                         <div>
                           <p
                             className={`
                               text-[12px]
                               font-bold
-
                               lg:text-[13px]
-
-                              ${
-                                selected
-                                  ? "text-[#8e1715]"
-                                  : "text-[#51463d]"
-                              }
+                              ${selected ? "text-[#8e1715]" : "text-[#51463d]"}
                             `}
                           >
                             {item.nativeName}
                           </p>
 
                           {item.nativeName !== item.name && (
-                            <p
-                              className="
-                                mt-[2px]
-                                text-[9px]
-                                text-[#9b8c80]
-                              "
-                            >
+                            <p className="mt-[2px] text-[9px] text-[#9b8c80]">
                               {item.name}
                             </p>
                           )}
@@ -531,11 +469,14 @@ export default function SettingsPage() {
                               rounded-full
                               bg-[#a71919]
                               text-white
-
                               sm:hidden
                             "
                           >
-                            <CheckIcon />
+                            <Check
+                              size={14}
+                              strokeWidth={2.5}
+                              aria-hidden="true"
+                            />
                           </span>
                         )}
                       </div>
@@ -554,11 +495,10 @@ export default function SettingsPage() {
                           rounded-full
                           bg-[#a71919]
                           text-white
-
                           sm:grid
                         "
                       >
-                        <CheckIcon />
+                        <Check size={14} strokeWidth={2.5} aria-hidden="true" />
                       </span>
                     )}
                   </button>
@@ -568,10 +508,7 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        {/* =================================================
-            CURRENT LANGUAGE
-        ================================================= */}
-
+        {/* CURRENT LANGUAGE */}
         <section
           className="
             mt-4
@@ -583,7 +520,6 @@ export default function SettingsPage() {
             border-[#ead8b8]
             bg-[#fff5e5]
             p-4
-
             lg:mt-5
             lg:p-5
           "
@@ -601,7 +537,7 @@ export default function SettingsPage() {
               shadow-sm
             "
           >
-            <GlobeIcon />
+            <Globe size={18} strokeWidth={1.8} aria-hidden="true" />
           </div>
 
           <div className="min-w-0 flex-1">
@@ -623,7 +559,6 @@ export default function SettingsPage() {
                 text-[12px]
                 font-bold
                 text-[#5c3521]
-
                 lg:text-[13px]
               "
             >
@@ -650,10 +585,7 @@ export default function SettingsPage() {
           </span>
         </section>
 
-        {/* =================================================
-            NOTE
-        ================================================= */}
-
+        {/* NOTE */}
         <div
           className="
             mt-4
@@ -668,7 +600,7 @@ export default function SettingsPage() {
           "
         >
           <div className="mt-[1px] text-[#a71919]">
-            <InfoIcon />
+            <Info size={17} strokeWidth={1.8} aria-hidden="true" />
           </div>
 
           <p
@@ -676,7 +608,6 @@ export default function SettingsPage() {
               text-[9px]
               leading-5
               text-[#8c7e72]
-
               sm:text-[10px]
             "
           >
@@ -685,10 +616,7 @@ export default function SettingsPage() {
           </p>
         </div>
 
-        {/* =================================================
-            DELETE ACCOUNT
-        ================================================= */}
-
+        {/* DELETE ACCOUNT */}
         <section className="mt-4">
           <button
             type="button"
@@ -727,7 +655,7 @@ export default function SettingsPage() {
                 group-hover:bg-[#ffd9d2]
               "
             >
-              <DeleteIcon />
+              <Trash2 size={19} strokeWidth={1.8} aria-hidden="true" />
             </span>
 
             <span className="min-w-0 flex-1">
@@ -742,56 +670,27 @@ export default function SettingsPage() {
                 Delete Account
               </strong>
 
-              <span
-                className="
-                  mt-[2px]
-                  block
-                  text-[9px]
-                  text-[#a66d67]
-                "
-              >
+              <span className="mt-[2px] block text-[9px] text-[#a66d67]">
                 Permanently delete your account
               </span>
             </span>
 
-            <span
-              className="
-                text-lg
-                transition-transform
-                group-hover:translate-x-[2px]
-              "
-            >
-              →
-            </span>
+            <ChevronRight
+              size={19}
+              strokeWidth={1.8}
+              className="transition-transform group-hover:translate-x-[2px]"
+              aria-hidden="true"
+            />
           </button>
         </section>
 
-        {/* =================================================
-            FOOTER
-        ================================================= */}
-
-        <div
-          className="
-            mt-7
-            text-center
-
-            lg:mt-10
-          "
-        >
-          <div
-            className="
-              flex
-              items-center
-              justify-center
-              gap-2
-            "
-          >
+        {/* FOOTER */}
+        <div className="mt-7 text-center lg:mt-10">
+          <div className="flex items-center justify-center gap-2">
             <span className="h-px w-10 bg-[#ddc69b]" />
-
             <span className="text-[#b8893b]">❧</span>
             <span className="text-[#b8893b]">❧</span>
             <span className="text-[#b8893b]">❧</span>
-
             <span className="h-px w-10 bg-[#ddc69b]" />
           </div>
 
@@ -812,9 +711,7 @@ export default function SettingsPage() {
   );
 }
 
-/* =========================================================
-   CURRENT LANGUAGE NAME
-========================================================= */
+/* CURRENT LANGUAGE NAME */
 
 function getCurrentLanguageName(language: LanguageCode) {
   switch (language) {
@@ -827,141 +724,4 @@ function getCurrentLanguageName(language: LanguageCode) {
     default:
       return "English";
   }
-}
-
-/* =========================================================
-   ICONS
-========================================================= */
-
-function BackIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[18px] w-[18px]"
-      aria-hidden="true"
-    >
-      <path d="m15 18-6-6 6-6" />
-    </svg>
-  );
-}
-
-function SettingsIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[21px] w-[21px]"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="3" />
-
-      <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.12 2.12-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1 1.55V20.3h-3v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06-2.12-2.12.06-.06A1.7 1.7 0 0 0 7.08 15a1.7 1.7 0 0 0-1.55-1H5.4v-3h.13a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.12-2.12.06.06a1.7 1.7 0 0 0 1.88.34 1.7 1.7 0 0 0 1-1.55V4.7h3v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.12 2.12-.06.06A1.7 1.7 0 0 0 19.4 10a1.7 1.7 0 0 0 1.55 1h.13v3h-.13a1.7 1.7 0 0 0-1.55 1Z" />
-    </svg>
-  );
-}
-
-function LanguageIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[19px] w-[19px]"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M3 12h18" />
-      <path d="M12 3a14 14 0 0 1 0 18" />
-      <path d="M12 3a14 14 0 0 0 0 18" />
-    </svg>
-  );
-}
-
-function GlobeIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[18px] w-[18px]"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M3 12h18" />
-      <path d="M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9" />
-      <path d="M12 3c-2.5 2.5-4 5.5-4 9s1.5 6.5 4 9" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-3.5 w-3.5"
-      aria-hidden="true"
-    >
-      <path d="m5 12 4 4L19 6" />
-    </svg>
-  );
-}
-
-function InfoIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[17px] w-[17px]"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 11v5" />
-      <path d="M12 8h.01" />
-    </svg>
-  );
-}
-
-function DeleteIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[19px] w-[19px]"
-      aria-hidden="true"
-    >
-      <path d="M3 6h18" />
-      <path d="M8 6V4h8v2" />
-      <path d="M19 6l-1 14H6L5 6" />
-      <path d="M10 11v5" />
-      <path d="M14 11v5" />
-    </svg>
-  );
 }

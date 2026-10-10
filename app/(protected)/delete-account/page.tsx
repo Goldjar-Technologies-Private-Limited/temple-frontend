@@ -1,7 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  CircleAlert,
+  Globe,
+  Home,
+  Info,
+  LogOut,
+  ShieldAlert,
+  Trash2,
+  X,
+  LoaderCircle,
+} from "lucide-react";
 
 export default function DeleteAccountPage() {
   const router = useRouter();
@@ -10,6 +25,7 @@ export default function DeleteAccountPage() {
   const [deleting, setDeleting] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const isConfirmed = confirmText === "DELETE";
 
@@ -17,43 +33,46 @@ export default function DeleteAccountPage() {
     if (!isConfirmed || deleting) return;
 
     setDeleting(true);
+    setDeleteError("");
 
     try {
       /*
-       * =====================================================
-       * TEMPORARY API SIMULATION
-       * Replace this with your real delete-account API.
-       * =====================================================
+       * DEMO ONLY:
+       * Replace this simulated operation with your real backend
+       * account-deletion API before using this in production.
+       *
+       * Example:
+       * const response = await fetch("/api/account", {
+       *   method: "DELETE",
+       *   headers: {
+       *     Authorization: `Bearer ${localStorage.getItem("auth-token")}`,
+       *   },
+       * });
+       *
+       * if (!response.ok) {
+       *   throw new Error("Failed to delete account.");
+       * }
        */
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      /*
-       * Remove authentication token.
-       */
+      // Clear the local session token for this demo.
       localStorage.removeItem("auth-token");
 
-      /*
-       * Clear other possible user/session data if you use them.
-       * Uncomment if required.
-       *
-       * localStorage.removeItem("user");
-       * localStorage.removeItem("user-data");
-       * localStorage.removeItem("refresh-token");
-       */
-
       setDeleted(true);
-      setDeleting(false);
+      setShowConfirm(false);
     } catch (error) {
       console.error("Delete account error:", error);
+      setDeleteError(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.",
+      );
+    } finally {
       setDeleting(false);
     }
   };
 
-  /*
-   * Prevent browser back/forward confusion after deletion.
-   * We intentionally DO NOT redirect to login.
-   */
   useEffect(() => {
     if (!deleted) return;
 
@@ -64,9 +83,7 @@ export default function DeleteAccountPage() {
   }, [deleted]);
 
   /*
-   * =========================================================
    * SUCCESS SCREEN
-   * =========================================================
    */
 
   if (deleted) {
@@ -74,7 +91,6 @@ export default function DeleteAccountPage() {
       <main className="min-h-[100dvh] bg-[#fffaf1] text-[#40372f]">
         <div className="flex min-h-[100dvh] items-center justify-center px-4 py-8 sm:px-6">
           <div className="w-full max-w-[520px]">
-            {/* SUCCESS CARD */}
             <div
               className="
                 overflow-hidden
@@ -85,7 +101,7 @@ export default function DeleteAccountPage() {
                 shadow-[0_20px_60px_rgba(74,42,16,0.10)]
               "
             >
-              {/* TOP SUCCESS AREA */}
+              {/* SUCCESS AREA */}
               <div
                 className="
                   relative
@@ -98,7 +114,6 @@ export default function DeleteAccountPage() {
                   sm:py-12
                 "
               >
-                {/* Decorative circles */}
                 <div
                   aria-hidden="true"
                   className="
@@ -126,7 +141,6 @@ export default function DeleteAccountPage() {
                 />
 
                 <div className="relative z-10">
-                  {/* CHECK ICON */}
                   <div
                     className="
                       mx-auto
@@ -141,7 +155,7 @@ export default function DeleteAccountPage() {
                       shadow-[0_8px_25px_rgba(25,135,84,0.10)]
                     "
                   >
-                    <CheckCircleIcon />
+                    <CheckCircle2 size={42} strokeWidth={1.6} />
                   </div>
 
                   <p
@@ -167,7 +181,7 @@ export default function DeleteAccountPage() {
                       sm:text-[34px]
                     "
                   >
-                    Account Deleted
+                    Deletion Demo Complete
                   </h1>
 
                   <p
@@ -181,8 +195,9 @@ export default function DeleteAccountPage() {
                       sm:text-[12px]
                     "
                   >
-                    Your account has been successfully deleted from this
-                    application.
+                    The demo flow has completed and your local authentication
+                    token has been cleared. Your backend account has not been
+                    deleted by this simulated operation.
                   </p>
                 </div>
               </div>
@@ -211,12 +226,12 @@ export default function DeleteAccountPage() {
                         text-[#a71919]
                       "
                     >
-                      <InfoIcon />
+                      <Info size={18} strokeWidth={1.8} />
                     </div>
 
                     <div>
                       <p className="text-[11px] font-bold text-[#51463d]">
-                        What happens next?
+                        Before going live
                       </p>
 
                       <p
@@ -228,14 +243,14 @@ export default function DeleteAccountPage() {
                           sm:text-[11px]
                         "
                       >
-                        Your session has been cleared. You can close this page
-                        or return to the application's welcome screen.
+                        Connect this page to your backend deletion endpoint and
+                        verify that the server has deleted the account before
+                        displaying a permanent-deletion success message.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* RETURN BUTTON */}
                 <button
                   type="button"
                   onClick={() => router.push("/")}
@@ -260,7 +275,7 @@ export default function DeleteAccountPage() {
                     active:scale-[0.99]
                   "
                 >
-                  <HomeIcon />
+                  <Home size={17} strokeWidth={1.8} />
                   Return to Home
                 </button>
 
@@ -271,29 +286,7 @@ export default function DeleteAccountPage() {
             </div>
 
             {/* FOOTER */}
-            <div className="mt-7 text-center">
-              <div className="flex items-center justify-center gap-2">
-                <span className="h-px w-10 bg-[#ddc69b]" />
-
-                <span className="text-[#b8893b]">❧</span>
-                <span className="text-[#b8893b]">❧</span>
-                <span className="text-[#b8893b]">❧</span>
-
-                <span className="h-px w-10 bg-[#ddc69b]" />
-              </div>
-
-              <p
-                className="
-                  mt-3
-                  font-serif
-                  text-[12px]
-                  font-semibold
-                  text-[#7b251e]
-                "
-              >
-                🙏 Jai Shree Krishna
-              </p>
-            </div>
+            <Footer />
           </div>
         </div>
       </main>
@@ -301,9 +294,7 @@ export default function DeleteAccountPage() {
   }
 
   /*
-   * =========================================================
    * MAIN DELETE PAGE
-   * =========================================================
    */
 
   return (
@@ -313,15 +304,11 @@ export default function DeleteAccountPage() {
         bg-[#fffaf1]
         pb-10
         text-[#40372f]
-
         lg:ml-[92px]
         lg:w-[calc(100%-92px)]
       "
     >
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
-
+      {/* HEADER */}
       <header
         className="
           sticky
@@ -343,22 +330,19 @@ export default function DeleteAccountPage() {
             items-center
             gap-3
             px-4
-
             sm:min-h-[70px]
             sm:px-6
-
             lg:min-h-[82px]
             lg:px-8
           "
         >
-          {/* BACK BUTTON */}
-
           <button
             type="button"
-            onClick={() => router.back()}
-            aria-label="Go back"
+            onClick={() => router.push("/dashboard")}
+            aria-label="Back to Dashboard"
             disabled={deleting}
             className="
+              group
               grid
               h-9
               w-9
@@ -368,24 +352,26 @@ export default function DeleteAccountPage() {
               border
               border-[#ead7b8]
               bg-white
-              text-[#a71919]
+              text-[#641010]
               shadow-sm
-              transition
-
-              hover:bg-[#fff4e6]
+              transition-all
+              hover:border-[#b8893b]
+              hover:bg-[#fff8eb]
               active:scale-95
-
               disabled:cursor-not-allowed
               disabled:opacity-50
-
+              sm:h-10
+              sm:w-10
               lg:h-11
               lg:w-11
             "
           >
-            <BackIcon />
+            <ArrowLeft
+              size={19}
+              strokeWidth={1.8}
+              className="transition-transform duration-200 group-hover:-translate-x-0.5"
+            />
           </button>
-
-          {/* TITLE */}
 
           <div className="min-w-0">
             <p
@@ -407,7 +393,6 @@ export default function DeleteAccountPage() {
                 text-[19px]
                 font-bold
                 text-[#641010]
-
                 lg:text-[25px]
               "
             >
@@ -417,10 +402,7 @@ export default function DeleteAccountPage() {
         </div>
       </header>
 
-      {/* =====================================================
-          CONTENT
-      ===================================================== */}
-
+      {/* CONTENT */}
       <div
         className="
           mx-auto
@@ -428,18 +410,13 @@ export default function DeleteAccountPage() {
           max-w-[900px]
           px-4
           py-6
-
           sm:px-6
           sm:py-8
-
           lg:px-8
           lg:py-10
         "
       >
-        {/* =================================================
-            HERO
-        ================================================= */}
-
+        {/* HERO */}
         <section
           className="
             relative
@@ -451,14 +428,10 @@ export default function DeleteAccountPage() {
             p-6
             text-center
             shadow-[0_8px_30px_rgba(167,25,25,0.05)]
-
             sm:p-8
-
             lg:p-10
           "
         >
-          {/* Decorative circles */}
-
           <div
             aria-hidden="true"
             className="
@@ -486,8 +459,6 @@ export default function DeleteAccountPage() {
           />
 
           <div className="relative z-10">
-            {/* DELETE ICON */}
-
             <div
               className="
                 mx-auto
@@ -504,7 +475,7 @@ export default function DeleteAccountPage() {
                 shadow-[0_8px_24px_rgba(180,35,24,0.08)]
               "
             >
-              <DeleteIconLarge />
+              <Trash2 size={36} strokeWidth={1.6} />
             </div>
 
             <p
@@ -527,9 +498,7 @@ export default function DeleteAccountPage() {
                 text-[27px]
                 font-bold
                 text-[#641010]
-
                 sm:text-[32px]
-
                 lg:text-[38px]
               "
             >
@@ -544,21 +513,17 @@ export default function DeleteAccountPage() {
                 text-[11px]
                 leading-5
                 text-[#82766b]
-
                 sm:text-[12px]
                 sm:leading-6
               "
             >
-              Before continuing, please review what will happen to your
-              account and associated information.
+              Before continuing, please review what will happen to your account
+              and associated information.
             </p>
           </div>
         </section>
 
-        {/* =================================================
-            WARNING
-        ================================================= */}
-
+        {/* WARNING */}
         <section
           className="
             mt-5
@@ -567,7 +532,6 @@ export default function DeleteAccountPage() {
             border-[#efc7c1]
             bg-[#fff3f1]
             p-5
-
             sm:p-6
           "
         >
@@ -584,7 +548,7 @@ export default function DeleteAccountPage() {
                 text-[#b42318]
               "
             >
-              <WarningIcon />
+              <ShieldAlert size={22} strokeWidth={1.8} />
             </div>
 
             <div className="min-w-0">
@@ -598,7 +562,6 @@ export default function DeleteAccountPage() {
                   text-[10px]
                   leading-5
                   text-[#a66d67]
-
                   sm:text-[11px]
                   sm:leading-6
                 "
@@ -610,10 +573,7 @@ export default function DeleteAccountPage() {
           </div>
         </section>
 
-        {/* =================================================
-            WHAT HAPPENS
-        ================================================= */}
-
+        {/* WHAT HAPPENS */}
         <section
           className="
             mt-5
@@ -623,7 +583,6 @@ export default function DeleteAccountPage() {
             bg-[#fffdf9]
             p-5
             shadow-[0_6px_24px_rgba(74,42,16,0.045)]
-
             sm:p-6
           "
         >
@@ -653,29 +612,26 @@ export default function DeleteAccountPage() {
 
           <div className="mt-6 space-y-4">
             <InfoRow
-              icon={<CloseIcon />}
+              icon={<X size={17} strokeWidth={1.8} />}
               title="Account access"
-              text="Your account access will be permanently removed."
+              text="Your account access will be permanently removed once the backend confirms deletion."
             />
 
             <InfoRow
-              icon={<TrashSmallIcon />}
+              icon={<Trash2 size={17} strokeWidth={1.8} />}
               title="Account data"
-              text="Account-related data will be removed according to the application's data retention policy."
+              text="Account-related data will be handled according to your application's data retention policy."
             />
 
             <InfoRow
-              icon={<LogoutIcon />}
+              icon={<LogOut size={17} strokeWidth={1.8} />}
               title="Current session"
-              text="You will be signed out from the current application session."
+              text="Your current application session will be cleared."
             />
           </div>
         </section>
 
-        {/* =================================================
-            CONFIRMATION
-        ================================================= */}
-
+        {/* CONFIRMATION */}
         <section
           className="
             mt-5
@@ -687,8 +643,6 @@ export default function DeleteAccountPage() {
             shadow-[0_6px_24px_rgba(74,42,16,0.045)]
           "
         >
-          {/* SECTION HEADER */}
-
           <div className="border-b border-[#f0e5d6] px-5 py-5 sm:px-6">
             <p
               className="
@@ -720,18 +674,14 @@ export default function DeleteAccountPage() {
                 text-[10px]
                 leading-5
                 text-[#82766b]
-
                 sm:text-[11px]
                 sm:leading-6
               "
             >
-              Type{" "}
-              <strong className="font-bold text-[#641010]">DELETE</strong> below
-              to confirm this action.
+              Type <strong className="font-bold text-[#641010]">DELETE</strong>{" "}
+              below to confirm this action.
             </p>
           </div>
-
-          {/* FORM */}
 
           <div className="p-5 sm:p-6">
             <label
@@ -752,13 +702,16 @@ export default function DeleteAccountPage() {
                 id="delete-confirmation"
                 type="text"
                 value={confirmText}
-                onChange={(e) => setConfirmText(e.target.value)}
+                onChange={(event) => {
+                  setConfirmText(event.target.value);
+                  setDeleteError("");
+                }}
                 placeholder="DELETE"
                 disabled={deleting}
                 autoComplete="off"
                 spellCheck={false}
                 className="
-                  h-13
+                  h-[52px]
                   w-full
                   rounded-xl
                   border
@@ -773,21 +726,16 @@ export default function DeleteAccountPage() {
                   text-[#40372f]
                   outline-none
                   transition
-
                   placeholder:normal-case
                   placeholder:tracking-normal
                   placeholder:text-[#b4a89d]
-
                   focus:border-[#b42318]
                   focus:ring-4
                   focus:ring-[#b42318]/10
-
                   disabled:cursor-not-allowed
                   disabled:bg-[#f7f3ed]
                 "
               />
-
-              {/* VALIDATION ICON */}
 
               {confirmText.length > 0 && (
                 <div
@@ -801,7 +749,6 @@ export default function DeleteAccountPage() {
                     -translate-y-1/2
                     place-items-center
                     rounded-full
-
                     ${
                       isConfirmed
                         ? "bg-[#e9f8ed] text-[#198754]"
@@ -809,14 +756,17 @@ export default function DeleteAccountPage() {
                     }
                   `}
                 >
-                  {isConfirmed ? <CheckIcon /> : <CloseIcon />}
+                  {isConfirmed ? (
+                    <Check size={16} strokeWidth={2.5} />
+                  ) : (
+                    <X size={16} strokeWidth={2} />
+                  )}
                 </div>
               )}
             </div>
 
-            {/* VALIDATION MESSAGE */}
-
-            <div className="mt-3 min-h-[18px]">
+            {/* VALIDATION */}
+            <div className="mt-3 min-h-[18px]" aria-live="polite">
               {confirmText.length > 0 && !isConfirmed && (
                 <p className="text-[9px] font-medium text-[#b42318]">
                   Please type DELETE exactly as shown above.
@@ -825,20 +775,24 @@ export default function DeleteAccountPage() {
 
               {isConfirmed && (
                 <p className="text-[9px] font-medium text-[#198754]">
-                  Confirmation accepted. You can now delete your account.
+                  Confirmation accepted. You can continue.
+                </p>
+              )}
+
+              {deleteError && (
+                <p className="text-[10px] font-medium text-[#b42318]">
+                  {deleteError}
                 </p>
               )}
             </div>
 
-            {/* =================================================
-                DELETE BUTTON
-            ================================================= */}
-
+            {/* DELETE BUTTON */}
             <button
               type="button"
               onClick={() => {
                 if (isConfirmed) {
                   setShowConfirm(true);
+                  setDeleteError("");
                 }
               }}
               disabled={!isConfirmed || deleting}
@@ -859,27 +813,22 @@ export default function DeleteAccountPage() {
                 text-white
                 shadow-[0_7px_18px_rgba(180,35,24,0.12)]
                 transition
-
                 hover:bg-[#991b12]
                 hover:shadow-[0_9px_22px_rgba(180,35,24,0.16)]
-
                 disabled:cursor-not-allowed
                 disabled:bg-[#d9cec3]
                 disabled:shadow-none
-
                 active:scale-[0.99]
               "
             >
-              <DeleteIcon />
-
+              <Trash2 size={17} strokeWidth={1.8} />
               Delete Account Permanently
             </button>
 
             {/* CANCEL */}
-
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={() => router.push("/dashboard")}
               disabled={deleting}
               className="
                 mt-3
@@ -895,9 +844,7 @@ export default function DeleteAccountPage() {
                 font-bold
                 text-[#65594f]
                 transition
-
                 hover:bg-[#fffaf1]
-
                 disabled:cursor-not-allowed
                 disabled:opacity-50
               "
@@ -907,39 +854,10 @@ export default function DeleteAccountPage() {
           </div>
         </section>
 
-        {/* =================================================
-            FOOTER
-        ================================================= */}
-
-        <div className="mt-8 text-center">
-          <div className="flex items-center justify-center gap-2">
-            <span className="h-px w-10 bg-[#ddc69b]" />
-
-            <span className="text-[#b8893b]">❧</span>
-            <span className="text-[#b8893b]">❧</span>
-            <span className="text-[#b8893b]">❧</span>
-
-            <span className="h-px w-10 bg-[#ddc69b]" />
-          </div>
-
-          <p
-            className="
-              mt-3
-              font-serif
-              text-[12px]
-              font-semibold
-              text-[#7b251e]
-            "
-          >
-            🙏 Jai Shree Krishna
-          </p>
-        </div>
+        <Footer />
       </div>
 
-      {/* =====================================================
-          FINAL CONFIRMATION MODAL
-      ===================================================== */}
-
+      {/* FINAL CONFIRMATION MODAL */}
       {showConfirm && (
         <div
           className="
@@ -951,6 +869,7 @@ export default function DeleteAccountPage() {
             justify-center
             bg-[#2b1712]/45
             px-4
+            py-6
             backdrop-blur-[3px]
           "
           onClick={() => {
@@ -973,10 +892,8 @@ export default function DeleteAccountPage() {
               bg-[#fffdf9]
               shadow-[0_25px_80px_rgba(43,23,18,0.25)]
             "
-            onClick={(e) => e.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
           >
-            {/* MODAL ICON */}
-
             <div className="px-6 pb-2 pt-7 text-center sm:px-8">
               <div
                 className="
@@ -991,7 +908,7 @@ export default function DeleteAccountPage() {
                   text-[#b42318]
                 "
               >
-                <WarningIcon />
+                <CircleAlert size={31} strokeWidth={1.7} />
               </div>
 
               <h2
@@ -1017,12 +934,10 @@ export default function DeleteAccountPage() {
                   sm:leading-6
                 "
               >
-                Your account will be permanently deleted. This action cannot
-                be undone.
+                Your account deletion cannot be undone. In the current demo, the
+                operation is simulated and does not delete the backend account.
               </p>
             </div>
-
-            {/* MODAL ACTIONS */}
 
             <div className="p-5 sm:p-6">
               <div
@@ -1036,18 +951,12 @@ export default function DeleteAccountPage() {
               >
                 <div className="flex items-start gap-2.5">
                   <div className="mt-[1px] text-[#b42318]">
-                    <WarningIcon />
+                    <ShieldAlert size={17} strokeWidth={1.8} />
                   </div>
 
-                  <p
-                    className="
-                      text-[9px]
-                      leading-5
-                      text-[#9f1f17]
-                    "
-                  >
-                    Please confirm that you really want to permanently delete
-                    your account.
+                  <p className="text-[9px] leading-5 text-[#9f1f17]">
+                    Make sure your real backend deletion API is connected before
+                    enabling permanent account deletion in production.
                   </p>
                 </div>
               </div>
@@ -1072,22 +981,20 @@ export default function DeleteAccountPage() {
                   font-bold
                   text-white
                   transition
-
                   hover:bg-[#991b12]
-
                   disabled:cursor-not-allowed
                   disabled:opacity-70
                 "
               >
                 {deleting ? (
                   <>
-                    <SpinnerIcon />
-                    Deleting Account...
+                    <LoaderCircle size={17} className="animate-spin" />
+                    Processing...
                   </>
                 ) : (
                   <>
-                    <DeleteIcon />
-                    Yes, Delete My Account
+                    <Trash2 size={17} strokeWidth={1.8} />
+                    Confirm Demo Deletion
                   </>
                 )}
               </button>
@@ -1110,9 +1017,7 @@ export default function DeleteAccountPage() {
                   font-bold
                   text-[#65594f]
                   transition
-
                   hover:bg-[#fffaf1]
-
                   disabled:cursor-not-allowed
                   disabled:opacity-50
                 "
@@ -1128,7 +1033,7 @@ export default function DeleteAccountPage() {
 }
 
 /* =========================================================
-   INFO ROW
+   REUSABLE INFO ROW
 ========================================================= */
 
 function InfoRow({
@@ -1136,7 +1041,7 @@ function InfoRow({
   title,
   text,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   text: string;
 }) {
@@ -1167,7 +1072,6 @@ function InfoRow({
             text-[10px]
             leading-5
             text-[#74685e]
-
             sm:text-[11px]
             sm:leading-6
           "
@@ -1180,240 +1084,31 @@ function InfoRow({
 }
 
 /* =========================================================
-   ICONS
+   REUSABLE FOOTER
 ========================================================= */
 
-function BackIcon() {
+function Footer() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[18px] w-[18px]"
-      aria-hidden="true"
-    >
-      <path d="m15 18-6-6 6-6" />
-    </svg>
-  );
-}
+    <div className="mt-7 text-center">
+      <div className="flex items-center justify-center gap-2">
+        <span className="h-px w-10 bg-[#ddc69b]" />
+        <span className="text-[#b8893b]">❧</span>
+        <span className="text-[#b8893b]">❧</span>
+        <span className="text-[#b8893b]">❧</span>
+        <span className="h-px w-10 bg-[#ddc69b]" />
+      </div>
 
-function DeleteIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[18px] w-[18px]"
-      aria-hidden="true"
-    >
-      <path d="M3 6h18" />
-      <path d="M8 6V4h8v2" />
-      <path d="M19 6l-1 14H6L5 6" />
-      <path d="M10 11v5" />
-      <path d="M14 11v5" />
-    </svg>
-  );
-}
-
-function DeleteIconLarge() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-9 w-9"
-      aria-hidden="true"
-    >
-      <path d="M3 6h18" />
-      <path d="M8 6V4h8v2" />
-      <path d="M19 6l-1 14H6L5 6" />
-      <path d="M10 11v5" />
-      <path d="M14 11v5" />
-    </svg>
-  );
-}
-
-function WarningIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-5 w-5"
-      aria-hidden="true"
-    >
-      <path d="M12 3 2.5 20h19L12 3Z" />
-      <path d="M12 9v4" />
-      <path d="M12 17h.01" />
-    </svg>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4"
-      aria-hidden="true"
-    >
-      <path d="M6 6l12 12" />
-      <path d="M18 6 6 18" />
-    </svg>
-  );
-}
-
-function TrashSmallIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4"
-      aria-hidden="true"
-    >
-      <path d="M4 7h16" />
-      <path d="M9 7V4h6v3" />
-      <path d="M6 7l1 13h10l1-13" />
-      <path d="M10 11v5" />
-      <path d="M14 11v5" />
-    </svg>
-  );
-}
-
-function LogoutIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4"
-      aria-hidden="true"
-    >
-      <path d="M10 17l5-5-5-5" />
-      <path d="M15 12H3" />
-      <path d="M21 19V5a2 2 0 0 0-2-2h-5" />
-    </svg>
-  );
-}
-
-function SpinnerIcon() {
-  return (
-    <svg
-      className="h-4 w-4 animate-spin"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"
-      />
-    </svg>
-  );
-}
-
-function CheckCircleIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-10 w-10"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="m8 12 2.5 2.5L16 9" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4"
-      aria-hidden="true"
-    >
-      <path d="m5 12 4 4L19 6" />
-    </svg>
-  );
-}
-
-function InfoIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[17px] w-[17px]"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 11v5" />
-      <path d="M12 8h.01" />
-    </svg>
-  );
-}
-
-function HomeIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[17px] w-[17px]"
-      aria-hidden="true"
-    >
-      <path d="m3 10 9-7 9 7" />
-      <path d="M5 9v11h14V9" />
-      <path d="M9 20v-6h6v6" />
-    </svg>
+      <p
+        className="
+          mt-3
+          font-serif
+          text-[12px]
+          font-semibold
+          text-[#7b251e]
+        "
+      >
+        🙏 Jai Shree Krishna
+      </p>
+    </div>
   );
 }

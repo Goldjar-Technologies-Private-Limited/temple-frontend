@@ -1,7 +1,10 @@
 "use client";
 
+"use client";
+
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, ShoppingCart, Trash2 } from "lucide-react";
 
 /* =====================================================
    TYPES
@@ -1207,7 +1210,7 @@ function CartHeader({
               lg:w-11
             "
           >
-            ←
+         <ArrowLeft size={20} strokeWidth={2} />
           </button>
 
           {/* TITLE */}

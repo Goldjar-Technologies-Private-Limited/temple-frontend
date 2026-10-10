@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import type { TranslationKey } from "@/utils/i18n";
+import { ArrowLeft } from "lucide-react";
 
 type EventTab = "upcoming" | "past";
 
@@ -617,7 +618,7 @@ export default function Events() {
               md:w-11
             "
           >
-            ‹
+        <ArrowLeft size={20} strokeWidth={2} />
           </button>
 
           {/* HEADER TITLE */}
