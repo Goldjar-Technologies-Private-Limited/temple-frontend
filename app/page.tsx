@@ -26,27 +26,25 @@ export default function Splash() {
         zIndex: 9999,
       }}
     >
-      {/* =====================================================
-          MOBILE
-          < 640px
-          ===================================================== */}
-
-      <div
-        className="sm:hidden"
+      <picture
         style={{
           position: "absolute",
           inset: 0,
           width: "100%",
           height: "100%",
-          overflow: "hidden",
+          display: "block",
         }}
       >
+        {/* Desktop */}
+        <source media="(min-width: 1024px)" srcSet="/images/splash-desktop.png" />
+        {/* Tablet */}
+        <source media="(min-width: 640px)" srcSet="/images/splash-tablet.png" />
+        {/* Mobile (Default) */}
         <img
           src="/images/splash-mobile.png"
           alt="Shri Govardhannath Haveli"
+          fetchPriority="high"
           style={{
-            position: "absolute",
-            inset: 0,
             width: "100%",
             height: "100%",
             maxWidth: "none",
@@ -55,69 +53,7 @@ export default function Splash() {
             display: "block",
           }}
         />
-      </div>
-
-      {/* =====================================================
-          TABLET
-          640px - 1023px
-          ===================================================== */}
-
-      <div
-        className="hidden sm:block lg:hidden"
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          overflow: "hidden",
-        }}
-      >
-        <img
-          src="/images/splash-tablet.png"
-          alt="Shri Govardhannath Haveli"
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            maxWidth: "none",
-            objectFit: "cover",
-            objectPosition: "center center",
-            display: "block",
-          }}
-        />
-      </div>
-
-      {/* =====================================================
-          DESKTOP
-          >= 1024px
-          ===================================================== */}
-
-      <div
-        className="hidden lg:block"
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          overflow: "hidden",
-        }}
-      >
-        <img
-          src="/images/splash-desktop.png"
-          alt="Shri Govardhannath Haveli"
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            maxWidth: "none",
-            objectFit: "cover",
-            objectPosition: "center center",
-            display: "block",
-          }}
-        />
-      </div>
+      </picture>
     </main>
   );
 }

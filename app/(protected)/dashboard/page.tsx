@@ -311,6 +311,7 @@ export default function Dashboard() {
           <img
             src="/images/haveli.jpg"
             alt="Shri Govardhannath Haveli"
+            fetchPriority="high"
             className="
               absolute
               inset-0
