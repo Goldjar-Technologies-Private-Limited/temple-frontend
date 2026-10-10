@@ -28,6 +28,7 @@ export default function HomeHeader() {
   const { t } = useLanguage();
 
   const [profileName, setProfileName] = useState("");
+  const [profileImage, setProfileImage] = useState("");
   const [cartCount, setCartCount] = useState(0);
 
   /* =========================================================
@@ -35,28 +36,29 @@ export default function HomeHeader() {
   ========================================================= */
 
   useEffect(() => {
-    const loadProfile = () => {
-      try {
-        const storedProfile = localStorage.getItem(
-          PROFILE_STORAGE_KEY
-        );
+ const loadProfile = () => {
+  try {
+    const storedProfile = localStorage.getItem(
+      PROFILE_STORAGE_KEY
+    );
 
-        if (!storedProfile) {
-          setProfileName("");
-          return;
-        }
+    if (!storedProfile) {
+      setProfileName("");
+      setProfileImage("");
+      return;
+    }
 
-        const parsedProfile =
-          JSON.parse(storedProfile) as Partial<ProfileData>;
+    const parsedProfile =
+      JSON.parse(storedProfile) as Partial<ProfileData>;
 
-        const name = parsedProfile.name?.trim();
-
-        setProfileName(name || "");
-      } catch (error) {
-        console.error("Failed to load profile:", error);
-        setProfileName("");
-      }
-    };
+    setProfileName(parsedProfile.name?.trim() || "");
+    setProfileImage(parsedProfile.image?.trim() || "");
+  } catch (error) {
+    console.error("Failed to load profile:", error);
+    setProfileName("");
+    setProfileImage("");
+  }
+};
 
     loadProfile();
 
@@ -190,143 +192,109 @@ export default function HomeHeader() {
     md:py-3
   "
 >
-      {/* =====================================================
-          LEFT SECTION
-      ===================================================== */}
 
-      <div
-        className="
-          flex
-          min-w-0
-          flex-1
-          items-center
+{/* PROFILE IMAGE */}
 
-          gap-2
-          sm:gap-2.5
-          md:gap-3
-          lg:gap-3.5
-        "
-      >
-        {/* LOGO */}
+<div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
 
-        <div
-          className="
-            relative
-            flex
-            h-9
-            w-9
-            sm:h-10
-            sm:w-10
-            md:h-11
-            md:w-11
-            lg:h-12
-            lg:w-12
+  {/* RADHA PROFILE IMAGE — CLICK TO OPEN PROFILE */}
 
-            shrink-0
-            items-center
-            justify-center
+  <div
+    onClick={() => router.push("/profile")}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        router.push("/profile");
+      }
+    }}
+    className="
+      relative
+      h-9 w-9
+      sm:h-10 sm:w-10
+      md:h-11 md:w-11
+      lg:h-12 lg:w-12
+      shrink-0
+      overflow-hidden
+      rounded-full
+      border border-[#dfc181]
+      bg-[#fff3d9]
+      flex items-center justify-center
+      cursor-pointer
+    "
+  >
+    {profileImage ? (
+      <img
+        src={profileImage}
+        alt="Radha profile"
+        className="h-full w-full object-cover"
+        onError={() => setProfileImage("")}
+      />
+    ) : (
+      <span className="text-xl" aria-hidden="true">
+        👤
+      </span>
+    )}
+  </div>
 
-            rounded-full
-            border
-            border-[#dfc181]
+  {/* GREETING AND NAME */}
 
-            bg-[radial-gradient(circle,#fffdf9_0%,#fff3d9_100%)]
+  <div className="min-w-0">
 
-            text-[18px]
-            sm:text-[20px]
-            md:text-[21px]
-            lg:text-[23px]
+    {/* JAI SHREE KRISHNA — BESIDE IMAGE */}
 
-            shadow-[0_4px_12px_rgba(112,71,20,0.08)]
-          "
-        >
-          <span
-            className="
-              absolute
-              inset-[3px]
-              rounded-full
-              border
-              border-[#ecd8a8]/60
-            "
-          />
+    <div
+      className="
+        flex
+        items-center
+        gap-1
+        whitespace-nowrap
+        text-[9px]
+        sm:text-[10px]
+        md:text-[11px]
+        font-semibold
+        tracking-[0.2px]
+        text-[#8a7968]
+      "
+    >
+      <span className="text-[#c99435]">✦</span>
+      <span>🙏 Jai Shree Krishna</span>
+      <span className="text-[#c99435]">✦</span>
+    </div>
 
-          <span className="relative z-10">
-            🛕
-          </span>
-        </div>
+    {/* PROFILE NAME — CLICK TO OPEN PROFILE */}
 
-        {/* PROFILE TEXT */}
+    <h1
+      onClick={() => router.push("/profile")}
+      role="link"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          router.push("/profile");
+        }
+      }}
+      className="
+        mt-0.5
+        truncate
+        font-serif
+        text-[14px]
+        sm:text-[15px]
+        md:text-[17px]
+        lg:text-[19px]
+        font-bold
+        leading-tight
+        text-[#302923]
+        cursor-pointer
+      "
+    >
+      {profileName || "Radha"}
+    </h1>
 
-        <div className="min-w-0">
-          {/* Greeting */}
+  </div>
+</div>
 
-          <div
-            className="
-              flex
-              max-w-[150px]
-              sm:max-w-[200px]
-              md:max-w-[280px]
-              lg:max-w-[340px]
-
-              items-center
-              gap-1
-
-              truncate
-
-              text-[8px]
-              sm:text-[9px]
-              md:text-[10px]
-              lg:text-[11px]
-
-              font-semibold
-              tracking-[0.2px]
-              text-[#8a7968]
-            "
-          >
-            <span className="shrink-0 text-[#c99435]">
-              ✦
-            </span>
-
-            <span className="truncate">
-              {t("jaiShreeKrishna")}
-            </span>
-
-            <span className="shrink-0 text-[#c99435]">
-              ✦
-            </span>
-          </div>
-
-          {/* NAME */}
-
-          <h1
-            className="
-              m-0
-              mt-0.5
-
-              max-w-[150px]
-              sm:max-w-[200px]
-              md:max-w-[280px]
-              lg:max-w-[340px]
-
-              truncate
-
-              font-serif
-
-              text-[14px]
-              sm:text-[15px]
-              md:text-[17px]
-              lg:text-[19px]
-
-              font-bold
-              leading-tight
-
-              text-[#302923]
-            "
-          >
-            {profileName || "Devotee"}
-          </h1>
-        </div>
-      </div>
 
       {/* =====================================================
           RIGHT SECTION
