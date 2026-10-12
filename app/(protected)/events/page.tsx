@@ -600,7 +600,7 @@ export default function Events() {
               text-2xl
               leading-none
 
-              text-[#a71919]
+           text-[#641010]
 
               shadow-[0_3px_12px_rgba(70,40,10,0.06)]
 

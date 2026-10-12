@@ -1,21 +1,33 @@
+
 "use client";
 
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 
 import { useLanguage } from "@/contexts/LanguageProvider";
 import type { TranslationKey } from "@/utils/i18n";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
+
+/* =========================================================
+   TYPES
+========================================================= */
 
 type SevaDetailData = {
   titleKey: TranslationKey;
   subtitleKey: TranslationKey;
   image: string;
   descriptionKey: TranslationKey;
-  progress: number;
-  progressTextKey: TranslationKey;
 };
+
+type DonationAmount = {
+  label: string;
+  value: number;
+};
+
+/* =========================================================
+   SEVA DATA
+========================================================= */
 
 const sevaData: Record<string, SevaDetailData> = {
   "go-seva": {
@@ -23,306 +35,607 @@ const sevaData: Record<string, SevaDetailData> = {
     subtitleKey: "careForGauMata",
     image: "/images/go-seva.jpg",
     descriptionKey: "goSevaDescription",
-    progress: 72,
-    progressTextKey: "goSevaProgress",
   },
   "nitya-bhog": {
     titleKey: "nityaBhogSeva",
     subtitleKey: "dailyFoodOffering",
     image: "/images/nitya-bhog.jpg",
     descriptionKey: "nityaBhogDescription",
-    progress: 68,
-    progressTextKey: "nityaBhogProgress",
   },
   flower: {
     titleKey: "flowerSeva",
     subtitleKey: "templeDecoration",
     image: "/images/flower-seva.jpg",
     descriptionKey: "flowerSevaDescription",
-    progress: 54,
-    progressTextKey: "flowerSevaProgress",
   },
   annakut: {
     titleKey: "annakutSeva",
     subtitleKey: "specialUtsavSeva",
     image: "/images/annakut.jpg",
     descriptionKey: "annakutDescription",
-    progress: 82,
-    progressTextKey: "annakutProgress",
   },
   "temple-maintenance": {
     titleKey: "templeMaintenance",
     subtitleKey: "supportTempleServices",
     image: "/images/temple-maintenance.jpg",
     descriptionKey: "templeMaintenanceDescription",
-    progress: 45,
-    progressTextKey: "templeMaintenanceProgress",
   },
 };
 
-const amounts = ["₹101", "₹501", "₹1,001", "₹5,001"];
+/* =========================================================
+   DONATION AMOUNTS
+========================================================= */
+
+const donationAmounts: DonationAmount[] = [
+  { label: "₹101", value: 101 },
+  { label: "₹501", value: 501 },
+  { label: "₹1,001", value: 1001 },
+  { label: "₹5,001", value: 5001 },
+];
+
+const formatAmount = (amount: number) =>
+  new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 0,
+  }).format(amount);
+
+/* =========================================================
+   MAIN COMPONENT
+========================================================= */
 
 export default function SevaDetail() {
   const router = useRouter();
-  const params = useParams();
+  const params = useParams<{ id: string }>();
   const { t } = useLanguage();
 
-  const rawId = params.id;
+  const rawId = params?.id;
+
   const id = Array.isArray(rawId)
-    ? (rawId[0] ?? "go-seva")
-    : (rawId ?? "go-seva");
+    ? rawId[0] ?? "go-seva"
+    : rawId ?? "go-seva";
 
   const seva = sevaData[id] ?? sevaData["go-seva"];
 
-  const [selectedAmount, setSelectedAmount] = useState("₹501");
+  const [selectedAmount, setSelectedAmount] =
+    useState<number | null>(501);
+
   const [customAmount, setCustomAmount] = useState("");
+  const [amountError, setAmountError] = useState("");
+
+  /* =======================================================
+     SELECT PRESET AMOUNT
+  ======================================================= */
+
+  const handlePresetAmount = (amount: number) => {
+    setSelectedAmount(amount);
+    setCustomAmount("");
+    setAmountError("");
+  };
+
+  /* =======================================================
+     SELECT CUSTOM AMOUNT
+  ======================================================= */
+
+  const handleCustomAmount = () => {
+    setSelectedAmount(null);
+    setAmountError("");
+  };
+
+  /* =======================================================
+     DONATION VALIDATION
+  ======================================================= */
 
   const handleDonate = () => {
-    const amount =
-      selectedAmount === "Custom"
-        ? customAmount.trim()
-        : selectedAmount.replace(/[₹,]/g, "");
+    const rawAmount =
+      selectedAmount !== null
+        ? String(selectedAmount)
+        : customAmount.trim();
 
-    if (!amount || !Number.isFinite(Number(amount)) || Number(amount) <= 0) {
-      alert(t("selectDonationAmount"));
+    if (!/^\d+$/.test(rawAmount)) {
+      setAmountError(t("selectDonationAmount"));
       return;
     }
 
-    router.push(
-      `/donate?seva=${encodeURIComponent(id)}&amount=${encodeURIComponent(amount)}`,
-    );
+    const amount = Number(rawAmount);
+
+    if (!Number.isSafeInteger(amount) || amount <= 0) {
+      setAmountError(t("selectDonationAmount"));
+      return;
+    }
+
+    setAmountError("");
+
+    const query = new URLSearchParams({
+      seva: id,
+      amount: String(amount),
+    });
+
+    router.push(`/donate?${query.toString()}`);
   };
 
+  /* =======================================================
+     RENDER
+  ======================================================= */
+
   return (
-    <main className="min-h-screen bg-[#fff9ed] text-[#4b4039]">
+    <main
+      className="
+        relative box-border
+        min-h-screen min-h-[100dvh]
+        w-full min-w-0 max-w-full
+        overflow-x-clip
+        bg-[#fff9ed] text-[#4b4039]
+        pb-24 sm:pb-28
+        lg:pb-12 lg:pl-[92px]
+      "
+    >
       {/* HEADER */}
+
       <header
         className="
-          relative z-20 flex h-[72px] w-full
-          items-center justify-center
+          sticky top-0 z-40
+          w-full min-w-0
           border-b border-[#eadbc5]
-          bg-[#fffdf8]
-          lg:h-[82px]
-        "
-      >
-        {/* BACK BUTTON: MOBILE + DESKTOP */}
-        <button
-          type="button"
-          onClick={() => router.back()}
-          aria-label={t("back")}
-          className="
-            !absolute !left-4 !top-1/2 !z-50
-            !flex !h-10 !w-10 !-translate-y-1/2
-            shrink-0 items-center justify-center
-            rounded-full border border-[#ead7b8]
-            bg-white text-[#641010] shadow-sm
-            transition-colors duration-200
-            hover:border-[#b8893b]
-            hover:bg-[#fff4e4]
-            active:scale-95
-            sm:!left-6
-            lg:!left-8
-            lg:!h-11 lg:!w-11
-          "
-        >
-          <ArrowLeft size={21} strokeWidth={1.8} />
-        </button>
-
-        {/* CENTERED TITLE */}
-        <h1
-          className="
-            m-0 text-center font-serif
-            text-[22px] font-bold text-[#641010]
-            sm:text-[24px] lg:text-[26px]
-          "
-        >
-          {t("sevaDetail")}
-        </h1>
-      </header>
-
-      {/* PAGE CONTENT */}
-      <section
-        className="
-          mx-auto w-full px-[17px] pb-7 pt-[10px]
-          sm:max-w-[720px] sm:px-6 sm:pb-10 sm:pt-5
-          lg:max-w-[1100px] lg:px-8 lg:pb-14 lg:pt-8
-          xl:max-w-[1250px]
+          bg-[#fffdf8]/95
+          shadow-[0_2px_12px_rgba(80,40,10,0.035)]
+          backdrop-blur-xl
         "
       >
         <div
           className="
-            lg:grid
-            lg:grid-cols-[minmax(0,1.05fr)_minmax(380px,0.95fr)]
-            lg:items-start lg:gap-10
+            mx-auto flex min-h-[60px]
+            w-full min-w-0 max-w-[1500px]
+            items-center gap-2
+            px-3
+            min-[375px]:px-4
+            sm:min-h-[68px] sm:gap-3 sm:px-5
+            md:px-6
+            lg:min-h-[76px] lg:px-8
+            xl:px-10 2xl:px-12
           "
         >
-          {/* IMAGE */}
-          <div>
-            <img
-              src={seva.image}
-              alt={t(seva.titleKey)}
-              className="
-                block h-[116px] w-full rounded-[10px]
-                bg-[#eadbc5] object-cover
-                sm:h-[280px] sm:rounded-[14px]
-                lg:h-[500px] lg:rounded-[18px]
-                xl:h-[540px]
-              "
-            />
-          </div>
-
-          {/* DETAILS */}
-          <div
+          <button
+            type="button"
+            onClick={() => router.back()}
+            aria-label={t("back")}
+            title={t("back")}
             className="
-              lg:rounded-[18px] lg:border
-              lg:border-[#eadbc5] lg:bg-[#fffdf8]
-              lg:p-7
-              lg:shadow-[0_8px_30px_rgba(80,40,10,0.06)]
-              xl:p-8
+              group flex size-9 shrink-0
+              items-center justify-center
+              rounded-full border border-[#ead7b8]
+              bg-white text-[#641010] shadow-sm
+              transition-all duration-200
+              hover:border-[#b8893b]
+              hover:bg-[#fff4e4]
+              focus-visible:outline-none
+              focus-visible:ring-2
+              focus-visible:ring-[#a71919]
+              focus-visible:ring-offset-2
+              active:scale-95
+              sm:size-10 lg:size-11
             "
           >
-            <h2
-              className="
-                mb-[2px] mt-[10px] font-serif
-                text-[22px] leading-[1.15] text-[#3b3029]
-                sm:mt-4 sm:text-[27px]
-                lg:mt-0 lg:text-[32px]
-              "
-            >
-              {t(seva.titleKey)}
-            </h2>
+            <ArrowLeft
+              size={20}
+              strokeWidth={1.8}
+              className="transition-transform duration-200 group-hover:-translate-x-0.5"
+            />
+          </button>
 
-            <div className="text-[14px] text-[#776d65] sm:text-[15px] lg:text-[16px]">
-              {t(seva.subtitleKey)}
-            </div>
-
+          <div className="min-w-0 flex-1">
             <p
               className="
-                mb-[14px] mt-[13px] text-[13px]
-                leading-[1.4] text-[#665d55]
-                sm:mb-5 sm:mt-4 sm:text-[14px] sm:leading-[1.6]
-                lg:mb-7 lg:mt-5 lg:text-[15px] lg:leading-[1.7]
+                truncate text-[8px] font-bold
+                uppercase tracking-[0.14em]
+                text-[#b07a26]
+                min-[375px]:text-[9px]
+                sm:text-[10px] sm:tracking-[0.2em]
               "
             >
-              {t(seva.descriptionKey)}
+              SHRI GOVARDHANNATH
             </p>
 
-            {/* PROGRESS */}
-            <div
+            <h1
               className="
-                mb-[6px] flex items-center justify-between
-                text-[12px] text-[#776d65]
-                sm:text-[13px] lg:mb-2 lg:text-[14px]
+                truncate font-serif text-[17px]
+                font-bold leading-tight text-[#641010]
+                min-[375px]:text-[19px]
+                sm:text-[22px] lg:text-[25px]
               "
             >
-              <span>{t(seva.progressTextKey)}</span>
-              <b className="text-[#a71919]">{seva.progress}%</b>
-            </div>
+              {t("sevaDetail")}
+            </h1>
+          </div>
+        </div>
+      </header>
 
-            <div className="h-[9px] w-full overflow-hidden rounded-full bg-[#e6e1de] lg:h-[10px]">
+      {/* PAGE CONTENT */}
+
+      <section
+        className="
+          mx-auto box-border
+          w-full min-w-0 max-w-[1500px]
+          px-3 py-4
+          min-[375px]:px-4
+          sm:px-5 sm:py-6
+          md:px-6
+          lg:px-8 lg:py-8
+          xl:px-10 xl:py-10
+          2xl:px-12
+        "
+      >
+        {/* MAIN GRID: STACKED UNTIL LARGE DESKTOP */}
+
+        <div
+          className="
+            grid w-full min-w-0
+            grid-cols-1 items-start
+            gap-4 sm:gap-5
+            xl:grid-cols-2 xl:gap-7
+            2xl:gap-10
+          "
+        >
+          {/* LEFT: IMAGE */}
+
+          <div className="w-full min-w-0">
+            <div
+              className="
+                group relative isolate
+                w-full min-w-0 overflow-hidden
+                rounded-[14px]
+                border border-[#eadbc5]
+                bg-[#eadbc5]
+                shadow-[0_8px_30px_rgba(80,40,10,0.07)]
+                sm:rounded-[18px]
+                xl:rounded-[22px]
+              "
+            >
+              <img
+                src={seva.image}
+                alt={t(seva.titleKey)}
+                className="
+                  block h-auto w-full max-w-full
+                  aspect-[16/10]
+                  object-cover object-center
+                  transition-transform duration-500
+                  group-hover:scale-[1.02]
+                  sm:aspect-[16/9]
+                  xl:aspect-[4/3]
+                "
+              />
+
               <div
-                className="h-full rounded-full bg-[#a71919] transition-all duration-500"
-                style={{ width: `${seva.progress}%` }}
+                aria-hidden="true"
+                className="
+                  pointer-events-none absolute inset-0
+                  bg-gradient-to-t
+                  from-[#35160d]/40
+                  via-transparent to-transparent
+                "
               />
             </div>
+          </div>
 
-            {/* DONATION AMOUNTS */}
-            <div
-              className="
-                mt-[14px] grid grid-cols-3 gap-[9px]
-                sm:mt-5 sm:grid-cols-5 sm:gap-3
-                lg:mt-7 lg:grid-cols-3
-              "
-            >
-              {amounts.map((amount) => {
-                const active = selectedAmount === amount;
+          {/* RIGHT: DONATION PANEL */}
+
+          <div
+            className="
+              box-border w-full min-w-0
+              rounded-[15px]
+              border border-[#eadbc5]
+              bg-[#fffdf8] p-3.5
+              shadow-[0_8px_30px_rgba(80,40,10,0.045)]
+              min-[375px]:p-4
+              sm:rounded-[19px] sm:p-5
+              md:p-6
+              xl:rounded-[22px] xl:p-6
+              2xl:p-9
+            "
+          >
+            {/* PANEL HEADER */}
+
+            <div className="min-w-0 border-b border-[#efe5d7] pb-4 sm:pb-5">
+              <h2
+                className="
+                  break-words font-serif
+                  text-[24px] font-bold
+                  leading-tight text-[#641010]
+                  min-[375px]:text-[26px]
+                  sm:text-[30px]
+                  xl:text-[34px] 2xl:text-[40px]
+                "
+              >
+                {t(seva.titleKey)}
+              </h2>
+
+              <p
+                className="
+                  mt-2 break-words text-[12px]
+                  leading-5 text-[#806f63]
+                  sm:text-sm sm:leading-6
+                "
+              >
+                {t(seva.subtitleKey)}
+              </p>
+
+              <p
+                className="
+                  mt-3 break-words text-[12px]
+                  leading-5 text-[#776d65]
+                  sm:mt-4 sm:text-sm sm:leading-6
+                "
+              >
+                {t(seva.descriptionKey)}
+              </p>
+            </div>
+
+            {/* AMOUNT SECTION */}
+
+            <div className="mb-3 mt-4 sm:mt-5">
+              <h3 className="text-[13px] font-bold text-[#433932] sm:text-sm">
+                Select donation amount
+              </h3>
+
+              <p className="mt-1 text-[10px] leading-5 text-[#8a8077] sm:text-xs">
+                Choose an amount or enter your own.
+              </p>
+            </div>
+
+            {/* PRESET AMOUNTS */}
+
+            <div className="grid w-full min-w-0 grid-cols-2 gap-2 sm:gap-3">
+              {donationAmounts.map((item) => {
+                const active = selectedAmount === item.value;
 
                 return (
                   <button
                     type="button"
-                    key={amount}
+                    key={item.value}
                     aria-pressed={active}
-                    onClick={() => {
-                      setSelectedAmount(amount);
-                      setCustomAmount("");
-                    }}
+                    onClick={() => handlePresetAmount(item.value)}
                     className={`
-                      h-[45px] rounded-[9px] border
-                      text-[15px] font-bold
-                      transition-all duration-150
-                      active:scale-[0.98] lg:h-[48px]
+                      box-border flex min-h-[48px]
+                      min-w-0 items-center justify-center
+                      gap-1.5 rounded-xl border px-2 py-3
+                      text-[13px] font-bold
+                      transition-all duration-200
+                      focus-visible:outline-none
+                      focus-visible:ring-2
+                      focus-visible:ring-[#a71919]
+                      focus-visible:ring-offset-2
+                      active:scale-[0.98]
+                      min-[375px]:text-sm
+                      sm:min-h-[56px] sm:gap-2 sm:text-base
                       ${
                         active
-                          ? "border-[#a71919] bg-[#fff1e7] text-[#a71919]"
-                          : "border-[#eadbc5] bg-[#fffdf8] text-[#433932] hover:border-[#c99435]"
+                          ? "border-[#a71919] bg-[#fff0e7] text-[#a71919] shadow-[0_3px_12px_rgba(167,25,25,0.08)]"
+                          : "border-[#eadbc5] bg-white text-[#514035] hover:border-[#c99435] hover:bg-[#fffaf1]"
                       }
                     `}
                   >
-                    {amount}
+                    {active && (
+                      <CheckCircle2
+                        size={15}
+                        strokeWidth={2}
+                        className="shrink-0"
+                      />
+                    )}
+
+                    <span className="truncate">{item.label}</span>
                   </button>
                 );
               })}
-
-              <button
-                type="button"
-                aria-pressed={selectedAmount === "Custom"}
-                onClick={() => setSelectedAmount("Custom")}
-                className={`
-                  h-[45px] rounded-[9px] border
-                  text-[15px] font-bold
-                  transition-all duration-150
-                  active:scale-[0.98] lg:h-[48px]
-                  ${
-                    selectedAmount === "Custom"
-                      ? "border-[#a71919] bg-[#fff1e7] text-[#a71919]"
-                      : "border-[#eadbc5] bg-[#fffdf8] text-[#433932] hover:border-[#c99435]"
-                  }
-                `}
-              >
-                {t("custom")}
-              </button>
             </div>
 
-            {/* CUSTOM AMOUNT */}
-            {selectedAmount === "Custom" && (
-              <input
-                type="number"
-                inputMode="numeric"
-                min="1"
-                step="1"
-                placeholder={t("enterDonationAmount")}
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-                className="
-                  mt-[9px] h-[45px] w-full rounded-[9px]
-                  border border-[#d9c6ad] bg-white px-[13px]
-                  text-[15px] text-[#332820] outline-none
-                  focus:border-[#a71919]
-                  lg:mt-3 lg:h-[48px]
-                "
-              />
+            {/* CUSTOM AMOUNT SELECTOR */}
+
+            <button
+              type="button"
+              aria-pressed={selectedAmount === null}
+              onClick={handleCustomAmount}
+              className={`
+                mt-3 flex min-h-[46px]
+                w-full min-w-0 items-center
+                justify-center gap-2
+                rounded-xl border px-3 py-3
+                text-[12px] font-semibold
+                transition-all duration-200
+                focus-visible:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-[#a71919]
+                focus-visible:ring-offset-2
+                active:scale-[0.99]
+                sm:min-h-[52px] sm:text-sm
+                ${
+                  selectedAmount === null
+                    ? "border-[#a71919] bg-[#fff0e7] text-[#a71919]"
+                    : "border-dashed border-[#d9c6ad] bg-white text-[#776d65] hover:border-[#c99435] hover:bg-[#fffaf1]"
+                }
+              `}
+            >
+              {selectedAmount === null && (
+                <CheckCircle2 size={16} className="shrink-0" />
+              )}
+
+              {t("custom")}
+            </button>
+
+            {/* CUSTOM INPUT */}
+
+            {selectedAmount === null && (
+              <div className="mt-3 min-w-0">
+                <label
+                  htmlFor="custom-donation-amount"
+                  className="mb-2 block text-[12px] font-semibold text-[#514035]"
+                >
+                  {t("enterDonationAmount")}
+                </label>
+
+                <div
+                  className={`
+                    box-border flex h-[48px]
+                    w-full min-w-0 items-center
+                    overflow-hidden rounded-xl border bg-white
+                    transition-colors sm:h-[54px]
+                    ${
+                      amountError
+                        ? "border-red-500"
+                        : "border-[#d9c6ad] focus-within:border-[#a71919]"
+                    }
+                  `}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="
+                      flex h-full shrink-0 items-center
+                      border-r border-[#efe5d7]
+                      bg-[#fffaf1] px-3
+                      text-sm font-bold text-[#641010]
+                      sm:px-4 sm:text-base
+                    "
+                  >
+                    ₹
+                  </span>
+
+                  <input
+                    id="custom-donation-amount"
+                    type="number"
+                    inputMode="numeric"
+                    min="1"
+                    step="1"
+                    max={Number.MAX_SAFE_INTEGER}
+                    placeholder="Enter amount"
+                    value={customAmount}
+                    aria-invalid={Boolean(amountError)}
+                    aria-describedby={
+                      amountError
+                        ? "donation-amount-error"
+                        : undefined
+                    }
+                    onChange={(event) => {
+                      setCustomAmount(event.target.value);
+                      setAmountError("");
+                    }}
+                    className="
+                      h-full min-w-0 flex-1
+                      bg-transparent px-3
+                      text-[14px] font-medium
+                      text-[#332820] outline-none
+                      placeholder:font-normal
+                      placeholder:text-[#b2a69b]
+                    "
+                  />
+                </div>
+
+                {amountError && (
+                  <p
+                    id="donation-amount-error"
+                    role="alert"
+                    className="mt-2 break-words text-[11px] font-medium text-red-600"
+                  >
+                    {amountError}
+                  </p>
+                )}
+              </div>
             )}
 
+            {/* DONATION SUMMARY */}
+
+            <div
+              className="
+                mt-4 flex min-w-0
+                items-center justify-between gap-2
+                rounded-xl bg-[#fff8eb]
+                px-3 py-3
+                sm:mt-5 sm:gap-3 sm:px-4 sm:py-4
+                xl:px-5
+              "
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] text-[#8a8077] sm:text-xs">
+                  Your offering
+                </p>
+
+                <p className="mt-1 break-words text-[11px] font-semibold text-[#514035] sm:text-sm">
+                  {t(seva.titleKey)}
+                </p>
+              </div>
+
+              <p
+                className="
+                  shrink-0 whitespace-nowrap
+                  font-serif text-[20px] font-bold
+                  text-[#641010]
+                  min-[375px]:text-[22px]
+                  sm:text-[26px]
+                "
+              >
+                ₹
+                {formatAmount(
+                  selectedAmount !== null
+                    ? selectedAmount
+                    : Number(customAmount) || 0
+                )}
+              </p>
+            </div>
+
             {/* DONATE BUTTON */}
+
             <button
               type="button"
               onClick={handleDonate}
               className="
-                mt-[13px] h-[48px] w-full rounded-[10px]
-                border-0 bg-[#a71919] text-[15px]
-                font-bold text-white
-                shadow-[0_4px_10px_rgba(167,25,25,0.18)]
-                transition-all duration-150
-                hover:bg-[#8f1414] active:scale-[0.985]
-                sm:mt-5 sm:h-[50px]
-                lg:mt-6 lg:h-[52px] lg:text-[16px]
+                mt-3 flex min-h-[49px]
+                w-full min-w-0 items-center
+                justify-center gap-2
+                rounded-xl bg-[#a71919]
+                px-4 py-3
+                text-[13px] font-bold text-white
+                shadow-[0_5px_16px_rgba(167,25,25,0.18)]
+                transition-all duration-200
+                hover:bg-[#8f1414]
+                hover:shadow-[0_8px_22px_rgba(167,25,25,0.22)]
+                focus-visible:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-[#a71919]
+                focus-visible:ring-offset-2
+                active:scale-[0.99]
+                sm:mt-4 sm:min-h-[54px] sm:text-[15px]
               "
             >
               {t("donateNow")}
             </button>
+
+            {/* FOOTNOTE */}
+
+            <p
+              className="
+                mt-3 text-center text-[10px]
+                leading-5 text-[#8a8077]
+                sm:text-[11px]
+              "
+            >
+              Thank you for supporting
+              {" "}Shri Govardhannath Haveli.
+            </p>
           </div>
         </div>
+
+        {/* DECORATION */}
+
+        <div
+          aria-hidden="true"
+          className="
+            mt-7 text-center text-[14px]
+            tracking-[7px] text-[#c99435]
+            opacity-70 sm:mt-9 sm:text-[17px]
+            lg:mt-10
+          "
+        >
+          ❧ ❧ ❧
+        </div>
       </section>
+
+      {/* BOTTOM NAVIGATION */}
 
       <BottomNavigation />
     </main>
