@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import CommonHeader from "@/components/layout/CommonHeader";
 
 type FAQ = {
   id: number;
@@ -78,111 +78,11 @@ export default function HelpSupportPage() {
           HEADER
       ====================================================== */}
 
-      <header
-        className="
-          sticky
-          top-0
-          z-40
-          border-b
-          border-[#eadfce]
-          bg-[#fffaf1]/95
-          backdrop-blur-md
-        "
-      >
-        <div
-          className="
-            mx-auto
-            flex
-            min-h-[56px]
-            w-full
-            max-w-[1400px]
-            items-center
-            gap-2.5
-            px-3
-
-            sm:min-h-[62px]
-            sm:gap-3
-            sm:px-5
-
-            md:min-h-[66px]
-            md:px-6
-
-            lg:min-h-[72px]
-            lg:px-8
-          "
-        >
-          {/* BACK BUTTON */}
-          <button
-            type="button"
-            onClick={() => router.push("/dashboard")}
-            aria-label="Back to Dashboard"
-            className="
-    group
-    grid
-    h-9
-    w-9
-    shrink-0
-    place-items-center
-    rounded-full
-    border
-    border-[#ead7b8]
-    bg-white
-    text-[#641010]
-    shadow-sm
-    transition-all
-    hover:border-[#b8893b]
-    hover:bg-[#fff8eb]
-    hover:shadow-sm
-    active:scale-95
-
-    sm:h-10
-    sm:w-10
-  "
-          >
-            <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
-               <ArrowLeft size={19} strokeWidth={1.8} />
-            </span>
-          </button>
-
-          {/* HEADER TEXT */}
-
-          <div className="min-w-0">
-            <p
-              className="
-                text-[7px]
-                font-bold
-                uppercase
-                tracking-[0.12em]
-                text-[#bd8b39]
-
-                sm:text-[8px]
-              "
-            >
-              Shri Govardhannath
-            </p>
-
-            <h1
-              className="
-                truncate
-                font-serif
-                text-[16px]
-                font-bold
-                leading-tight
-                text-[#641010]
-
-                sm:text-[19px]
-
-                md:text-[21px]
-
-                lg:text-[23px]
-              "
-            >
-              Help & Support
-            </h1>
-          </div>
-        </div>
-      </header>
-
+          <CommonHeader
+        title="Help & Support"
+        subtitle="Shri Govardhannath Haveli"
+        backHref="/dashboard"
+      />
       {/* =====================================================
           CONTENT
       ====================================================== */}

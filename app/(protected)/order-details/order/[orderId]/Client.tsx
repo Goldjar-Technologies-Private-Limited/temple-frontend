@@ -1,27 +1,24 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import {
-  ArrowLeft,
   Package,
   MapPin,
   CreditCard,
   XCircle,
   CheckCircle2,
   Clock3,
-  ShoppingBag,
   User,
 } from "lucide-react";
-
-
+import CommonHeader from "@/components/layout/CommonHeader";
 
 const ORDERS_KEY = "prasadam-orders";
 const LAST_ORDER_KEY = "last-prasadam-order";
 const ORDERS_UPDATED_EVENT = "prasadam-orders-updated";
 
 type OrderStatus = "Delivered" | "Processing" | "Cancelled";
-
 type Weight = "250g" | "500g" | "1kg";
 
 type OrderItem = {
@@ -63,10 +60,9 @@ type SavedOrder = {
 
 export default function OrderDetailsPage() {
   const params = useParams();
-  const router = useRouter();
+  const orderIdParam = params?.orderId;
 
   const [order, setOrder] = useState<SavedOrder | null>(null);
-
   const [loading, setLoading] = useState(true);
 
   const normalizeOrder = (raw: unknown): SavedOrder | null => {
@@ -82,34 +78,32 @@ export default function OrderDetailsPage() {
         ? source.cartItems
         : [];
 
-    const items: OrderItem[] = rawItems.map((item: unknown, index: number) => {
-      const product = item as Record<string, unknown>;
+    const items: OrderItem[] = rawItems.map(
+      (item: unknown, index: number) => {
+        const product = item as Record<string, unknown>;
 
-      const price = Number(product.price) || 0;
+        const price = Number(product.price) || 0;
+        const quantity = Number(product.quantity) || 1;
 
-      const quantity = Number(product.quantity) || 1;
-
-      return {
-        id: Number(product.id) || index + 1,
-
-        productId: Number(product.productId ?? product.id) || undefined,
-
-        name: String(product.name ?? product.title ?? "Product"),
-
-        quantity,
-
-        price,
-
-        image: typeof product.image === "string" ? product.image : undefined,
-
-        weight:
-          product.weight === "250g" ||
-          product.weight === "500g" ||
-          product.weight === "1kg"
-            ? product.weight
-            : undefined,
-      };
-    });
+        return {
+          id: Number(product.id) || index + 1,
+          productId: Number(product.productId ?? product.id) || undefined,
+          name: String(product.name ?? product.title ?? "Product"),
+          quantity,
+          price,
+          image:
+            typeof product.image === "string"
+              ? product.image
+              : undefined,
+          weight:
+            product.weight === "250g" ||
+            product.weight === "500g" ||
+            product.weight === "1kg"
+              ? product.weight
+              : undefined,
+        };
+      },
+    );
 
     const subtotal =
       Number(source.subtotal) ||
@@ -145,7 +139,9 @@ export default function OrderDetailsPage() {
     const rawPayment = source.paymentMethod;
 
     const paymentMethod: PaymentMethod | undefined =
-      rawPayment === "upi" || rawPayment === "card" || rawPayment === "cod"
+      rawPayment === "upi" ||
+      rawPayment === "card" ||
+      rawPayment === "cod"
         ? rawPayment
         : undefined;
 
@@ -162,14 +158,15 @@ export default function OrderDetailsPage() {
       subtotal,
       deliveryCharge,
       totalAmount,
-
       createdAt:
-        typeof source.createdAt === "string" ? source.createdAt : undefined,
-
-      date: typeof source.date === "string" ? source.date : undefined,
-
+        typeof source.createdAt === "string"
+          ? source.createdAt
+          : undefined,
+      date:
+        typeof source.date === "string"
+          ? source.date
+          : undefined,
       status,
-
       total: Number(source.total) || undefined,
     };
   };
@@ -177,14 +174,15 @@ export default function OrderDetailsPage() {
   useEffect(() => {
     const loadOrder = () => {
       try {
-        const routeOrderId = params?.orderId;
-
-        if (!routeOrderId) {
+        if (!orderIdParam) {
+          setOrder(null);
           setLoading(false);
           return;
         }
 
-        const decodedOrderId = decodeURIComponent(String(routeOrderId));
+        const decodedOrderId = decodeURIComponent(
+          String(orderIdParam),
+        );
 
         const savedOrdersRaw = localStorage.getItem(ORDERS_KEY);
 
@@ -200,10 +198,9 @@ export default function OrderDetailsPage() {
           }
         }
 
-        let foundOrder =
+        let foundOrder: unknown =
           orders.find((item) => {
             const normalized = normalizeOrder(item);
-
             return normalized?.id === decodedOrderId;
           }) ?? null;
 
@@ -212,11 +209,10 @@ export default function OrderDetailsPage() {
 
           if (lastOrderRaw) {
             const lastOrder = JSON.parse(lastOrderRaw);
-
             const normalized = normalizeOrder(lastOrder);
 
             if (normalized?.id === decodedOrderId) {
-              foundOrder = normalized;
+              foundOrder = lastOrder;
             }
           }
         }
@@ -224,25 +220,23 @@ export default function OrderDetailsPage() {
         setOrder(foundOrder ? normalizeOrder(foundOrder) : null);
       } catch (error) {
         console.error("Failed to load order:", error);
-
         setOrder(null);
       } finally {
         setLoading(false);
       }
     };
 
+    setLoading(true);
     loadOrder();
 
     window.addEventListener(ORDERS_UPDATED_EVENT, loadOrder);
-
     window.addEventListener("storage", loadOrder);
 
     return () => {
       window.removeEventListener(ORDERS_UPDATED_EVENT, loadOrder);
-
       window.removeEventListener("storage", loadOrder);
     };
-  }, [params?.orderId]);
+  }, [orderIdParam]);
 
   const formatDate = (dateString?: string) => {
     if (!dateString) {
@@ -266,13 +260,10 @@ export default function OrderDetailsPage() {
     switch (method) {
       case "upi":
         return "UPI";
-
       case "card":
         return "Card";
-
       case "cod":
         return "Cash on Delivery";
-
       default:
         return "—";
     }
@@ -282,10 +273,8 @@ export default function OrderDetailsPage() {
     switch (status) {
       case "Delivered":
         return <CheckCircle2 size={17} />;
-
       case "Cancelled":
         return <XCircle size={17} />;
-
       default:
         return <Clock3 size={17} />;
     }
@@ -295,10 +284,8 @@ export default function OrderDetailsPage() {
     switch (status) {
       case "Delivered":
         return "bg-green-50 text-green-700 border-green-200";
-
       case "Cancelled":
         return "bg-red-50 text-red-700 border-red-200";
-
       default:
         return "bg-orange-50 text-orange-700 border-orange-200";
     }
@@ -345,13 +332,15 @@ export default function OrderDetailsPage() {
         return item;
       });
 
-      localStorage.setItem(ORDERS_KEY, JSON.stringify(updatedOrders));
+      localStorage.setItem(
+        ORDERS_KEY,
+        JSON.stringify(updatedOrders),
+      );
 
       const lastOrderRaw = localStorage.getItem(LAST_ORDER_KEY);
 
       if (lastOrderRaw) {
         const lastOrder = JSON.parse(lastOrderRaw);
-
         const normalizedLastOrder = normalizeOrder(lastOrder);
 
         if (normalizedLastOrder?.id === order.id) {
@@ -373,15 +362,21 @@ export default function OrderDetailsPage() {
       window.dispatchEvent(new Event(ORDERS_UPDATED_EVENT));
     } catch (error) {
       console.error("Failed to cancel order:", error);
-
       window.alert("Unable to cancel the order. Please try again.");
     }
   };
 
+  // LOADING SCREEN
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#fffaf5] px-4 py-8 sm:px-6">
-        <div className="mx-auto max-w-5xl">
+      <main className="min-h-screen bg-[#fffaf5]">
+        <CommonHeader
+          title="Order Details"
+          subtitle="Shri Govardhannath Haveli"
+          backHref="/my-orders"
+        />
+
+        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
           <div className="rounded-2xl border border-[#ead8c8] bg-white p-8 text-center shadow-sm">
             <div className="mx-auto mb-4 flex h-12 w-12 animate-pulse items-center justify-center rounded-full bg-[#fff1e5] text-[#8b1e1e]">
               <Package size={24} />
@@ -396,19 +391,17 @@ export default function OrderDetailsPage() {
     );
   }
 
+  // ORDER NOT FOUND
   if (!order) {
     return (
-      <main className="min-h-screen bg-[#fffaf5] px-4 py-8 sm:px-6">
-        <div className="mx-auto max-w-5xl">
-          <button
-            type="button"
-            onClick={() => router.push("/my-orders")}
-            className="mb-5 flex items-center gap-2 text-sm font-semibold text-[#8b1e1e] transition hover:translate-x-[-2px]"
-          >
-            <ArrowLeft size={18} />
-            Back to My Orders
-          </button>
+      <main className="min-h-screen bg-[#fffaf5]">
+        <CommonHeader
+          title="Order Not Found"
+          subtitle="Shri Govardhannath Haveli"
+          backHref="/my-orders"
+        />
 
+        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
           <div className="rounded-2xl border border-[#ead8c8] bg-white p-10 text-center shadow-sm">
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#fff1e5] text-[#8b1e1e]">
               <Package size={30} />
@@ -421,6 +414,16 @@ export default function OrderDetailsPage() {
             <p className="mx-auto mt-2 max-w-md text-sm text-gray-500">
               We couldn't find the requested order.
             </p>
+
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = "/my-orders";
+              }}
+              className="mt-6 rounded-xl bg-[#8b1e1e] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#6f1717]"
+            >
+              Back to My Orders
+            </button>
           </div>
         </div>
       </main>
@@ -428,53 +431,29 @@ export default function OrderDetailsPage() {
   }
 
   const subtotal = Number(order.subtotal) || 0;
-
   const deliveryCharge = Number(order.deliveryCharge) || 0;
-
-  const totalAmount = Number(order.totalAmount) || subtotal + deliveryCharge;
+  const totalAmount =
+    Number(order.totalAmount) || subtotal + deliveryCharge;
 
   return (
-   <main className="min-h-screen bg-[#fffaf5] px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-5xl">
-        {/* TOP NAVIGATION */}
+    <main className="min-h-screen bg-[#fffaf5]">
+      {/* COMMON HEADER */}
+      <CommonHeader
+        title="Order Details"
+        subtitle="Shri Govardhannath Haveli"
+        backHref="/my-orders"
+        rightAction={
+          <span className="hidden truncate text-xs font-semibold text-[#8b1e1e] sm:block">
+            #{order.id}
+          </span>
+        }
+      />
 
-        <div className="sticky top-0 z-50 -mx-4 mb-5 border-b border-[#eac8c8] bg-[#fffaf5]/95 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-          <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4">
-            {/* BACK TO MY ORDERS */}
-
-            <button
-              type="button"
-              onClick={() => router.push("/my-orders")}
-              className="group flex shrink-0 items-center gap-2 rounded-lg px-1 py-2 text-sm font-semibold text-[#8b1e1e] transition hover:opacity-80"
-            >
-              <ArrowLeft
-                size={18}
-                className="transition group-hover:-translate-x-1"
-              />
-
-              <span>Back to My Orders</span>
-            </button>
-
-            {/* ORDER DETAILS */}
-
-            <div className="flex min-w-0 items-center gap-2 text-xs font-medium text-gray-400 sm:text-sm">
-              <ShoppingBag size={15} className="shrink-0" />
-
-              <span className="truncate font-semibold text-[#5e1919]">
-                Order Details
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* ========================================= */}
+      <div className="mx-auto w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
         {/* ORDER HEADER */}
-        {/* ========================================= */}
         <section className="mb-5 overflow-hidden rounded-2xl border border-[#ead8c8] bg-white shadow-sm">
           <div className="p-5 sm:p-6">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-              {/* LEFT */}
-
               <div className="flex min-w-0 items-start gap-4">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-3">
@@ -482,15 +461,12 @@ export default function OrderDetailsPage() {
                       Order Details
                     </h1>
 
-                    {/* STATUS */}
-
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold ${getStatusClass(
                         order.status,
                       )}`}
                     >
                       {getStatusIcon(order.status)}
-
                       {order.status || "Processing"}
                     </span>
                   </div>
@@ -504,11 +480,7 @@ export default function OrderDetailsPage() {
                 </div>
               </div>
 
-              {/* RIGHT INFO */}
-
               <div className="grid grid-cols-2 gap-0 rounded-xl border border-[#f0dfd0] bg-[#fffaf5]">
-                {/* DATE */}
-
                 <div className="border-r border-[#ead8c8] px-4 py-3 sm:px-5">
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
                     Order Date
@@ -518,8 +490,6 @@ export default function OrderDetailsPage() {
                     {formatDate(order.createdAt || order.date)}
                   </p>
                 </div>
-
-                {/* PAYMENT */}
 
                 <div className="px-4 py-3 sm:px-5">
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
@@ -534,9 +504,8 @@ export default function OrderDetailsPage() {
             </div>
           </div>
         </section>
-        {/* ========================================= */}
+
         {/* ORDERED ITEMS */}
-        {/* ========================================= */}
         <section className="mb-5 rounded-2xl border border-[#ead8c8] bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-[#f0dfd0] px-5 py-4 sm:px-6">
             <div className="flex items-center gap-3">
@@ -545,7 +514,9 @@ export default function OrderDetailsPage() {
               </div>
 
               <div>
-                <h2 className="font-bold text-[#5e1919]">Ordered Items</h2>
+                <h2 className="font-bold text-[#5e1919]">
+                  Ordered Items
+                </h2>
 
                 <p className="text-xs text-gray-500">
                   {order.items.length}{" "}
@@ -566,8 +537,7 @@ export default function OrderDetailsPage() {
                   key={`${item.id}-${index}`}
                   className="flex gap-3 rounded-xl border border-[#f0dfd0] bg-[#fffaf5] p-3 transition hover:border-[#e3cbb8] sm:gap-4 sm:p-4"
                 >
-                  {/* IMAGE */}
-
+                  {/* PRODUCT IMAGE */}
                   <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#f5e9df] sm:h-24 sm:w-24">
                     {item.image ? (
                       <img
@@ -582,8 +552,7 @@ export default function OrderDetailsPage() {
                     )}
                   </div>
 
-                  {/* PRODUCT */}
-
+                  {/* PRODUCT DETAILS */}
                   <div className="min-w-0 flex-1">
                     <h3 className="line-clamp-2 text-sm font-bold text-gray-800 sm:text-base">
                       {item.name}
@@ -606,26 +575,28 @@ export default function OrderDetailsPage() {
                     </p>
                   </div>
 
-                  {/* PRICE */}
-
+                  {/* ITEM PRICE */}
                   <div className="shrink-0 text-right">
                     <p className="text-sm font-bold text-[#8b1e1e] sm:text-base">
-                      ₹{(item.price * item.quantity).toLocaleString("en-IN")}
+                      ₹
+                      {(item.price * item.quantity).toLocaleString(
+                        "en-IN",
+                      )}
                     </p>
 
-                    <p className="mt-1 text-[11px] text-gray-400">Total</p>
+                    <p className="mt-1 text-[11px] text-gray-400">
+                      Total
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
-        {/* ========================================= */}
-        {/* CUSTOMER + ADDRESS */}
-        {/* ========================================= */}
-        <div className="mb-5 grid gap-5 lg:grid-cols-2">
-          {/* CUSTOMER */}
 
+        {/* CUSTOMER AND DELIVERY ADDRESS */}
+        <div className="mb-5 grid gap-5 lg:grid-cols-2">
+          {/* CUSTOMER DETAILS */}
           {order.customer && (
             <section className="rounded-2xl border border-[#ead8c8] bg-white shadow-sm">
               <div className="border-b border-[#f0dfd0] px-5 py-4 sm:px-6">
@@ -639,7 +610,9 @@ export default function OrderDetailsPage() {
                       Customer Details
                     </h2>
 
-                    <p className="text-xs text-gray-500">Contact information</p>
+                    <p className="text-xs text-gray-500">
+                      Contact information
+                    </p>
                   </div>
                 </div>
               </div>
@@ -680,8 +653,7 @@ export default function OrderDetailsPage() {
             </section>
           )}
 
-          {/* ADDRESS */}
-
+          {/* DELIVERY ADDRESS */}
           {order.customer && (
             <section className="rounded-2xl border border-[#ead8c8] bg-white shadow-sm">
               <div className="border-b border-[#f0dfd0] px-5 py-4 sm:px-6">
@@ -722,9 +694,8 @@ export default function OrderDetailsPage() {
             </section>
           )}
         </div>
-        {/* ========================================= */}
+
         {/* PRICE DETAILS */}
-        {/* ========================================= */}
         <section className="mb-5 rounded-2xl border border-[#ead8c8] bg-white shadow-sm">
           <div className="border-b border-[#f0dfd0] px-5 py-4 sm:px-6">
             <div className="flex items-center gap-3">
@@ -733,9 +704,13 @@ export default function OrderDetailsPage() {
               </div>
 
               <div>
-                <h2 className="font-bold text-[#5e1919]">Price Details</h2>
+                <h2 className="font-bold text-[#5e1919]">
+                  Price Details
+                </h2>
 
-                <p className="text-xs text-gray-500">Order payment summary</p>
+                <p className="text-xs text-gray-500">
+                  Order payment summary
+                </p>
               </div>
             </div>
           </div>
@@ -751,7 +726,9 @@ export default function OrderDetailsPage() {
               </div>
 
               <div className="flex items-center justify-between gap-4 text-sm">
-                <span className="text-gray-500">Delivery Charge</span>
+                <span className="text-gray-500">
+                  Delivery Charge
+                </span>
 
                 <span className="font-semibold text-gray-800">
                   ₹{deliveryCharge.toLocaleString("en-IN")}
@@ -772,9 +749,8 @@ export default function OrderDetailsPage() {
             </div>
           </div>
         </section>
-        {/* ========================================= */}
+
         {/* CANCEL ORDER */}
-        {/* ========================================= */}
         {order.status === "Processing" && (
           <section className="mb-6 rounded-2xl border border-red-100 bg-white p-4 shadow-sm sm:p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -799,15 +775,13 @@ export default function OrderDetailsPage() {
                 onClick={handleCancelOrder}
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-5 py-3 text-sm font-bold text-red-600 transition hover:bg-red-50 sm:w-auto"
               >
-                
                 Cancel Order
               </button>
             </div>
           </section>
         )}
-        {/* ========================================= */}
+
         {/* FOOTER NOTE */}
-        {/* ========================================= */}
         <div className="pb-8 text-center">
           <p className="text-xs text-gray-400">
             Thank you for choosing our prasadam service.
@@ -817,4 +791,3 @@ export default function OrderDetailsPage() {
     </main>
   );
 }
-

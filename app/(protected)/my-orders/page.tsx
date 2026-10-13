@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Package, ChevronRight, HelpCircle, ArrowLeft } from "lucide-react";
+import { Package, ChevronRight, HelpCircle } from "lucide-react";
+import CommonHeader from "@/components/layout/CommonHeader";
 
 const ORDERS_KEY = "prasadam-orders";
 const LAST_ORDER_KEY = "last-prasadam-order";
@@ -371,30 +372,34 @@ export default function MyOrdersPage() {
      LOADING
   ========================================================= */
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-[#fffaf5]">
-        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-          <div className="animate-pulse">
-            <div className="mb-3 h-8 w-44 rounded-lg bg-gray-200" />
+  
+if (loading) {
+  return (
+    <main className="min-h-screen bg-[#fffaf5]">
+      <CommonHeader
+        title="My Orders"
+        subtitle="Track and manage your prasadam orders"
+        backHref="/dashboard"
+      />
 
-            <div className="mb-7 h-4 w-64 rounded bg-gray-200" />
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+        <div className="animate-pulse">
+          <div className="mb-6 flex gap-2 overflow-hidden">
+            <div className="h-10 w-24 rounded-full bg-gray-200" />
+            <div className="h-10 w-28 rounded-full bg-gray-200" />
+            <div className="h-10 w-28 rounded-full bg-gray-200" />
+          </div>
 
-            <div className="mb-6 flex gap-2 overflow-hidden">
-              <div className="h-10 w-24 rounded-full bg-gray-200" />
-              <div className="h-10 w-28 rounded-full bg-gray-200" />
-              <div className="h-10 w-28 rounded-full bg-gray-200" />
-            </div>
-
-            <div className="space-y-4">
-              <div className="h-48 rounded-2xl bg-gray-200" />
-              <div className="h-48 rounded-2xl bg-gray-200" />
-            </div>
+          <div className="space-y-4">
+            <div className="h-48 rounded-2xl bg-gray-200" />
+            <div className="h-48 rounded-2xl bg-gray-200" />
           </div>
         </div>
-      </main>
-    );
-  }
+      </div>
+    </main>
+  );
+}
+
 
   /* =========================================================
      UI
@@ -406,32 +411,13 @@ export default function MyOrdersPage() {
           PAGE HEADER
       ===================================================== */}
 
-      <header className="border-b border-[#ead8c8] bg-white">
-  <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
-    {/* Back Button */}
-    <button
-      type="button"
-      onClick={() => router.push("/dashboard")}
-      aria-label="Back to Dashboard"
-      className="group grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#ead7b8] bg-white text-[#641010] shadow-sm transition-all hover:border-[#b8893b] hover:bg-[#fff8eb] active:scale-95 sm:h-10 sm:w-10"
-    >
-      <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
-        <ArrowLeft size={19} strokeWidth={1.8} />
-      </span>
-    </button>
+{/* COMMON HEADER */}
+<CommonHeader
+  title="My Orders"
+  subtitle="Track and manage your prasadam orders"
+  backHref="/dashboard"
+/>
 
-    {/* Header Title */}
-    <div className="min-w-0 flex-1">
-      <h5 className="text-xl font-bold tracking-tight text-[#5e1919]">
-        My Orders
-      </h5>
-
-      <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">
-        Track and manage your prasadam orders
-      </p>
-    </div>
-  </div>
-</header>
 
       <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
         {/* ===================================================

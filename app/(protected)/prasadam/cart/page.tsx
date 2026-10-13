@@ -1,10 +1,9 @@
 "use client";
 
-"use client";
-
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ShoppingCart, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import CommonHeader from "@/components/layout/CommonHeader";
 
 /* =====================================================
    TYPES
@@ -1149,132 +1148,16 @@ function CartHeader({
   onBack: () => void;
 }) {
   return (
-    <header
-      className="
-        sticky
-        top-0
-        z-40
-        border-b
-        border-[#eee1cf]
-        bg-[#fffaf3]/95
-        backdrop-blur-md
-      "
-    >
-      <div
-        className="
-          mx-auto
-          flex
-          min-h-[64px]
-          max-w-[1400px]
-          items-center
-          justify-between
-          gap-3
-          px-4
-
-          sm:min-h-[70px]
-          sm:px-6
-
-          lg:min-h-[78px]
-          lg:px-8
-        "
-      >
-        {/* LEFT */}
-
-        <div
-          className="
-            flex
-            min-w-0
-            items-center
-            gap-3
-          "
-        >
-          {/* BACK */}
-
-          <button
-            type="button"
-            onClick={onBack}
-            aria-label="Go back"
-            className="
-              grid
-              h-9
-              w-9
-              shrink-0
-              place-items-center
-              rounded-full
-              border
-              border-[#eadbc5]
-              bg-white
-              text-[#a71919]
-
-              lg:h-11
-              lg:w-11
-            "
-          >
-         <ArrowLeft size={20} strokeWidth={2} />
-          </button>
-
-          {/* TITLE */}
-
-          <div className="min-w-0">
-            <span
-              className="
-                block
-                truncate
-                text-[8px]
-                font-bold
-                uppercase
-                tracking-[0.8px]
-                text-[#c18b32]
-
-                sm:text-[9px]
-                sm:tracking-[1px]
-              "
-            >
-              Shri Govardhannath
-            </span>
-
-            <h1
-              className="
-                font-serif
-                text-xl
-                font-bold
-                text-[#561010]
-
-                lg:text-2xl
-              "
-            >
-              My Cart
-            </h1>
-          </div>
-        </div>
-
-        {/* TOTAL ITEMS */}
-
-        {totalItems > 0 && (
-          <span
-            className="
-              shrink-0
-              rounded-full
-              border
-              border-[#eadbc5]
-              bg-white
-              px-2.5
-              py-1
-              text-[9px]
-              font-bold
-              text-[#75685e]
-
-              sm:px-3
-              sm:py-1.5
-              sm:text-[11px]
-            "
-          >
-            {totalItems}{" "}
-            {totalItems === 1 ? "Item" : "Items"}
-          </span>
-        )}
-      </div>
-    </header>
+    <CommonHeader
+  title="My Cart"
+  subtitle="Shri Govardhannath Haveli"
+  backHref="/prasadam"
+  rightAction={
+    <span className="whitespace-nowrap rounded-full border border-[#eadbc5] bg-white px-3 py-1.5 text-xs font-bold text-[#75685e]">
+      {totalItems} {totalItems === 1 ? "Item" : "Items"}
+    </span>
+  }
+/>
   );
 }
 

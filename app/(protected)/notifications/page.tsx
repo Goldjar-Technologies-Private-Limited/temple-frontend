@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import CommonHeader from "@/components/layout/CommonHeader";
 import {
-  ArrowLeft,
   Bell,
   Sparkles,
   Heart,
@@ -14,7 +14,6 @@ import {
   Landmark,
   Info,
 } from "lucide-react";
-
 /* =========================================================
    TYPES
 ========================================================= */
@@ -443,7 +442,6 @@ export default function NotificationsPage() {
       "
     >
       {/* BACKGROUND DECORATION */}
-
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div
           className="
@@ -477,132 +475,15 @@ export default function NotificationsPage() {
           "
         />
       </div>
-
       {/* HEADER */}
-
-      <header
-        className="
-          sticky
-          top-0
-          z-40
-          border-b
-          border-[#eadfce]
-          bg-[#fffaf1]/95
-          backdrop-blur-xl
-        "
-      >
-        <div
-          className="
-            mx-auto
-            flex
-            min-h-[64px]
-            max-w-[1400px]
-            items-center
-            px-3
-
-            sm:min-h-[70px]
-            sm:px-6
-
-            lg:px-8
-
-            xl:px-10
-          "
-        >
-          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-            {/* BACK BUTTON */}
-
-            <button
-              type="button"
-              onClick={() => router.back()}
-              aria-label="Go back"
-              className="
-                group
-                grid
-                h-9
-                w-9
-                shrink-0
-                place-items-center
-                rounded-full
-                border
-                border-[#ead7b8]
-                bg-white
-                text-[#641010]
-                shadow-sm
-                transition-all
-
-                hover:border-[#b8893b]
-                hover:bg-[#fff8eb]
-                hover:shadow-sm
-
-                active:scale-95
-
-                sm:h-10
-                sm:w-10
-              "
-            >
-              <span
-                className="
-                  transition-transform
-                  duration-200
-                  group-hover:-translate-x-0.5
-                "
-              >
-                <ArrowLeft size={19} strokeWidth={1.8} />
-              </span>
-            </button>
-
-            {/* PAGE TITLE */}
-
-            <div className="min-w-0">
-              <p
-                className="
-                  truncate
-                  text-[9px]
-                  font-bold
-                  uppercase
-                  tracking-[0.12em]
-                  text-[#bd8b39]
-
-                  sm:text-[10px]
-                "
-              >
-                Shri Govardhannath
-              </p>
-
-              <h1
-                className="
-                  truncate
-                  font-serif
-                  text-[18px]
-                  font-bold
-                  leading-tight
-                  text-[#641010]
-
-                  sm:text-xl
-                "
-              >
-                Notifications
-              </h1>
-
-              <p
-                className="
-                  mt-0.5
-                  hidden
-                  text-xs
-                  text-[#907b6c]
-
-                  sm:block
-                "
-              >
-                Stay connected with Haveli updates
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
-
+      {/* COMMON HEADER */}
+      <CommonHeader
+        title="Notifications"
+        subtitle="Stay connected with Haveli updates"
+        backHref="/dashboard"
+      />
+      
       {/* MAIN CONTENT */}
-
       <div
         className="
           relative
@@ -623,310 +504,9 @@ export default function NotificationsPage() {
           xl:px-10
         "
       >
-        {/* HERO SECTION */}
+    
 
-        <section
-          className="
-            relative
-            overflow-hidden
-            rounded-[18px]
-            border
-            border-[#ead9c1]
-            bg-gradient-to-br
-            from-[#fffdf8]
-            via-[#fff9ee]
-            to-[#f8eee0]
-            p-4
-            shadow-[0_18px_50px_rgba(97,45,25,0.06)]
-
-            sm:rounded-[24px]
-            sm:p-5
-
-            lg:rounded-[28px]
-            lg:p-7
-          "
-        >
-          {/* HERO DECORATION */}
-
-          <div
-            className="
-              absolute
-              -right-14
-              -top-14
-              h-32
-              w-32
-              rounded-full
-              border
-              border-[#b8893b]/10
-
-              sm:h-36
-              sm:w-36
-
-              lg:-right-16
-              lg:-top-16
-              lg:h-40
-              lg:w-40
-            "
-          />
-
-          <div
-            className="
-              absolute
-              -right-6
-              -top-6
-              h-24
-              w-24
-              rounded-full
-              border
-              border-[#b8893b]/10
-
-              sm:h-28
-              sm:w-28
-            "
-          />
-
-          <div
-            className="
-              absolute
-              bottom-[-55px]
-              left-[-45px]
-              h-32
-              w-32
-              rounded-full
-              bg-[#a71919]/5
-
-              sm:h-36
-              sm:w-36
-            "
-          />
-
-          <div
-            className="
-              relative
-              flex
-              flex-col
-              justify-between
-              gap-4
-
-              lg:flex-row
-              lg:items-center
-              lg:gap-8
-            "
-          >
-            {/* HERO TEXT */}
-
-            <div className="min-w-0 max-w-[680px]">
-              <div
-                className="
-                  mb-2
-                  inline-flex
-                  max-w-full
-                  items-center
-                  gap-1.5
-                  rounded-full
-                  border
-                  border-[#e6cfa8]
-                  bg-white/70
-                  px-2.5
-                  py-1
-                  text-[8px]
-                  font-semibold
-                  uppercase
-                  tracking-[0.14em]
-                  text-[#8a641e]
-
-                  sm:mb-2.5
-                  sm:gap-2
-                  sm:px-3
-                  sm:text-[10px]
-                "
-              >
-                <Sparkles size={12} strokeWidth={1.6} />
-
-                <span>Haveli Updates</span>
-              </div>
-
-              <h2
-                className="
-                  font-serif
-                  text-[24px]
-                  font-semibold
-                  leading-[1.12]
-                  text-[#641010]
-
-                  sm:text-[30px]
-
-                  lg:text-[38px]
-
-                  xl:text-[42px]
-                "
-              >
-                Stay Connected,
-                <span className="block text-[#a71919]">Stay Blessed</span>
-              </h2>
-
-              <p
-                className="
-                  mt-2
-                  max-w-xl
-                  text-[11px]
-                  leading-5
-                  text-[#725f53]
-
-                  sm:mt-2.5
-                  sm:text-[12px]
-                  sm:leading-5
-
-                  lg:text-[14px]
-                  lg:leading-6
-                "
-              >
-                Receive important updates about darshan, bookings, seva, temple
-                timings and announcements from Shri Govardhannath Haveli.
-              </p>
-            </div>
-
-            {/* HERO BELL */}
-
-            <div
-              className="
-                relative
-                mx-auto
-                hidden
-                h-28
-                w-28
-                shrink-0
-                items-center
-                justify-center
-
-                lg:mx-0
-                lg:flex
-                lg:h-32
-                lg:w-32
-
-                xl:h-36
-                xl:w-36
-              "
-            >
-              <div
-                className="
-                  absolute
-                  inset-0
-                  rounded-full
-                  border
-                  border-[#d9b76e]/30
-                "
-              />
-
-              <div
-                className="
-                  absolute
-                  inset-3
-                  rounded-full
-                  border
-                  border-[#d9b76e]/20
-                "
-              />
-
-              <div
-                className="
-                  absolute
-                  inset-7
-                  rounded-full
-                  bg-[#a71919]/8
-                "
-              />
-
-              <div
-                className="
-                  relative
-                  flex
-                  h-[72px]
-                  w-[72px]
-                  items-center
-                  justify-center
-                  rounded-full
-                  bg-white
-                  text-[#a71919]
-                  shadow-[0_12px_30px_rgba(97,45,25,0.12)]
-
-                  xl:h-20
-                  xl:w-20
-                "
-              >
-                <Bell size={32} strokeWidth={1.5} />
-
-                {unreadCount > 0 && (
-                  <span
-                    className="
-                      absolute
-                      right-1.5
-                      top-1.5
-                      h-3
-                      w-3
-                      rounded-full
-                      border-2
-                      border-white
-                      bg-[#a71919]
-
-                      xl:right-2
-                      xl:top-2
-                    "
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION HEADER */}
-
-        <section className="mt-6 sm:mt-8">
-          <p
-            className="
-              text-[9px]
-              font-bold
-              uppercase
-              tracking-[0.13em]
-              text-[#b78a3d]
-
-              sm:text-[11px]
-            "
-          >
-            YOUR UPDATES
-          </p>
-
-          <h2
-            className="
-              mt-1
-              font-serif
-              text-xl
-              font-bold
-              text-[#641010]
-
-              sm:text-2xl
-
-              lg:text-[27px]
-            "
-          >
-            Notifications
-          </h2>
-
-          <p
-            className="
-              mt-1
-              max-w-xl
-              text-[11px]
-              leading-5
-              text-[#8b7568]
-
-              sm:text-sm
-              sm:leading-6
-            "
-          >
-            Important messages from the Haveli, all in one place.
-          </p>
-        </section>
+      
 
         {/* NOTIFICATION LIST */}
 

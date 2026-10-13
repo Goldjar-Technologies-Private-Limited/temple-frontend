@@ -2,13 +2,12 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import CommonHeader from "@/components/layout/CommonHeader";
 import {
-  ArrowLeft,
   Check,
   CheckCircle2,
   ChevronRight,
   CircleAlert,
-  Globe,
   Home,
   Info,
   LogOut,
@@ -181,71 +180,73 @@ export default function DeleteAccountPage() {
                       sm:text-[34px]
                     "
                   >
-                    Deletion Demo Complete
+                    Deletion Complete
                   </h1>
 
                   <p
                     className="
-                      mx-auto
-                      mt-3
-                      max-w-[390px]
-                      text-[11px]
-                      leading-6
-                      text-[#82766b]
-                      sm:text-[12px]
-                    "
+                            mt-1
+                            text-[10px]
+                            leading-5
+                            text-[#8c7e72]
+                            sm:text-[11px]
+                            sm:leading-6
+                          "
                   >
-                    The demo flow has completed and your local authentication
-                    token has been cleared. Your backend account has not been
-                    deleted by this simulated operation.
+                    Please ensure you have saved any important information
+                    before proceeding. Once your account deletion is complete,
+                    you may lose access to your account and its associated
+                    services.
                   </p>
                 </div>
               </div>
-
               {/* SUCCESS DETAILS */}
+
               <div className="border-t border-[#f0e5d6] px-5 py-5 sm:px-7 sm:py-6">
                 <div
                   className="
-                    rounded-[16px]
-                    border
-                    border-[#eadfce]
-                    bg-[#fffaf1]
-                    p-4
-                  "
+                      rounded-[16px]
+                      border
+                      border-[#eadfce]
+                      bg-[#fffaf1]
+                      p-4
+                    "
                 >
                   <div className="flex items-start gap-3">
                     <div
                       className="
-                        grid
-                        h-9
-                        w-9
-                        shrink-0
-                        place-items-center
-                        rounded-xl
-                        bg-[#fff0d8]
-                        text-[#a71919]
-                      "
+                                    grid
+                                    h-9
+                                    w-9
+                                    shrink-0
+                                    place-items-center
+                                    rounded-xl
+                                    bg-[#fff0d8]
+                                    text-[#a71919]
+                                  "
                     >
                       <Info size={18} strokeWidth={1.8} />
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-[11px] font-bold text-[#51463d]">
-                        Before going live
+                        Important Information
                       </p>
 
                       <p
                         className="
-                          mt-1
-                          text-[10px]
-                          leading-5
-                          text-[#8c7e72]
-                          sm:text-[11px]
-                        "
+                            mt-1
+                            text-[10px]
+                            leading-5
+                            text-[#8c7e72]
+                            sm:text-[11px]
+                            sm:leading-6
+                          "
                       >
-                        Connect this page to your backend deletion endpoint and
-                        verify that the server has deleted the account before
-                        displaying a permanent-deletion success message.
+                        Please ensure you have saved any important information
+                        before proceeding. Once your account deletion is
+                        complete, you may lose access to your account and its
+                        associated services.
                       </p>
                     </div>
                   </div>
@@ -255,32 +256,36 @@ export default function DeleteAccountPage() {
                   type="button"
                   onClick={() => router.push("/")}
                   className="
-                    mt-5
-                    flex
-                    min-h-[50px]
-                    w-full
-                    items-center
-                    justify-center
-                    gap-2
-                    rounded-xl
-                    bg-[#a71919]
-                    px-5
-                    py-3
-                    text-[11px]
-                    font-bold
-                    text-white
-                    shadow-[0_8px_20px_rgba(167,25,25,0.12)]
-                    transition
-                    hover:bg-[#8f1515]
-                    active:scale-[0.99]
-                  "
+                          mt-5
+                          flex
+                          min-h-[50px]
+                          w-full
+                          items-center
+                          justify-center
+                          gap-2
+                          rounded-xl
+                          bg-[#a71919]
+                          px-5
+                          py-3
+                          text-[11px]
+                          font-bold
+                          text-white
+                          shadow-[0_8px_20px_rgba(167,25,25,0.12)]
+                          transition
+                          hover:bg-[#8f1515]
+                          focus:outline-none
+                          focus:ring-2
+                          focus:ring-[#a71919]
+                          focus:ring-offset-2
+                          active:scale-[0.99]
+                        "
                 >
                   <Home size={17} strokeWidth={1.8} />
                   Return to Home
                 </button>
 
-                <p className="mt-4 text-center text-[9px] text-[#aa9d92]">
-                  Thank you for using Shri Govardhannath.
+                <p className="mt-4 text-center text-[9px] leading-5 text-[#aa9d92]">
+                  Thank you for being a part of Shri Govardhannath.
                 </p>
               </div>
             </div>
@@ -309,98 +314,13 @@ export default function DeleteAccountPage() {
       "
     >
       {/* HEADER */}
-      <header
-        className="
-          sticky
-          top-0
-          z-40
-          border-b
-          border-[#eadfce]
-          bg-[#fffaf1]/95
-          backdrop-blur-md
-        "
-      >
-        <div
-          className="
-            mx-auto
-            flex
-            min-h-[64px]
-            w-full
-            max-w-[1100px]
-            items-center
-            gap-3
-            px-4
-            sm:min-h-[70px]
-            sm:px-6
-            lg:min-h-[82px]
-            lg:px-8
-          "
-        >
-          <button
-            type="button"
-            onClick={() => router.push("/dashboard")}
-            aria-label="Back to Dashboard"
-            disabled={deleting}
-            className="
-              group
-              grid
-              h-9
-              w-9
-              shrink-0
-              place-items-center
-              rounded-full
-              border
-              border-[#ead7b8]
-              bg-white
-              text-[#641010]
-              shadow-sm
-              transition-all
-              hover:border-[#b8893b]
-              hover:bg-[#fff8eb]
-              active:scale-95
-              disabled:cursor-not-allowed
-              disabled:opacity-50
-              sm:h-10
-              sm:w-10
-              lg:h-11
-              lg:w-11
-            "
-          >
-            <ArrowLeft
-              size={19}
-              strokeWidth={1.8}
-              className="transition-transform duration-200 group-hover:-translate-x-0.5"
-            />
-          </button>
 
-          <div className="min-w-0">
-            <p
-              className="
-                text-[9px]
-                font-bold
-                uppercase
-                tracking-[0.12em]
-                text-[#bd8b39]
-              "
-            >
-              Shri Govardhannath
-            </p>
-
-            <h1
-              className="
-                truncate
-                font-serif
-                text-[19px]
-                font-bold
-                text-[#641010]
-                lg:text-[25px]
-              "
-            >
-              Delete Account
-            </h1>
-          </div>
-        </div>
-      </header>
+      {/* COMMON HEADER */}
+      <CommonHeader
+        title="Delete Account"
+        subtitle="Shri Govardhannath Haveli"
+        backHref="/dashboard"
+      />
 
       {/* CONTENT */}
       <div
@@ -669,35 +589,21 @@ export default function DeleteAccountPage() {
             </h3>
 
             <p
+              id="delete-confirmation-instruction"
               className="
-                mt-2
-                text-[10px]
-                leading-5
-                text-[#82766b]
-                sm:text-[11px]
-                sm:leading-6
-              "
+    mt-2
+    text-[10px]
+    leading-5
+    text-[#82766b]
+    sm:text-[11px]
+    sm:leading-6
+  "
             >
               Type <strong className="font-bold text-[#641010]">DELETE</strong>{" "}
               below to confirm this action.
             </p>
-          </div>
 
-          <div className="p-5 sm:p-6">
-            <label
-              htmlFor="delete-confirmation"
-              className="
-                mb-2
-                block
-                text-[10px]
-                font-bold
-                text-[#51463d]
-              "
-            >
-              Type DELETE
-            </label>
-
-            <div className="relative">
+            <div className="relative mt-3">
               <input
                 id="delete-confirmation"
                 type="text"
@@ -706,35 +612,36 @@ export default function DeleteAccountPage() {
                   setConfirmText(event.target.value);
                   setDeleteError("");
                 }}
-                placeholder="DELETE"
+                placeholder="Type DELETE"
                 disabled={deleting}
                 autoComplete="off"
                 spellCheck={false}
+                aria-describedby="delete-confirmation-instruction"
                 className="
-                  h-[52px]
-                  w-full
-                  rounded-xl
-                  border
-                  border-[#dfd1c0]
-                  bg-white
-                  px-4
-                  pr-12
-                  text-[13px]
-                  font-semibold
-                  uppercase
-                  tracking-[0.08em]
-                  text-[#40372f]
-                  outline-none
-                  transition
-                  placeholder:normal-case
-                  placeholder:tracking-normal
-                  placeholder:text-[#b4a89d]
-                  focus:border-[#b42318]
-                  focus:ring-4
-                  focus:ring-[#b42318]/10
-                  disabled:cursor-not-allowed
-                  disabled:bg-[#f7f3ed]
-                "
+      h-[52px]
+      w-full
+      rounded-xl
+      border
+      border-[#dfd1c0]
+      bg-white
+      px-4
+      pr-12
+      text-[13px]
+      font-semibold
+      uppercase
+      tracking-[0.08em]
+      text-[#40372f]
+      outline-none
+      transition
+      placeholder:normal-case
+      placeholder:tracking-normal
+      placeholder:text-[#b4a89d]
+      focus:border-[#b42318]
+      focus:ring-4
+      focus:ring-[#b42318]/10
+      disabled:cursor-not-allowed
+      disabled:bg-[#f7f3ed]
+    "
               />
 
               {confirmText.length > 0 && (
@@ -926,16 +833,19 @@ export default function DeleteAccountPage() {
 
               <p
                 className="
-                  mt-2
-                  text-[10px]
-                  leading-5
-                  text-[#82766b]
-                  sm:text-[11px]
-                  sm:leading-6
-                "
+                          mt-2
+                          text-[10px]
+                          leading-5
+                          text-[#82766b]
+                          sm:text-[11px]
+                          sm:leading-6
+                        "
               >
-                Your account deletion cannot be undone. In the current demo, the
-                operation is simulated and does not delete the backend account.
+                Deleting your account is permanent and cannot be undone.
+                <br />
+                All associated data will be deleted in accordance with our data
+                retention policy, and you will lose access to your account and
+                its services.
               </p>
             </div>
 
@@ -955,8 +865,9 @@ export default function DeleteAccountPage() {
                   </div>
 
                   <p className="text-[9px] leading-5 text-[#9f1f17]">
-                    Make sure your real backend deletion API is connected before
-                    enabling permanent account deletion in production.
+                    Please ensure you have saved any important information
+                    before proceeding. Once your account is deleted, this action
+                    cannot be reversed.
                   </p>
                 </div>
               </div>
@@ -994,7 +905,7 @@ export default function DeleteAccountPage() {
                 ) : (
                   <>
                     <Trash2 size={17} strokeWidth={1.8} />
-                    Confirm Demo Deletion
+                    Confirm Deletion
                   </>
                 )}
               </button>

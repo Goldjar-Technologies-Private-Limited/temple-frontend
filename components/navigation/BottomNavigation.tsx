@@ -114,27 +114,21 @@ export default function BottomNavigation({
 
       <nav
         aria-label="Bottom navigation"
-        className="
-          fixed
-          inset-x-0
-          bottom-0
-          z-50
+       
+className="
+  fixed inset-x-0 bottom-0 z-50
+  box-border
+  grid grid-cols-5
+  h-auto
+  min-h-[64px]
+  pb-[env(safe-area-inset-bottom)]
+  border-t border-[#eadbc5]
+  bg-[#fffdf8]/95
+  shadow-[0_-3px_14px_rgba(80,40,10,0.08)]
+  backdrop-blur-xl
+  lg:hidden
+"
 
-          grid
-          h-[64px]
-          grid-cols-5
-
-          border-t
-          border-[#eadbc5]
-
-          bg-[#fffdf8]/95
-          pb-[env(safe-area-inset-bottom)]
-
-          shadow-[0_-3px_14px_rgba(80,40,10,0.08)]
-          backdrop-blur-xl
-
-          lg:hidden
-        "
       >
         {NAV_ITEMS.map((item) => {
           const active = isNavItemActive(

@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import { useRouter } from "next/navigation";
+import CommonHeader from "@/components/layout/CommonHeader";
 
 /* =========================================================
    TYPES
@@ -1429,121 +1430,22 @@ function CheckoutHeader({
   onBack: () => void;
 }) {
   return (
-    <header
-      className="
-        sticky
-        top-0
-        z-40
-        border-b
-        border-[#eee1cf]
-        bg-[#fffaf3]/95
-        backdrop-blur-md
-      "
-    >
-      <div
-        className="
-          mx-auto
-          flex
-          min-h-[64px]
-          max-w-[1400px]
-          items-center
-          gap-3
-          px-4
-
-          sm:min-h-[70px]
-          sm:px-6
-
-          lg:min-h-[78px]
-          lg:px-8
-        "
-      >
-        <button
-          type="button"
-          onClick={onBack}
-          className="
-            grid
-            h-9
-            w-9
-            shrink-0
-            place-items-center
-            rounded-full
-            border
-            border-[#eadbc5]
-            bg-white
-            text-[#a71919]
-
-            lg:h-11
-            lg:w-11
-          "
-        >
-          ←
-        </button>
-
-        <div>
-          <span
-            className="
-              text-[9px]
-              font-bold
-              uppercase
-              tracking-[1px]
-              text-[#c18b32]
-            "
-          >
-            Shri Govardhannath
-          </span>
-
-          <h1
-            className="
-              font-serif
-              text-xl
-              font-bold
-              text-[#561010]
-
-              lg:text-2xl
-            "
-          >
-            Checkout
-          </h1>
-        </div>
-
-        {/* STEPS */}
-
-        <div
-          className="
-            ml-auto
-            hidden
-            items-center
-            gap-2
-            text-[10px]
-            font-semibold
-            text-[#8b7d72]
-
-            md:flex
-          "
-        >
-          <span>
-            Cart
-          </span>
-
-          <span>›</span>
-
-          <span
-            className="
-              font-bold
-              text-[#a71919]
-            "
-          >
-            Checkout
-          </span>
-
-          <span>›</span>
-
-          <span>
-            Complete
-          </span>
-        </div>
-      </div>
-    </header>
+   <CommonHeader
+  title="Checkout"
+  subtitle="Shri Govardhannath Haveli"
+  backHref="/prasadam/cart"
+  rightAction={
+    <div className="hidden items-center gap-2 text-xs font-medium text-[#8b7d72] sm:flex">
+      <span>Cart</span>
+      <span>›</span>
+      <span className="font-bold text-[#a71919]">
+        Checkout
+      </span>
+      <span>›</span>
+      <span>Complete</span>
+    </div>
+  }
+/>
   );
 }
 

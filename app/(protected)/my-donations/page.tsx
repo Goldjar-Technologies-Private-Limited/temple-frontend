@@ -2,8 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-
+import CommonHeader from "@/components/layout/CommonHeader"
 /* =========================================================
    TYPES
 ========================================================= */
@@ -191,139 +190,40 @@ export default function MyDonationsPage() {
         lg:pb-12
       "
     >
-      {/* ===================================================
-          HEADER
-      =================================================== */}
+     
+{/* COMMON HEADER */}
+<CommonHeader
+  title="My Donations"
+  subtitle="Shri Govardhannath Haveli"
+  backHref="/dashboard"
+  rightAction={
+    <button
+      type="button"
+      onClick={() => router.push("/seva-donation")}
+      className="
+        hidden
+        min-h-[42px]
+        items-center
+        justify-center
+        gap-2
+        rounded-xl
+        bg-[#a71919]
+        px-5
+        text-[11px]
+        font-bold
+        text-white
+        transition
+        hover:bg-[#841313]
+        active:scale-[0.98]
+        lg:flex
+      "
+    >
+      <HeartIcon />
+      Make a Donation
+    </button>
+  }
+/>
 
-      <header
-        className="
-          sticky
-          top-0
-          z-40
-          border-b
-          border-[#eadfce]
-          bg-[#fffaf1]/95
-          backdrop-blur-md
-        "
-      >
-        <div
-          className="
-            mx-auto
-            flex
-            min-h-[64px]
-            max-w-[1400px]
-            items-center
-            gap-3
-            px-4
-
-            sm:min-h-[70px]
-            sm:px-6
-
-            lg:min-h-[82px]
-            lg:px-8
-          "
-        >
-          {/* BACK BUTTON */}
-
-<button
-  type="button"
-  onClick={() => router.back()}
-  aria-label="Go back"
-  className="
-    group
-    grid
-    h-9
-    w-9
-    shrink-0
-    place-items-center
-    rounded-full
-    border
-    border-[#ead7b8]
-    bg-white
-    text-[#641010]
-    shadow-sm
-    transition-all
-
-    hover:border-[#b8893b]
-    hover:bg-[#fff8eb]
-    hover:shadow-sm
-
-    active:scale-95
-
-    lg:h-11
-    lg:w-11
-  "
->
-  <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
-    <ArrowLeft size={19} strokeWidth={1.8} />
-  </span>
-</button>
-
-          {/* TITLE */}
-
-          <div className="min-w-0">
-            <p
-              className="
-                text-[9px]
-                font-bold
-                uppercase
-                tracking-[0.12em]
-                text-[#bd8b39]
-              "
-            >
-              Shri Govardhannath
-            </p>
-
-            <h1
-              className="
-                truncate
-                font-serif
-                text-[19px]
-                font-bold
-                text-[#641010]
-
-                lg:text-[25px]
-              "
-            >
-              My Donations
-            </h1>
-          </div>
-
-          {/* NEW DONATION DESKTOP */}
-
-          <button
-            type="button"
-            onClick={() =>
-              router.push("/seva-donation")
-            }
-            className="
-              ml-auto
-              hidden
-              min-h-[42px]
-              items-center
-              justify-center
-              gap-2
-              rounded-xl
-              bg-[#a71919]
-              px-5
-              text-[11px]
-              font-bold
-              text-white
-              shadow-[0_6px_16px_rgba(167,25,25,0.15)]
-              transition
-
-              hover:bg-[#841313]
-              active:scale-[0.98]
-
-              lg:flex
-            "
-          >
-            <HeartIcon />
-
-            Make a Donation
-          </button>
-        </div>
-      </header>
 
       {/* ===================================================
           HERO / SUMMARY

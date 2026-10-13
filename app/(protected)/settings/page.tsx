@@ -1,14 +1,14 @@
 "use client";
 
+"use client";
+
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
+import CommonHeader from "@/components/layout/CommonHeader";
 import {
-  ArrowLeft,
   Settings,
   Languages,
-  Globe,
   Check,
-  Info,
   Trash2,
   ChevronRight,
 } from "lucide-react";
@@ -64,99 +64,14 @@ export default function SettingsPage() {
       "
     >
       {/* HEADER */}
-      <header
-        className="
-          sticky
-          top-0
-          z-40
-          border-b
-          border-[#eadfce]
-          bg-[#fffaf1]/95
-          backdrop-blur-md
-        "
-      >
-        <div
-          className="
-            mx-auto
-            flex
-            min-h-[64px]
-            w-full
-            max-w-[1400px]
-            items-center
-            gap-3
-            px-4
-            sm:min-h-[70px]
-            sm:px-6
-            lg:min-h-[82px]
-            lg:px-8
-          "
-        >
-          {/* BACK BUTTON */}
-          <button
-            type="button"
-            onClick={() => router.push("/dashboard")}
-            aria-label="Back to Dashboard"
-            className="
-              group
-              grid
-              h-9
-              w-9
-              shrink-0
-              place-items-center
-              rounded-full
-              border
-              border-[#ead7b8]
-              bg-white
-              text-[#641010]
-              shadow-sm
-              transition-all
-              hover:border-[#b8893b]
-              hover:bg-[#fff8eb]
-              hover:shadow-sm
-              active:scale-95
-              sm:h-10
-              sm:w-10
-              lg:h-11
-              lg:w-11
-            "
-          >
-            <ArrowLeft
-              size={19}
-              strokeWidth={1.8}
-              className="transition-transform duration-200 group-hover:-translate-x-0.5"
-              aria-hidden="true"
-            />
-          </button>
+     
+{/* COMMON HEADER */}
+<CommonHeader
+  title="Settings"
+  subtitle="Shri Govardhannath Haveli"
+  backHref="/dashboard"
+/>
 
-          {/* TITLE */}
-          <div className="min-w-0">
-            <p
-              className="
-                text-[9px]
-                font-bold
-                uppercase
-                tracking-[0.12em]
-                text-[#bd8b39]
-              "
-            >
-              Shri Govardhannath
-            </p>
-
-            <h1
-              className="
-                truncate
-                font-serif
-                text-[19px]
-                font-bold
-                text-[#641010]
-                lg:text-[25px]
-              "
-            >
-              Settings
-            </h1>
-          </div>
-        </div>
-      </header>
 
       {/* PAGE CONTENT */}
       <div
@@ -508,113 +423,9 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        {/* CURRENT LANGUAGE */}
-        <section
-          className="
-            mt-4
-            flex
-            items-center
-            gap-3
-            rounded-[16px]
-            border
-            border-[#ead8b8]
-            bg-[#fff5e5]
-            p-4
-            lg:mt-5
-            lg:p-5
-          "
-        >
-          <div
-            className="
-              grid
-              h-10
-              w-10
-              shrink-0
-              place-items-center
-              rounded-full
-              bg-white
-              text-[#a71919]
-              shadow-sm
-            "
-          >
-            <Globe size={18} strokeWidth={1.8} aria-hidden="true" />
-          </div>
+       
 
-          <div className="min-w-0 flex-1">
-            <p
-              className="
-                text-[9px]
-                font-semibold
-                uppercase
-                tracking-[0.08em]
-                text-[#9e8b7a]
-              "
-            >
-              Current Language
-            </p>
-
-            <p
-              className="
-                mt-[2px]
-                text-[12px]
-                font-bold
-                text-[#5c3521]
-                lg:text-[13px]
-              "
-            >
-              {getCurrentLanguageName(language)}
-            </p>
-          </div>
-
-          <span
-            className="
-              rounded-full
-              border
-              border-[#d9bd8d]
-              bg-white
-              px-3
-              py-1
-              text-[8px]
-              font-bold
-              uppercase
-              tracking-[0.08em]
-              text-[#9a671d]
-            "
-          >
-            Selected
-          </span>
-        </section>
-
-        {/* NOTE */}
-        <div
-          className="
-            mt-4
-            flex
-            items-start
-            gap-3
-            rounded-[14px]
-            border
-            border-[#eee1ce]
-            bg-[#fffdf9]
-            p-4
-          "
-        >
-          <div className="mt-[1px] text-[#a71919]">
-            <Info size={17} strokeWidth={1.8} aria-hidden="true" />
-          </div>
-
-          <p
-            className="
-              text-[9px]
-              leading-5
-              text-[#8c7e72]
-              sm:text-[10px]
-            "
-          >
-            Your selected language is saved automatically. You do not need to
-            press a separate Save button.
-          </p>
-        </div>
+      
 
         {/* DELETE ACCOUNT */}
         <section className="mt-4">

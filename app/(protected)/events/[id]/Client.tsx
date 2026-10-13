@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import type { TranslationKey } from "@/utils/i18n";
+import CommonHeader from "@/components/layout/CommonHeader";
 
 type EventItem = {
   id: string;
@@ -268,58 +269,12 @@ export default function EventDetailsPage() {
       {/* =========================================================
           HEADER
       ========================================================= */}
-      <header className="sticky top-0 z-50 border-b border-[#eadcc8] bg-[#fffaf0]/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="group flex h-10 w-10 items-center justify-center rounded-full border border-[#e7d8c2] bg-white text-[#6b5046] shadow-sm transition hover:border-[#c9aa7c] hover:bg-[#fff7e8]"
-            aria-label="Go back"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              className="h-5 w-5 transition group-hover:-translate-x-0.5"
-            >
-              <path d="M19 12H5" />
-              <path d="M12 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <div className="absolute left-1/2 -translate-x-1/2 text-center">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#a71919]">
-              Shri Govardhannath
-            </p>
-
-            <p className="mt-0.5 text-sm font-bold text-[#4b2921] sm:text-base">
-              Event Details
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleShare}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#e7d8c2] bg-white text-[#6b5046] shadow-sm transition hover:border-[#c9aa7c] hover:bg-[#fff7e8]"
-            aria-label="Share event"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              className="h-5 w-5"
-            >
-              <circle cx="18" cy="5" r="2.5" />
-              <circle cx="6" cy="12" r="2.5" />
-              <circle cx="18" cy="19" r="2.5" />
-              <path d="m8.2 10.8 7.5-4.4" />
-              <path d="m8.2 13.2 7.5 4.4" />
-            </svg>
-          </button>
-        </div>
-      </header>
+      <CommonHeader
+        title={t(event.titleKey)}
+        subtitle={t("haveliName")}
+        backHref="/events"
+      />
+     
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* =======================================================

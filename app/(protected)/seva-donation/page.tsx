@@ -1,9 +1,8 @@
-
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import CommonHeader from "@/components/layout/CommonHeader";
 
 import { useLanguage } from "@/contexts/LanguageProvider";
 import type { TranslationKey } from "@/utils/i18n";
@@ -79,30 +78,22 @@ export default function SevaDonation() {
       : sevas.filter((seva) => seva.category === category);
 
   return (
-    <main className="relative box-border min-h-screen min-h-[100dvh] w-full min-w-0 max-w-full overflow-x-clip bg-[#fffdf8]/95">
-      {/* HEADER */}
-      <header className="sticky top-0 z-40 w-full border-b border-[#eadfce] bg-[#fffaf1]/95 backdrop-blur-xl">
-        <div className="mx-auto flex min-h-16 w-full min-w-0 max-w-[1400px] items-center gap-2 px-3 sm:min-h-[70px] sm:gap-3 sm:px-5 md:px-6 lg:min-h-[76px] lg:px-8 xl:px-10">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label={t("back")}
-            title={t("back")}
-            className="group grid size-9 shrink-0 place-items-center rounded-full border border-[#ead7b8] bg-white text-[#641010] shadow-sm transition hover:border-[#b8893b] hover:bg-[#fff8eb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a71919] focus-visible:ring-offset-2 active:scale-95 sm:size-10"
-          >
-            <ArrowLeft size={19} strokeWidth={1.8} />
-          </button>
-
-          <div className="min-w-0 flex-1">
-            <p className="mb-0.5 truncate text-[8px] font-bold uppercase tracking-[0.13em] text-[#b07a26] sm:text-[9px] sm:tracking-[0.18em]">
-              SHRI GOVARDHANNATH
-            </p>
-            <h1 className="truncate font-serif text-[17px] font-bold leading-tight text-[#641010] sm:text-xl">
-              {t("sevaDonation")}
-            </h1>
-          </div>
-        </div>
-      </header>
+    <main
+      className="
+        relative box-border min-h-dvh
+        w-full min-w-0 max-w-full
+        overflow-x-clip
+        bg-[#fffdf8]/95
+        pb-[calc(5rem+env(safe-area-inset-bottom))]
+        lg:pb-8 lg:pl-[92px]
+      "
+    >
+      {/* COMMON HEADER */}
+      <CommonHeader
+        title="Seva & Donation"
+        subtitle="Offer your seva with devotion and love"
+        backHref="/dashboard"
+      />
 
       {/* RESPONSIVE CONTENT */}
       <div className="mx-auto box-border w-full min-w-0 max-w-[1400px] px-3 py-5 sm:px-5 sm:py-7 md:px-6 lg:px-8 lg:py-9 xl:px-10">
@@ -190,6 +181,7 @@ export default function SevaDonation() {
         </div>
       </div>
 
+      {/* NAVIGATION */}
       <BottomNavigation />
     </main>
   );

@@ -1,12 +1,9 @@
 "use client";
-
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
-
 import type { TranslationKey } from "@/utils/i18n";
-import { ArrowLeft } from "lucide-react";
-
+import CommonHeader from "@/components/layout/CommonHeader";
 
 /* =====================================================
    TYPES
@@ -449,70 +446,45 @@ export default function PrasadamPage() {
         lg:ml-[92px] lg:w-[calc(100%-92px)]
       "
     >
-      {/* HEADER */}
+      {/* HEADER WITH CART */}
+<CommonHeader
+  title={t("prasadam")}
+  subtitle="Shri Govardhannath Haveli"
+  backHref="/dashboard"
+  rightAction={
+    <button
+      type="button"
+      onClick={() => router.push("/prasadam/cart")}
+      aria-label={`Open shopping cart, ${cartCount} items`}
+      title="Open shopping cart"
+      className="
+        relative grid h-10 w-10 shrink-0 place-items-center
+        rounded-full border border-[#eadbc5]
+        bg-white text-[#8c1717] shadow-sm
+        transition hover:border-[#b8893b]
+        hover:bg-[#fff4e4]
+        focus-visible:outline-none
+        focus-visible:ring-2 focus-visible:ring-[#a71919]
+      "
+    >
+      <CartIcon />
 
-      <header
-        className="
-          sticky top-0 z-30
-          flex h-[68px] items-center justify-between
-          border-b border-[#eadbc5]
-          bg-white/95 px-3 backdrop-blur-md
-          sm:h-[76px] sm:px-5
-          lg:static lg:h-[84px] lg:px-8
-        "
-      >
-        <button
-          type="button"
-          onClick={() => router.back()}
-          aria-label="Go back"
+      {cartCount > 0 && (
+        <span
           className="
-            grid h-10 w-10 place-items-center
-            rounded-full border border-[#eadbc5]
-            bg-white text-2xl text-[#8c1717]
-            transition hover:bg-[#fff4e4]
+            absolute -right-1 -top-1
+            grid h-[19px] min-w-[19px]
+            place-items-center rounded-full
+            bg-[#e87519] px-1 text-[10px]
+            font-bold text-white
           "
         >
-          <ArrowLeft size={20} strokeWidth={2} />
-        </button>
-
-        <div className="flex-1 text-center lg:ml-4 lg:text-left">
-          <p className="hidden text-[10px] font-bold uppercase tracking-[2px] text-[#a17b37] lg:block">
-            Shri Govardhannath Haveli
-          </p>
-
-          <h1 className="font-serif text-xl font-bold text-[#641010] sm:text-2xl">
-            {t("prasadam")}
-          </h1>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => router.push("/prasadam/cart")}
-          aria-label="Open shopping cart"
-          className="
-            relative grid h-10 w-10 place-items-center
-            rounded-full border border-[#eadbc5]
-            bg-white text-[#8c1717]
-            transition hover:bg-[#fff4e4]
-          "
-        >
-          <CartIcon />
-
-          {cartCount > 0 && (
-            <span
-              className="
-                absolute -right-1 -top-1
-                grid h-[19px] min-w-[19px]
-                place-items-center rounded-full
-                bg-[#e87519] px-1 text-[10px]
-                font-bold text-white
-              "
-            >
-              {cartCount}
-            </span>
-          )}
-        </button>
-      </header>
+          {cartCount > 99 ? "99+" : cartCount}
+        </span>
+      )}
+    </button>
+  }
+/>
 
       <div className="mx-auto w-full max-w-[1500px]">
         {/* CATEGORY FILTERS */}

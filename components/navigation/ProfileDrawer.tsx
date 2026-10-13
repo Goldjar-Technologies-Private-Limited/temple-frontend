@@ -748,7 +748,7 @@ export default function ProfileDrawer({ onClose }: Props) {
                     group-hover:translate-x-[2px]
                   "
                 >
-                  →
+                ›
                 </span>
               </button>
             </section>
