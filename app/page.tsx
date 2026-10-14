@@ -11,14 +11,19 @@ export default function Splash() {
       router.replace("/onboarding");
     } catch (_) {}
     setTimeout(() => {
-      if (typeof window !== "undefined" && (window.location.pathname === "/" || window.location.pathname === "")) {
+      if (
+        typeof window !== "undefined" &&
+        (window.location.pathname === "/" || window.location.pathname === "")
+      ) {
         window.location.assign("/onboarding");
       }
     }, 400);
   };
 
   useEffect(() => {
-    console.log("[Splash] Screen mounted. Setting automatic transition timer...");
+    console.log(
+      "[Splash] Screen mounted. Setting automatic transition timer...",
+    );
     const timer = setTimeout(() => {
       console.log("[Splash] Auto transition triggered.");
       navigateNext();
@@ -53,7 +58,10 @@ export default function Splash() {
         }}
       >
         {/* Desktop */}
-        <source media="(min-width: 1024px)" srcSet="/images/splash-desktop.png" />
+        <source
+          media="(min-width: 1024px)"
+          srcSet="/images/splash-desktop.png"
+        />
         {/* Tablet */}
         <source media="(min-width: 640px)" srcSet="/images/splash-tablet.png" />
         {/* Mobile (Default) */}

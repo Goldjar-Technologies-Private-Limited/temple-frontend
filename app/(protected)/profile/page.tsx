@@ -3,26 +3,13 @@
 import type { ChangeEvent, FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, Check, Save, UserRound, X } from "lucide-react";
-import CommonHeader, { HeaderSaveButton,} from "@/components/layout/CommonHeader";
-
-type ProfileData = {
-  name: string;
-  phone: string;
-  email: string;
-  city: string;
-  image: string;
-};
+import { Camera, Check, UserRound } from "lucide-react";
+import CommonHeader, {
+  HeaderSaveButton,
+} from "@/components/layout/CommonHeader";
+import { defaultProfile, type ProfileData } from "@/data/profile";
 
 const PROFILE_STORAGE_KEY = "profile-data";
-
-const defaultProfile: ProfileData = {
-  name: "",
-  phone: "",
-  email: "",
-  city: "",
-  image: "",
-};
 
 const inputClass =
   "w-full rounded-xl border border-[#eadbc5] bg-[#fffdf8] px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-[#a71919] focus:ring-2 focus:ring-[#a71919]/10";
@@ -85,8 +72,6 @@ export default function EditProfilePage() {
     setError("");
   };
 
- 
-
   // OPEN PHOTO PICKER
   const handleImageClick = () => {
     fileInputRef.current?.click();
@@ -126,17 +111,6 @@ export default function EditProfilePage() {
 
     reader.readAsDataURL(file);
     event.target.value = "";
-  };
-
-  // CANCEL CHANGES
-  const handleCancel = () => {
-    setProfile(originalProfile);
-    setSaved(false);
-    setError("");
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
   };
 
   // SAVE PROFILE
@@ -182,28 +156,24 @@ export default function EditProfilePage() {
     }
   };
 
-    
-return (
-  <main className="min-h-dvh w-full min-w-0 overflow-x-clip bg-[#fffaf1] pb-20 lg:pb-6 lg:pl-[92px]">
-
-          <CommonHeader
-            title="Profile"
-            subtitle="Manage your personal details"
-            backHref="/dashboard"
-            rightAction={
-              <HeaderSaveButton
-                formId="edit-profile-form"
-                disabled={!isLoaded || !hasChanges || isSaving}
-                isSaving={isSaving}
-              />
-            }
+  return (
+    <main className="min-h-dvh w-full min-w-0 overflow-x-clip bg-[#fffaf1] pb-20 lg:pb-6 lg:pl-[92px]">
+      <CommonHeader
+        title="Profile"
+        subtitle="Manage your personal details"
+        backHref="/dashboard"
+        rightAction={
+          <HeaderSaveButton
+            formId="edit-profile-form"
+            disabled={!isLoaded || !hasChanges || isSaving}
+            isSaving={isSaving}
           />
-
+        }
+      />
 
       {/* PAGE CONTENT */}
       <section className="mx-auto w-full max-w-3xl px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
         {/* INTRODUCTION */}
-       
 
         {/* PROFILE CARD */}
         <div className="overflow-hidden rounded-2xl border border-[#eadbc5] bg-[#fffdf8] shadow-[0_8px_30px_rgba(100,16,16,0.05)]">
@@ -248,7 +218,7 @@ return (
               />
             </div>
 
-            <h3 className="mt-4 truncate px-2 font-[Georgia,'Times_New_Roman',serif] text-xl text-white sm:text-2xl">
+            <h3 className="mt-4 truncate px-2 text-xl text-white sm:text-2xl">
               {profile.name.trim() || "Your Name"}
             </h3>
 
@@ -356,8 +326,6 @@ return (
                 Profile updated successfully.
               </div>
             )}
-
-            
           </form>
         </div>
 

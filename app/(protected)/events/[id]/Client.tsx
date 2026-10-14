@@ -3,211 +3,12 @@
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
-import type { TranslationKey } from "@/utils/i18n";
 import CommonHeader from "@/components/layout/CommonHeader";
 
-type EventItem = {
-  id: string;
-  titleKey: TranslationKey;
-  dateKey: TranslationKey;
-  image: string;
-  imagePosition?: string;
-};
-
-type EventDetail = {
-  description: string;
-  location: string;
-  time: string;
-  about: string;
-  category: string;
-  duration: string;
-  schedule: {
-    time: string;
-    title: string;
-    description: string;
-  }[];
-};
-
-const events: EventItem[] = [
-  {
-    id: "janmashtami-utsav",
-    titleKey: "janmashtamiUtsav",
-    dateKey: "janmashtamiDate",
-    image: "/images/janmashtami2.jpg",
-    imagePosition: "center 35%",
-  },
-  {
-    id: "annakut-mahotsav",
-    titleKey: "annakutMahotsav",
-    dateKey: "annakutEventDate",
-    image: "/images/annakut-event.jpg",
-    imagePosition: "center 40%",
-  },
-  {
-    id: "sharad-purnima",
-    titleKey: "sharadPurnima",
-    dateKey: "sharadPurnimaDate",
-    image: "/images/sharad-purnima.jpg",
-    imagePosition: "center 35%",
-  },
-  {
-    id: "haveli-sangeet",
-    titleKey: "haveliSangeet",
-    dateKey: "haveliSangeetDate",
-    image: "/images/haveli-sangeet.jpg",
-    imagePosition: "center 40%",
-  },
-];
-
-const eventDetails: Record<string, EventDetail> = {
-  "janmashtami-utsav": {
-    category: "Divine Celebration",
-    duration: "3+ Hours",
-    description:
-      "Join us for a divine celebration of Shri Krishna Janmashtami with devotional prayers, darshan, bhajans and sacred festivities.",
-    location: "Shri Govardhannath Haveli",
-    time: "6:00 PM onwards",
-    about:
-      "Janmashtami is celebrated with devotion and joy as devotees come together to remember the divine appearance of Shri Krishna. The evening brings together special darshan, devotional singing, prayers and sacred celebrations in the peaceful atmosphere of the Haveli.",
-    schedule: [
-      {
-        time: "6:00 PM",
-        title: "Mangalacharan & Prayer",
-        description:
-          "Begin the evening with sacred prayers and devotional invocation.",
-      },
-      {
-        time: "7:00 PM",
-        title: "Bhajan & Kirtan",
-        description:
-          "Experience traditional devotional music and collective singing.",
-      },
-      {
-        time: "8:00 PM",
-        title: "Special Darshan",
-        description:
-          "Participate in the special darshan and devotional seva.",
-      },
-      {
-        time: "9:00 PM",
-        title: "Sacred Celebration",
-        description:
-          "Conclude the evening with prayers and festive devotional activities.",
-      },
-    ],
-  },
-
-  "annakut-mahotsav": {
-    category: "Seva & Mahotsav",
-    duration: "4+ Hours",
-    description:
-      "Experience the sacred Annakut Mahotsav with special darshan, devotional offerings and a beautiful celebration of gratitude.",
-    location: "Shri Govardhannath Haveli",
-    time: "5:00 PM onwards",
-    about:
-      "Annakut is a traditional celebration where devotees offer a grand variety of food preparations to the Lord. The festival expresses devotion, gratitude and community participation.",
-    schedule: [
-      {
-        time: "5:00 PM",
-        title: "Seva Begins",
-        description:
-          "Devotees gather for the beginning of the sacred seva.",
-      },
-      {
-        time: "6:00 PM",
-        title: "Annakut Darshan",
-        description:
-          "Witness the beautifully arranged devotional offerings.",
-      },
-      {
-        time: "7:30 PM",
-        title: "Bhajan Sandhya",
-        description:
-          "Enjoy an evening of devotional music and satsang.",
-      },
-      {
-        time: "9:00 PM",
-        title: "Prasad Seva",
-        description:
-          "Conclude the celebration with sacred prasad seva.",
-      },
-    ],
-  },
-
-  "sharad-purnima": {
-    category: "Spiritual Gathering",
-    duration: "3 Hours",
-    description:
-      "Celebrate the auspicious Sharad Purnima with devotional music, satsang and special darshan.",
-    location: "Shri Govardhannath Haveli",
-    time: "7:00 PM onwards",
-    about:
-      "Sharad Purnima is an important devotional occasion marked by prayers, music and spiritual gatherings. Devotees are invited to participate in the sacred atmosphere of the Haveli.",
-    schedule: [
-      {
-        time: "7:00 PM",
-        title: "Evening Prayer",
-        description:
-          "Start the celebration with peaceful evening prayers.",
-      },
-      {
-        time: "7:45 PM",
-        title: "Satsang",
-        description:
-          "Spend time in spiritual reflection and devotional discourse.",
-      },
-      {
-        time: "8:30 PM",
-        title: "Haveli Sangeet",
-        description:
-          "Listen to traditional devotional melodies.",
-      },
-      {
-        time: "9:30 PM",
-        title: "Special Darshan",
-        description:
-          "Complete the evening with special darshan.",
-      },
-    ],
-  },
-
-  "haveli-sangeet": {
-    category: "Devotional Music",
-    duration: "2+ Hours",
-    description:
-      "Immerse yourself in the traditional devotional melodies of Haveli Sangeet in a peaceful spiritual setting.",
-    location: "Shri Govardhannath Haveli",
-    time: "6:30 PM onwards",
-    about:
-      "Haveli Sangeet is a traditional devotional music practice associated with temple seva. Join us for an evening of bhajans and sacred melodies.",
-    schedule: [
-      {
-        time: "6:30 PM",
-        title: "Welcome & Prayer",
-        description:
-          "A peaceful beginning with traditional devotional prayers.",
-      },
-      {
-        time: "7:00 PM",
-        title: "Haveli Sangeet",
-        description:
-          "Experience traditional devotional compositions.",
-      },
-      {
-        time: "8:00 PM",
-        title: "Bhajan Sandhya",
-        description:
-          "Join fellow devotees in devotional singing.",
-      },
-      {
-        time: "8:30 PM",
-        title: "Closing Darshan",
-        description:
-          "Conclude the gathering with sacred darshan.",
-      },
-    ],
-  },
-};
+import {
+  EVENTS_WITH_POSITIONS as events,
+  EVENT_DETAILS as eventDetails,
+} from "@/data/events";
 
 export default function EventDetailsPage() {
   const router = useRouter();
@@ -225,9 +26,7 @@ export default function EventDetailsPage() {
             🪷
           </div>
 
-          <h1 className="text-2xl font-bold text-[#4b2921]">
-            Event Not Found
-          </h1>
+          <h1 className="text-2xl font-bold text-[#4b2921]">Event Not Found</h1>
 
           <p className="mt-3 text-sm leading-6 text-[#806e63]">
             The event you are looking for could not be found.
@@ -274,7 +73,6 @@ export default function EventDetailsPage() {
         subtitle={t("haveliName")}
         backHref="/events"
       />
-     
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* =======================================================
@@ -383,7 +181,6 @@ export default function EventDetailsPage() {
         {/* =======================================================
             QUICK INFO
         ======================================================= */}
-    
 
         {/* =======================================================
             MAIN CONTENT + SIDEBAR
@@ -425,10 +222,7 @@ export default function EventDetailsPage() {
 
             {/* HIGHLIGHTS */}
             <section className="mt-12 sm:mt-14">
-              <SectionHeading
-                eyebrow="Experience"
-                title="Event Highlights"
-              />
+              <SectionHeading eyebrow="Experience" title="Event Highlights" />
 
               <div className="mt-6 grid gap-4 sm:grid-cols-3">
                 <Highlight
@@ -501,10 +295,7 @@ export default function EventDetailsPage() {
 
             {/* SCHEDULE */}
             <section className="mt-12 sm:mt-14">
-              <SectionHeading
-                eyebrow="Program"
-                title="Event Schedule"
-              />
+              <SectionHeading eyebrow="Program" title="Event Schedule" />
 
               <div className="relative mt-7">
                 {/* Timeline line */}
@@ -551,10 +342,7 @@ export default function EventDetailsPage() {
 
             {/* VENUE */}
             <section className="mt-12 sm:mt-14">
-              <SectionHeading
-                eyebrow="Visit Us"
-                title="Venue"
-              />
+              <SectionHeading eyebrow="Visit Us" title="Venue" />
 
               <div className="relative mt-6 overflow-hidden rounded-[28px] border border-[#eadcc8] bg-[#3f211b] shadow-[0_16px_40px_rgba(63,33,27,0.12)]">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_10%,rgba(230,185,94,0.18),transparent_30%),radial-gradient(circle_at_10%_90%,rgba(167,25,25,0.25),transparent_35%)]" />
@@ -730,7 +518,6 @@ export default function EventDetailsPage() {
                 <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.7 31.7 0 0 0 0 12a31.7 31.7 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.7 31.7 0 0 0 24 12a31.7 31.7 0 0 0-.5-5.8ZM9.6 15.5v-7L16 12l-6.4 3.5Z" />
               </svg>
             </span>
-
             Live Darshan
           </button>
         </div>
@@ -771,8 +558,6 @@ function SectionHeading({
    QUICK INFO
 ============================================================= */
 
-
-
 /* =============================================================
    HIGHLIGHT
 ============================================================= */
@@ -792,9 +577,7 @@ function Highlight({
         {icon}
       </div>
 
-      <h3 className="mt-5 text-base font-bold text-[#4b2921]">
-        {title}
-      </h3>
+      <h3 className="mt-5 text-base font-bold text-[#4b2921]">{title}</h3>
 
       <p className="mt-2 text-sm leading-6 text-[#7b6b62]">{text}</p>
     </div>
@@ -844,9 +627,7 @@ function CalendarIcon({ dark = false }: { dark?: boolean }) {
       fill="none"
       stroke="currentColor"
       strokeWidth="1.7"
-      className={`h-5 w-5 shrink-0 ${
-        dark ? "text-[#a71919]" : "text-white/80"
-      }`}
+      className={`h-5 w-5 shrink-0 ${dark ? "text-[#a71919]" : "text-white/80"}`}
     >
       <rect x="3" y="4.5" width="18" height="17" rx="3" />
       <path d="M16 2.5v4M8 2.5v4M3 9.5h18" />
@@ -861,9 +642,7 @@ function ClockIcon({ dark = false }: { dark?: boolean }) {
       fill="none"
       stroke="currentColor"
       strokeWidth="1.7"
-      className={`h-5 w-5 shrink-0 ${
-        dark ? "text-[#a71919]" : "text-white/80"
-      }`}
+      className={`h-5 w-5 shrink-0 ${dark ? "text-[#a71919]" : "text-white/80"}`}
     >
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v5l3.5 2" />
@@ -878,9 +657,7 @@ function LocationIcon({ dark = false }: { dark?: boolean }) {
       fill="none"
       stroke="currentColor"
       strokeWidth="1.7"
-      className={`h-5 w-5 shrink-0 ${
-        dark ? "text-[#a71919]" : "text-white/70"
-      }`}
+      className={`h-5 w-5 shrink-0 ${dark ? "text-[#a71919]" : "text-white/70"}`}
     >
       <path d="M20 10.5c0 5.5-8 10.5-8 10.5S4 16 4 10.5a8 8 0 1 1 16 0Z" />
       <circle cx="12" cy="10.5" r="2.5" />

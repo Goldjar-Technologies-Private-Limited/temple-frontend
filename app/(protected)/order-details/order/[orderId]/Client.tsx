@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -78,32 +77,27 @@ export default function OrderDetailsPage() {
         ? source.cartItems
         : [];
 
-    const items: OrderItem[] = rawItems.map(
-      (item: unknown, index: number) => {
-        const product = item as Record<string, unknown>;
+    const items: OrderItem[] = rawItems.map((item: unknown, index: number) => {
+      const product = item as Record<string, unknown>;
 
-        const price = Number(product.price) || 0;
-        const quantity = Number(product.quantity) || 1;
+      const price = Number(product.price) || 0;
+      const quantity = Number(product.quantity) || 1;
 
-        return {
-          id: Number(product.id) || index + 1,
-          productId: Number(product.productId ?? product.id) || undefined,
-          name: String(product.name ?? product.title ?? "Product"),
-          quantity,
-          price,
-          image:
-            typeof product.image === "string"
-              ? product.image
-              : undefined,
-          weight:
-            product.weight === "250g" ||
-            product.weight === "500g" ||
-            product.weight === "1kg"
-              ? product.weight
-              : undefined,
-        };
-      },
-    );
+      return {
+        id: Number(product.id) || index + 1,
+        productId: Number(product.productId ?? product.id) || undefined,
+        name: String(product.name ?? product.title ?? "Product"),
+        quantity,
+        price,
+        image: typeof product.image === "string" ? product.image : undefined,
+        weight:
+          product.weight === "250g" ||
+          product.weight === "500g" ||
+          product.weight === "1kg"
+            ? product.weight
+            : undefined,
+      };
+    });
 
     const subtotal =
       Number(source.subtotal) ||
@@ -139,9 +133,7 @@ export default function OrderDetailsPage() {
     const rawPayment = source.paymentMethod;
 
     const paymentMethod: PaymentMethod | undefined =
-      rawPayment === "upi" ||
-      rawPayment === "card" ||
-      rawPayment === "cod"
+      rawPayment === "upi" || rawPayment === "card" || rawPayment === "cod"
         ? rawPayment
         : undefined;
 
@@ -159,13 +151,8 @@ export default function OrderDetailsPage() {
       deliveryCharge,
       totalAmount,
       createdAt:
-        typeof source.createdAt === "string"
-          ? source.createdAt
-          : undefined,
-      date:
-        typeof source.date === "string"
-          ? source.date
-          : undefined,
+        typeof source.createdAt === "string" ? source.createdAt : undefined,
+      date: typeof source.date === "string" ? source.date : undefined,
       status,
       total: Number(source.total) || undefined,
     };
@@ -180,9 +167,7 @@ export default function OrderDetailsPage() {
           return;
         }
 
-        const decodedOrderId = decodeURIComponent(
-          String(orderIdParam),
-        );
+        const decodedOrderId = decodeURIComponent(String(orderIdParam));
 
         const savedOrdersRaw = localStorage.getItem(ORDERS_KEY);
 
@@ -332,10 +317,7 @@ export default function OrderDetailsPage() {
         return item;
       });
 
-      localStorage.setItem(
-        ORDERS_KEY,
-        JSON.stringify(updatedOrders),
-      );
+      localStorage.setItem(ORDERS_KEY, JSON.stringify(updatedOrders));
 
       const lastOrderRaw = localStorage.getItem(LAST_ORDER_KEY);
 
@@ -432,8 +414,7 @@ export default function OrderDetailsPage() {
 
   const subtotal = Number(order.subtotal) || 0;
   const deliveryCharge = Number(order.deliveryCharge) || 0;
-  const totalAmount =
-    Number(order.totalAmount) || subtotal + deliveryCharge;
+  const totalAmount = Number(order.totalAmount) || subtotal + deliveryCharge;
 
   return (
     <main className="min-h-screen bg-[#fffaf5]">
@@ -462,9 +443,7 @@ export default function OrderDetailsPage() {
                     </h1>
 
                     <span
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold ${getStatusClass(
-                        order.status,
-                      )}`}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold ${getStatusClass(order.status)}`}
                     >
                       {getStatusIcon(order.status)}
                       {order.status || "Processing"}
@@ -514,9 +493,7 @@ export default function OrderDetailsPage() {
               </div>
 
               <div>
-                <h2 className="font-bold text-[#5e1919]">
-                  Ordered Items
-                </h2>
+                <h2 className="font-bold text-[#5e1919]">Ordered Items</h2>
 
                 <p className="text-xs text-gray-500">
                   {order.items.length}{" "}
@@ -578,15 +555,10 @@ export default function OrderDetailsPage() {
                   {/* ITEM PRICE */}
                   <div className="shrink-0 text-right">
                     <p className="text-sm font-bold text-[#8b1e1e] sm:text-base">
-                      ₹
-                      {(item.price * item.quantity).toLocaleString(
-                        "en-IN",
-                      )}
+                      ₹{(item.price * item.quantity).toLocaleString("en-IN")}
                     </p>
 
-                    <p className="mt-1 text-[11px] text-gray-400">
-                      Total
-                    </p>
+                    <p className="mt-1 text-[11px] text-gray-400">Total</p>
                   </div>
                 </div>
               ))}
@@ -610,9 +582,7 @@ export default function OrderDetailsPage() {
                       Customer Details
                     </h2>
 
-                    <p className="text-xs text-gray-500">
-                      Contact information
-                    </p>
+                    <p className="text-xs text-gray-500">Contact information</p>
                   </div>
                 </div>
               </div>
@@ -704,13 +674,9 @@ export default function OrderDetailsPage() {
               </div>
 
               <div>
-                <h2 className="font-bold text-[#5e1919]">
-                  Price Details
-                </h2>
+                <h2 className="font-bold text-[#5e1919]">Price Details</h2>
 
-                <p className="text-xs text-gray-500">
-                  Order payment summary
-                </p>
+                <p className="text-xs text-gray-500">Order payment summary</p>
               </div>
             </div>
           </div>
@@ -726,9 +692,7 @@ export default function OrderDetailsPage() {
               </div>
 
               <div className="flex items-center justify-between gap-4 text-sm">
-                <span className="text-gray-500">
-                  Delivery Charge
-                </span>
+                <span className="text-gray-500">Delivery Charge</span>
 
                 <span className="font-semibold text-gray-800">
                   ₹{deliveryCharge.toLocaleString("en-IN")}

@@ -5,67 +5,13 @@ import { useRouter } from "next/navigation";
 import CommonHeader from "@/components/layout/CommonHeader";
 
 import { useLanguage } from "@/contexts/LanguageProvider";
-import type { TranslationKey } from "@/utils/i18n";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 
-type Category = "all" | "popular" | "goSeva" | "utsav";
-
-const categories: { id: Category; label: TranslationKey }[] = [
-  { id: "all", label: "all" },
-  { id: "popular", label: "popular" },
-  { id: "goSeva", label: "goSeva" },
-  { id: "utsav", label: "utsav" },
-];
-
-const sevas: {
-  id: string;
-  titleKey: TranslationKey;
-  subtitleKey: TranslationKey;
-  image: string;
-  category: Category;
-  route: string;
-}[] = [
-  {
-    id: "go-seva",
-    titleKey: "goSeva",
-    subtitleKey: "careForGauMata",
-    image: "/images/go-seva.jpg",
-    category: "goSeva",
-    route: "/seva/go-seva",
-  },
-  {
-    id: "nitya-bhog",
-    titleKey: "nityaBhogSeva",
-    subtitleKey: "dailyFoodOffering",
-    image: "/images/nitya-bhog.jpg",
-    category: "popular",
-    route: "/seva/nitya-bhog",
-  },
-  {
-    id: "flower",
-    titleKey: "flowerSeva",
-    subtitleKey: "templeDecoration",
-    image: "/images/flower-seva.jpg",
-    category: "popular",
-    route: "/seva/flower",
-  },
-  {
-    id: "annakut",
-    titleKey: "annakutSeva",
-    subtitleKey: "specialUtsavSeva",
-    image: "/images/annakut.jpg",
-    category: "utsav",
-    route: "/seva/annakut",
-  },
-  {
-    id: "temple-maintenance",
-    titleKey: "templeMaintenance",
-    subtitleKey: "supportTempleServices",
-    image: "/images/temple-maintenance.jpg",
-    category: "all",
-    route: "/seva/temple-maintenance",
-  },
-];
+import {
+  SEVA_CATEGORIES as categories,
+  SEVA_LIST as sevas,
+  type SevaCategory as Category,
+} from "@/data/seva";
 
 export default function SevaDonation() {
   const router = useRouter();
@@ -78,16 +24,7 @@ export default function SevaDonation() {
       : sevas.filter((seva) => seva.category === category);
 
   return (
-    <main
-      className="
-        relative box-border min-h-dvh
-        w-full min-w-0 max-w-full
-        overflow-x-clip
-        bg-[#fffdf8]/95
-        pb-[calc(5rem+env(safe-area-inset-bottom))]
-        lg:pb-8 lg:pl-[92px]
-      "
-    >
+    <main className="relative box-border min-h-dvh w-full min-w-0 max-w-full overflow-x-clip bg-[#fffdf8]/95 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-8 lg:pl-[92px]">
       {/* COMMON HEADER */}
       <CommonHeader
         title="Seva & Donation"
@@ -111,11 +48,7 @@ export default function SevaDonation() {
                 type="button"
                 aria-pressed={selected}
                 onClick={() => setCategory(item.id)}
-                className={`flex h-[35px] shrink-0 items-center justify-center whitespace-nowrap rounded-[10px] border px-4 text-[11px] font-semibold transition sm:h-[38px] sm:px-5 sm:text-xs lg:h-10 ${
-                  selected
-                    ? "border-[#a71919] bg-[#a71919] text-white shadow-[0_4px_12px_rgba(167,25,25,0.14)]"
-                    : "border-[#eadbc5] bg-[#fffdf8] text-[#776d65] hover:border-[#cfae83] hover:bg-[#fff9ef] hover:text-[#8e241d]"
-                }`}
+                className={`flex h-[35px] shrink-0 items-center justify-center whitespace-nowrap rounded-[10px] border px-4 text-[11px] font-semibold transition sm:h-[38px] sm:px-5 sm:text-xs lg:h-10 ${selected ? "border-[#a71919] bg-[#a71919] text-white shadow-[0_4px_12px_rgba(167,25,25,0.14)]" : "border-[#eadbc5] bg-[#fffdf8] text-[#776d65] hover:border-[#cfae83] hover:bg-[#fff9ef] hover:text-[#8e241d]"}`}
               >
                 {t(item.label)}
               </button>
@@ -147,7 +80,7 @@ export default function SevaDonation() {
 
               {/* TITLE AND DESCRIPTION */}
               <div className="min-w-0 flex-1 overflow-hidden px-2 sm:px-3 lg:px-3.5">
-                <h2 className="break-words font-serif text-[13px] font-bold leading-snug text-[#332820] min-[375px]:text-sm sm:text-base md:text-sm lg:text-base xl:text-[17px]">
+                <h2 className="break-words text-[13px] font-bold leading-snug text-[#332820] min-[375px]:text-sm sm:text-base md:text-sm lg:text-base xl:text-[17px]">
                   {t(seva.titleKey)}
                 </h2>
                 <p className="mt-1 line-clamp-2 break-words text-[10px] leading-4 text-[#8a8077] sm:text-[11px] sm:leading-[18px] lg:text-xs">

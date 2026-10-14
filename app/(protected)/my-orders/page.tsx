@@ -4,14 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Package, ChevronRight, HelpCircle } from "lucide-react";
 import CommonHeader from "@/components/layout/CommonHeader";
+import type { PrasadamWeight as Weight } from "@/data/prasadam";
 
 const ORDERS_KEY = "prasadam-orders";
 const LAST_ORDER_KEY = "last-prasadam-order";
 const ORDERS_UPDATED_EVENT = "prasadam-orders-updated";
 
 type OrderStatus = "Delivered" | "Processing" | "Cancelled";
-
-type Weight = "250g" | "500g" | "1kg";
 
 type OrderItem = {
   id: number;
@@ -372,34 +371,32 @@ export default function MyOrdersPage() {
      LOADING
   ========================================================= */
 
-  
-if (loading) {
-  return (
-    <main className="min-h-screen bg-[#fffaf5]">
-      <CommonHeader
-        title="My Orders"
-        subtitle="Track and manage your prasadam orders"
-        backHref="/dashboard"
-      />
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#fffaf5]">
+        <CommonHeader
+          title="My Orders"
+          subtitle="Track and manage your prasadam orders"
+          backHref="/dashboard"
+        />
 
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        <div className="animate-pulse">
-          <div className="mb-6 flex gap-2 overflow-hidden">
-            <div className="h-10 w-24 rounded-full bg-gray-200" />
-            <div className="h-10 w-28 rounded-full bg-gray-200" />
-            <div className="h-10 w-28 rounded-full bg-gray-200" />
-          </div>
+        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+          <div className="animate-pulse">
+            <div className="mb-6 flex gap-2 overflow-hidden">
+              <div className="h-10 w-24 rounded-full bg-gray-200" />
+              <div className="h-10 w-28 rounded-full bg-gray-200" />
+              <div className="h-10 w-28 rounded-full bg-gray-200" />
+            </div>
 
-          <div className="space-y-4">
-            <div className="h-48 rounded-2xl bg-gray-200" />
-            <div className="h-48 rounded-2xl bg-gray-200" />
+            <div className="space-y-4">
+              <div className="h-48 rounded-2xl bg-gray-200" />
+              <div className="h-48 rounded-2xl bg-gray-200" />
+            </div>
           </div>
         </div>
-      </div>
-    </main>
-  );
-}
-
+      </main>
+    );
+  }
 
   /* =========================================================
      UI
@@ -411,13 +408,12 @@ if (loading) {
           PAGE HEADER
       ===================================================== */}
 
-{/* COMMON HEADER */}
-<CommonHeader
-  title="My Orders"
-  subtitle="Track and manage your prasadam orders"
-  backHref="/dashboard"
-/>
-
+      {/* COMMON HEADER */}
+      <CommonHeader
+        title="My Orders"
+        subtitle="Track and manage your prasadam orders"
+        backHref="/dashboard"
+      />
 
       <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
         {/* ===================================================
@@ -442,20 +438,12 @@ if (loading) {
                     key={filter}
                     type="button"
                     onClick={() => setActiveFilter(filter)}
-                    className={`flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#8b1e1e]/20 sm:px-5 ${
-                      isActive
-                        ? "bg-[#8b1e1e] text-white shadow-sm"
-                        : "border border-[#ead8c8] bg-white text-gray-600 hover:border-[#dcbfae] hover:bg-[#fff8f2]"
-                    }`}
+                    className={`flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#8b1e1e]/20 sm:px-5 ${isActive ? "bg-[#8b1e1e] text-white shadow-sm" : "border border-[#ead8c8] bg-white text-gray-600 hover:border-[#dcbfae] hover:bg-[#fff8f2]"}`}
                   >
                     <span>{filter}</span>
 
                     <span
-                      className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
-                        isActive
-                          ? "bg-white text-[#8b1e1e]"
-                          : "bg-[#fff1e5] text-[#8b1e1e]"
-                      }`}
+                      className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${isActive ? "bg-white text-[#8b1e1e]" : "bg-[#fff1e5] text-[#8b1e1e]"}`}
                     >
                       {count}
                     </span>
@@ -555,9 +543,7 @@ if (loading) {
                         </p>
 
                         <span
-                          className={`rounded-full px-3 py-1.5 text-[11px] font-bold sm:text-xs ${getStatusClass(
-                            order.status,
-                          )}`}
+                          className={`rounded-full px-3 py-1.5 text-[11px] font-bold sm:text-xs ${getStatusClass(order.status)}`}
                         >
                           {order.status || "Processing"}
                         </span>

@@ -3,77 +3,14 @@
 import { useEffect, useState } from "react";
 
 import { useLanguage } from "@/contexts/LanguageProvider";
-import type { TranslationKey } from "@/utils/i18n";
 import HomeHeader from "@/components/Header";
 
+import {
+  DARSHANS,
+  type DarshanTimingItem as DarshanItem,
+} from "@/data/darshan";
+
 type DarshanStatus = "completed" | "openNow" | "upcoming";
-
-type DarshanItem = {
-  nameKey: TranslationKey;
-  time: string;
-  hour: number;
-  minute: number;
-  image: string;
-};
-
-const DARSHANS: DarshanItem[] = [
-  {
-    nameKey: "mangala",
-    time: "05:30 AM",
-    hour: 5,
-    minute: 30,
-    image: "/images/mangala1.jpg",
-  },
-  {
-    nameKey: "shringar",
-    time: "07:30 AM",
-    hour: 7,
-    minute: 30,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "gwal",
-    time: "09:00 AM",
-    hour: 9,
-    minute: 0,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "rajbhog",
-    time: "12:15 PM",
-    hour: 12,
-    minute: 15,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "utthapan",
-    time: "04:00 PM",
-    hour: 16,
-    minute: 0,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "bhog",
-    time: "06:00 PM",
-    hour: 18,
-    minute: 0,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "sandhyaAarti",
-    time: "07:30 PM",
-    hour: 19,
-    minute: 30,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "shayan",
-    time: "09:00 PM",
-    hour: 21,
-    minute: 0,
-    image: "/images/mangala.jpg",
-  },
-];
 
 const getMinutes = (hour: number, minute: number) => hour * 60 + minute;
 
@@ -232,20 +169,7 @@ export default function DarshanTimings() {
     : "--:--:--";
 
   return (
-    <main
-      className="
-    min-h-screen
-    bg-[#fffaf0]
-    px-4
-    pt-0
-    pb-5
-    text-[#40372f]
-
-    sm:px-6
-    lg:ml-[92px]
-    lg:px-10
-  "
-    >
+    <main className="min-h-screen bg-[#fffaf0] px-4 pt-0 pb-5 text-[#40372f] sm:px-6 lg:ml-[92px] lg:px-10">
       <div className="mx-auto max-w-7xl ">
         {/* ---------------------------------------
            COMMON HEADER
@@ -257,110 +181,26 @@ export default function DarshanTimings() {
            RESPONSIVE DARSHAN HEADER
         ---------------------------------------- */}
 
-        <section
-          className="
-    mt-1
-    mb-4
-
-    flex
-    items-center
-    justify-between
-    gap-3
-
-    rounded-2xl
-    border
-    border-[#eadcc5]
-    bg-white
-
-    px-3
-    py-3
-
-    shadow-sm
-
-    sm:gap-4
-    sm:p-4
-
-    lg:mt-6
-    lg:mb-6
-  "
-        >
+        <section className="mt-1 mb-4 flex items-center justify-between gap-3 rounded-2xl border border-[#eadcc5] bg-white px-3 py-3 shadow-sm sm:gap-4 sm:p-4 lg:mt-6 lg:mb-6">
           {/* CONTENT */}
 
           <div className="min-w-0 flex-1">
             {/* DARSHAN NAME */}
 
-            <h1
-              className="
-        truncate
-
-        font-serif
-        text-lg
-        font-bold
-        leading-tight
-        text-[#991919]
-
-        sm:text-xl
-
-        lg:text-2xl
-      "
-            >
+            <h1 className="truncate text-lg font-bold leading-tight text-[#991919] sm:text-xl lg:text-2xl">
               {currentDarshan ? t(currentDarshan.nameKey) : t("darshan")}
             </h1>
 
             {/* DATE */}
 
-            <p
-              className="
-        mt-1
-        truncate
-
-        text-[11px]
-        text-[#938476]
-
-        sm:text-xs
-
-        lg:text-sm
-      "
-            >
+            <p className="mt-1 truncate text-[11px] text-[#938476] sm:text-xs lg:text-sm">
               {currentDate}
             </p>
 
             {/* LIVE CLOCK */}
 
-            <div
-              className="
-        mt-1.5
-
-        inline-flex
-        items-center
-        gap-1.5
-
-        px-0
-        py-0
-
-        text-[11px]
-        font-medium
-        text-[#6d5b49]
-
-        sm:mt-2
-        sm:text-xs
-
-        lg:text-sm
-      "
-            >
-              <span
-                className="
-          h-1.5
-          w-1.5
-
-          animate-pulse
-          rounded-full
-          bg-emerald-500
-
-          sm:h-2
-          sm:w-2
-        "
-              />
+            <div className="mt-1.5 inline-flex items-center gap-1.5 px-0 py-0 text-[11px] font-medium text-[#6d5b49] sm:mt-2 sm:text-xs lg:text-sm">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 sm:h-2 sm:w-2" />
 
               {currentFormattedTime}
             </div>
@@ -381,29 +221,11 @@ export default function DarshanTimings() {
            TITLE
         ---------------------------------------- */}
 
-        <div
-          className="
-            mb-5
-            flex
-            items-center
-            gap-3
-
-            sm:gap-4
-          "
-        >
+        <div className="mb-5 flex items-center gap-3 sm:gap-4">
           <div className="h-px flex-1 bg-[#e3cfaa]" />
 
           <div className="shrink-0 text-center">
-            <p
-              className="
-                font-serif
-                text-lg
-                font-semibold
-                text-[#991919]
-
-                sm:text-xl
-              "
-            >
+            <p className="text-lg font-semibold text-[#991919] sm:text-xl">
               {t("darshan")}
             </p>
 
@@ -417,14 +239,7 @@ export default function DarshanTimings() {
            DARSHAN CARDS
         ---------------------------------------- */}
 
-        <section
-          className="
-            grid
-            gap-4
-
-            md:grid-cols-2
-          "
-        >
+        <section className="grid gap-4 md:grid-cols-2">
           {DARSHANS.map((darshan, index) => {
             const status = getStatus(index, currentTime);
 
@@ -433,30 +248,7 @@ export default function DarshanTimings() {
             return (
               <article
                 key={darshan.nameKey}
-                className={`
-                  group
-                  flex
-                  items-center
-                  gap-3
-                  rounded-2xl
-                  border
-                  bg-white
-                  p-3
-                  shadow-sm
-                  transition-all
-                  duration-200
-                  hover:-translate-y-1
-                  hover:shadow-lg
-
-                  sm:gap-4
-                  sm:p-4
-
-                  ${
-                    isCurrent
-                      ? "border-emerald-200 bg-gradient-to-r from-emerald-50/70 to-white"
-                      : "border-[#eadcc5]"
-                  }
-                `}
+                className={`group flex items-center gap-3 rounded-2xl border bg-white p-3 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg sm:gap-4 sm:p-4 ${isCurrent ? "border-emerald-200 bg-gradient-to-r from-emerald-50/70 to-white" : "border-[#eadcc5]"}`}
               >
                 {/* ---------------------------------------
                    PROFILE IMAGE
@@ -470,56 +262,22 @@ export default function DarshanTimings() {
 
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex items-center gap-2">
-                    <span
-                      className="
-                        text-[11px]
-                        font-semibold
-                        tracking-wider
-                        text-[#c99435]
-                      "
-                    >
+                    <span className="text-[11px] font-semibold tracking-wider text-[#c99435]">
                       {String(index + 1).padStart(2, "0")}
                     </span>
 
                     {isCurrent && (
-                      <span
-                        className="
-                          rounded-full
-                          bg-emerald-100
-                          px-2
-                          py-0.5
-                          text-[10px]
-                          font-bold
-                          text-emerald-700
-                        "
-                      >
+                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
                         LIVE
                       </span>
                     )}
                   </div>
 
-                  <h2
-                    className="
-                      truncate
-                      font-serif
-                      text-base
-                      font-bold
-                      text-[#40342c]
-
-                      sm:text-lg
-                    "
-                  >
+                  <h2 className="truncate text-base font-bold text-[#40342c] sm:text-lg">
                     {t(darshan.nameKey)}
                   </h2>
 
-                  <p
-                    className="
-                      mt-1
-                      truncate
-                      text-xs
-                      text-[#938476]
-                    "
-                  >
+                  <p className="mt-1 truncate text-xs text-[#938476]">
                     {status === "openNow"
                       ? t("darshanLiveNow")
                       : status === "completed"
@@ -532,24 +290,8 @@ export default function DarshanTimings() {
                    TIME + STATUS
                 ---------------------------------------- */}
 
-                <div
-                  className="
-                    flex
-                    shrink-0
-                    flex-col
-                    items-end
-                    gap-2
-                  "
-                >
-                  <time
-                    className="
-                      text-xs
-                      font-bold
-                      text-[#40342c]
-
-                      sm:text-sm
-                    "
-                  >
+                <div className="flex shrink-0 flex-col items-end gap-2">
+                  <time className="text-xs font-bold text-[#40342c] sm:text-sm">
                     {darshan.time}
                   </time>
 
@@ -564,50 +306,12 @@ export default function DarshanTimings() {
            FOOTER
         ---------------------------------------- */}
 
-        <div
-          className="
-            mt-10
-            flex
-            items-center
-            justify-center
-            gap-3
+        <div className="mt-10 flex items-center justify-center gap-3 sm:gap-4">
+          <div className="h-px w-12 bg-gradient-to-r from-transparent to-[#d8b66c] sm:w-20" />
 
-            sm:gap-4
-          "
-        >
-          <div
-            className="
-              h-px
-              w-12
-              bg-gradient-to-r
-              from-transparent
-              to-[#d8b66c]
+          <span className="text-lg text-[#c99435]">ॐ</span>
 
-              sm:w-20
-            "
-          />
-
-          <span
-            className="
-              font-serif
-              text-lg
-              text-[#c99435]
-            "
-          >
-            ॐ
-          </span>
-
-          <div
-            className="
-              h-px
-              w-12
-              bg-gradient-to-l
-              from-transparent
-              to-[#d8b66c]
-
-              sm:w-20
-            "
-          />
+          <div className="h-px w-12 bg-gradient-to-l from-transparent to-[#d8b66c] sm:w-20" />
         </div>
       </div>
     </main>

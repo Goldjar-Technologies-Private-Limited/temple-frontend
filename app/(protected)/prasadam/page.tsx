@@ -2,30 +2,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
-import type { TranslationKey } from "@/utils/i18n";
 import CommonHeader from "@/components/layout/CommonHeader";
-
-/* =====================================================
-   TYPES
-===================================================== */
-
-type Category = "all" | "sweets" | "mahaprasad" | "gifts";
-type ProductCategory = Exclude<Category, "all">;
-type Weight = "250g" | "500g" | "1kg";
-
-type CategoryItem = {
-  id: Category;
-  labelKey: TranslationKey;
-};
-
-type Product = {
-  id: number;
-  titleKey: TranslationKey;
-  description: string;
-  price: number;
-  image: string;
-  category: ProductCategory;
-};
+import {
+  PRASADAM_CATEGORIES as categories,
+  PRASADAM_PRODUCTS as products,
+  type PrasadamCategory as Category,
+  type PrasadamWeight as Weight,
+} from "@/data/prasadam";
 
 type CartItem = {
   productId: number;
@@ -35,7 +18,7 @@ type CartItem = {
 
 /* =====================================================
    CONSTANTS
-===================================================== */
+==================================================== */
 
 const CART_STORAGE_KEY = "prasadam-cart";
 const OLD_WEIGHT_STORAGE_KEY = "prasadam-cart-weights";
@@ -43,115 +26,6 @@ const CART_UPDATED_EVENT = "prasadam-cart-updated";
 const WISHLIST_STORAGE_KEY = "prasadam-wishlist";
 
 const DEFAULT_WEIGHT: Weight = "500g";
-
-/* =====================================================
-   CATEGORIES
-===================================================== */
-
-const categories: CategoryItem[] = [
-  { id: "all", labelKey: "all" },
-  { id: "sweets", labelKey: "sweets" },
-  { id: "mahaprasad", labelKey: "mahaprasad" },
-  { id: "gifts", labelKey: "gifts" },
-];
-
-/* =====================================================
-   PRODUCTS
-===================================================== */
-
-const products: Product[] = [
-  {
-    id: 1,
-    titleKey: "makhanaPrasadam",
-    description:
-      "Delicious and crunchy makhana prasadam, perfect for devotional offerings.",
-    price: 200,
-    image: "/images/makhana-prasadam.jpg",
-    category: "mahaprasad",
-  },
-  {
-    id: 2,
-    titleKey: "peda",
-    description:
-      "Traditional Indian milk sweet with a rich, creamy and delicious taste.",
-    price: 180,
-    image: "/images/peda.jpg",
-    category: "sweets",
-  },
-  {
-    id: 3,
-    titleKey: "dryPrasadam",
-    description:
-      "A devotional dry prasadam selection, perfect for offerings and gifting.",
-    price: 250,
-    image: "/images/dry-prasadam.jpg",
-    category: "mahaprasad",
-  },
-  {
-    id: 4,
-    titleKey: "panchamrit",
-    description: "A traditional sacred offering prepared with devotional care.",
-    price: 300,
-    image: "/images/panchamrit.jpg",
-    category: "mahaprasad",
-  },
-  {
-    id: 5,
-    titleKey: "panchamrit",
-    description: "A traditional sacred offering prepared with devotional care.",
-    price: 300,
-    image: "/images/panchamrit.jpg",
-    category: "mahaprasad",
-  },
-  {
-    id: 6,
-    titleKey: "panchamrit",
-    description: "A traditional sacred offering prepared with devotional care.",
-    price: 300,
-    image: "/images/panchamrit.jpg",
-    category: "mahaprasad",
-  },
-  {
-    id: 7,
-    titleKey: "panchamrit",
-    description: "A traditional sacred offering prepared with devotional care.",
-    price: 300,
-    image: "/images/panchamrit.jpg",
-    category: "mahaprasad",
-  },
-  {
-    id: 8,
-    titleKey: "panchamrit",
-    description: "A traditional sacred offering prepared with devotional care.",
-    price: 300,
-    image: "/images/panchamrit.jpg",
-    category: "mahaprasad",
-  },
-  {
-    id: 9,
-    titleKey: "panchamrit",
-    description: "A traditional sacred offering prepared with devotional care.",
-    price: 300,
-    image: "/images/panchamrit.jpg",
-    category: "mahaprasad",
-  },
-  {
-    id: 10,
-    titleKey: "panchamrit",
-    description: "A traditional sacred offering prepared with devotional care.",
-    price: 300,
-    image: "/images/panchamrit.jpg",
-    category: "mahaprasad",
-  },
-  {
-    id: 11,
-    titleKey: "panchamrit",
-    description: "A traditional sacred offering prepared with devotional care.",
-    price: 300,
-    image: "/images/panchamrit.jpg",
-    category: "mahaprasad",
-  },
-];
 
 /* =====================================================
    WEIGHT HELPERS
@@ -439,65 +313,35 @@ export default function PrasadamPage() {
   /* RENDER */
 
   return (
-    <main
-      className="
-        min-h-screen w-full overflow-x-hidden
-        bg-[#fffaf1] pb-12 text-[#332820]
-        lg:ml-[92px] lg:w-[calc(100%-92px)]
-      "
-    >
+    <main className="min-h-screen w-full overflow-x-hidden bg-[#fffaf1] pb-12 text-[#332820] lg:ml-[92px] lg:w-[calc(100%-92px)]">
       {/* HEADER WITH CART */}
-<CommonHeader
-  title={t("prasadam")}
-  subtitle="Shri Govardhannath Haveli"
-  backHref="/dashboard"
-  rightAction={
-    <button
-      type="button"
-      onClick={() => router.push("/prasadam/cart")}
-      aria-label={`Open shopping cart, ${cartCount} items`}
-      title="Open shopping cart"
-      className="
-        relative grid h-10 w-10 shrink-0 place-items-center
-        rounded-full border border-[#eadbc5]
-        bg-white text-[#8c1717] shadow-sm
-        transition hover:border-[#b8893b]
-        hover:bg-[#fff4e4]
-        focus-visible:outline-none
-        focus-visible:ring-2 focus-visible:ring-[#a71919]
-      "
-    >
-      <CartIcon />
+      <CommonHeader
+        title={t("prasadam")}
+        subtitle="Shri Govardhannath Haveli"
+        backHref="/dashboard"
+        rightAction={
+          <button
+            type="button"
+            onClick={() => router.push("/prasadam/cart")}
+            aria-label={`Open shopping cart, ${cartCount} items`}
+            title="Open shopping cart"
+            className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#eadbc5] bg-white text-[#8c1717] shadow-sm transition hover:border-[#b8893b] hover:bg-[#fff4e4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a71919]"
+          >
+            <CartIcon />
 
-      {cartCount > 0 && (
-        <span
-          className="
-            absolute -right-1 -top-1
-            grid h-[19px] min-w-[19px]
-            place-items-center rounded-full
-            bg-[#e87519] px-1 text-[10px]
-            font-bold text-white
-          "
-        >
-          {cartCount > 99 ? "99+" : cartCount}
-        </span>
-      )}
-    </button>
-  }
-/>
+            {cartCount > 0 && (
+              <span className="absolute -right-1 -top-1 grid h-[19px] min-w-[19px] place-items-center rounded-full bg-[#e87519] px-1 text-[10px] font-bold text-white">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
+          </button>
+        }
+      />
 
       <div className="mx-auto w-full max-w-[1500px]">
         {/* CATEGORY FILTERS */}
 
-        <div
-          className="
-            flex gap-2 overflow-x-auto px-3 py-4
-            [scrollbar-width:none]
-            [&::-webkit-scrollbar]:hidden
-            sm:px-5 md:justify-center
-            lg:justify-start lg:px-8
-          "
-        >
+        <div className="flex gap-2 overflow-x-auto px-3 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-5 md:justify-center lg:justify-start lg:px-8">
           {categories.map((item) => {
             const active = category === item.id;
 
@@ -507,16 +351,7 @@ export default function PrasadamPage() {
                 type="button"
                 onClick={() => setCategory(item.id)}
                 aria-pressed={active}
-                className={`
-                  shrink-0 rounded-lg border
-                  px-4 py-2.5 text-xs font-semibold
-                  transition sm:px-5 sm:text-sm
-                  ${
-                    active
-                      ? "border-[#e87519] bg-[#e87519] text-white shadow-sm"
-                      : "border-[#e5d7c4] bg-white text-[#66584b] hover:border-[#e87519] hover:text-[#b55d17]"
-                  }
-                `}
+                className={`shrink-0 rounded-lg border px-4 py-2.5 text-xs font-semibold transition sm:px-5 sm:text-sm ${active ? "border-[#e87519] bg-[#e87519] text-white shadow-sm" : "border-[#e5d7c4] bg-white text-[#66584b] hover:border-[#e87519] hover:text-[#b55d17]"}`}
               >
                 {t(item.labelKey)}
               </button>
@@ -528,7 +363,7 @@ export default function PrasadamPage() {
 
         <div className="mb-4 flex items-end justify-between px-3 sm:px-5 lg:px-8">
           <div>
-            <h2 className="font-serif text-lg font-bold text-[#641010] sm:text-xl">
+            <h2 className="text-lg font-bold text-[#641010] sm:text-xl">
               {category === "all"
                 ? "Explore Prasadam"
                 : categories.find((item) => item.id === category)?.labelKey
@@ -548,14 +383,7 @@ export default function PrasadamPage() {
 
         {/* COMPACT PRODUCT GRID */}
 
-        <section
-          className="
-            grid grid-cols-2 gap-3 px-3
-            sm:grid-cols-4 sm:gap-4 sm:px-5
-            md:gap-5 md:px-6
-            lg:grid-cols-6 lg:gap-4 lg:px-8
-          "
-        >
+        <section className="grid grid-cols-2 gap-3 px-3 sm:grid-cols-4 sm:gap-4 sm:px-5 md:gap-5 md:px-6 lg:grid-cols-6 lg:gap-4 lg:px-8">
           {filteredProducts.map((product) => {
             const selectedWeight = getSelectedWeight(product.id);
             const quantity = getQuantity(product.id, selectedWeight);
@@ -565,37 +393,16 @@ export default function PrasadamPage() {
             return (
               <article
                 key={product.id}
-                className="
-                  group relative flex min-w-0 flex-col
-                  overflow-hidden rounded-xl
-                  border border-[#e8e8e8]
-                  bg-white
-                  shadow-[0_2px_8px_rgba(0,0,0,0.04)]
-                  transition-all duration-200
-                  hover:border-[#d8c5a3]
-                  hover:shadow-[0_6px_18px_rgba(0,0,0,0.09)]
-                "
+                className="group relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-[#e8e8e8] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-200 hover:border-[#d8c5a3] hover:shadow-[0_6px_18px_rgba(0,0,0,0.09)]"
               >
                 {/* PRODUCT IMAGE — REDUCED HEIGHT */}
 
-                <div
-                  className="
-                    relative flex h-[110px]
-                    items-center justify-center
-                    overflow-hidden bg-[#faf8f3]
-                    p-2 sm:h-[125px] sm:p-3
-                    lg:h-[115px]
-                  "
-                >
+                <div className="relative flex h-[110px] items-center justify-center overflow-hidden bg-[#faf8f3] p-2 sm:h-[125px] sm:p-3 lg:h-[115px]">
                   <img
                     src={product.image}
                     alt={t(product.titleKey)}
                     loading="lazy"
-                    className="
-                      h-full w-full object-contain
-                      transition-transform duration-300
-                      group-hover:scale-105
-                    "
+                    className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
                   />
 
                   {/* WISHLIST BUTTON */}
@@ -607,15 +414,7 @@ export default function PrasadamPage() {
                       isWishlisted ? "Remove from wishlist" : "Add to wishlist"
                     }
                     aria-pressed={isWishlisted}
-                    className="
-                      absolute right-2 top-2
-                      grid h-8 w-8 place-items-center
-                      rounded-full border border-gray-200
-                      bg-white/95 text-[#b42323]
-                      shadow-sm transition
-                      hover:bg-[#fff0f0]
-                      sm:right-3 sm:top-3
-                    "
+                    className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full border border-gray-200 bg-white/95 text-[#b42323] shadow-sm transition hover:bg-[#fff0f0] sm:right-3 sm:top-3"
                   >
                     <HeartIcon filled={isWishlisted} />
                   </button>
@@ -631,28 +430,13 @@ export default function PrasadamPage() {
                   <div className="flex items-center justify-between gap-1">
                     <h3
                       title={t(product.titleKey)}
-                      className="
-                      min-w-0 flex-1 line-clamp-2
-                      text-xs font-semibold leading-4
-                      text-[#252525]
-                      sm:text-sm sm:leading-[18px]"
+                      className="min-w-0 flex-1 line-clamp-2 text-xs font-semibold leading-4 text-[#252525] sm:text-sm sm:leading-[18px]"
                     >
                       {t(product.titleKey)}
                     </h3>
 
                     <span
-                      className={`
-        shrink-0 whitespace-nowrap rounded-full
-        px-1.5 py-0.5 text-[8px] font-semibold
-        sm:text-[9px]
-        ${
-          product.category === "sweets"
-            ? "bg-pink-50 text-pink-700"
-            : product.category === "gifts"
-              ? "bg-purple-50 text-purple-700"
-              : "bg-amber-50 text-amber-700"
-                                            }
-                                          `}
+                      className={`shrink-0 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[8px] font-semibold sm:text-[9px] ${product.category === "sweets" ? "bg-pink-50 text-pink-700" : product.category === "gifts" ? "bg-purple-50 text-purple-700" : "bg-amber-50 text-amber-700"}`}
                     >
                       {product.category === "sweets"
                         ? "Sweets"
@@ -666,11 +450,7 @@ export default function PrasadamPage() {
 
                   <p
                     title={product.description}
-                    className="
-                    mt-0.5 line-clamp-1 min-h-[14px]
-                    text-[10px] leading-[14px]
-                    text-gray-500 sm:text-[11px]
-                  "
+                    className="mt-0.5 line-clamp-1 min-h-[14px] text-[10px] leading-[14px] text-gray-500 sm:text-[11px]"
                   >
                     {product.description}
                   </p>
@@ -682,10 +462,7 @@ export default function PrasadamPage() {
                   <div className="mt-2">
                     <label
                       htmlFor={`weight-${product.id}`}
-                      className="
-                        mb-1 block text-[10px]
-                        font-medium text-gray-600
-                      "
+                      className="mb-1 block text-[10px] font-medium text-gray-600"
                     >
                       Select weight
                     </label>
@@ -696,15 +473,7 @@ export default function PrasadamPage() {
                       onChange={(event) =>
                         changeWeight(product.id, event.target.value as Weight)
                       }
-                      className="
-                        h-8 w-full rounded-md
-                        border border-gray-200
-                        bg-white px-2 text-[11px]
-                        text-gray-700 outline-none
-                        focus:border-[#e87519]
-                        focus:ring-1 focus:ring-[#e87519]
-                        sm:text-xs
-                      "
+                      className="h-8 w-full rounded-md border border-gray-200 bg-white px-2 text-[11px] text-gray-700 outline-none focus:border-[#e87519] focus:ring-1 focus:ring-[#e87519] sm:text-xs"
                     >
                       <option value="250g">250 g</option>
                       <option value="500g">500 g</option>
@@ -737,39 +506,18 @@ export default function PrasadamPage() {
                       <button
                         type="button"
                         onClick={() => increase(product.id, selectedWeight)}
-                        className="
-                          flex h-9 w-full
-                          items-center justify-center gap-1.5
-                          rounded-lg bg-[#e87519]
-                          px-1 text-[11px] font-bold
-                          text-white transition
-                          hover:bg-[#cf5f0d]
-                          active:scale-[0.98]
-                          sm:text-xs
-                        "
+                        className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-[#e87519] px-1 text-[11px] font-bold text-white transition hover:bg-[#cf5f0d] active:scale-[0.98] sm:text-xs"
                       >
                         <CartIcon />
                         Add to Cart
                       </button>
                     ) : (
-                      <div
-                        className="
-                          flex h-9 w-full items-center
-                          justify-between overflow-hidden
-                          rounded-lg border border-[#e87519]
-                          bg-white
-                        "
-                      >
+                      <div className="flex h-9 w-full items-center justify-between overflow-hidden rounded-lg border border-[#e87519] bg-white">
                         <button
                           type="button"
                           onClick={() => decrease(product.id, selectedWeight)}
                           aria-label="Decrease quantity"
-                          className="
-                            h-full flex-1 bg-[#fff7ef]
-                            text-lg font-semibold
-                            text-[#c45a0c]
-                            hover:bg-[#ffead8]
-                          "
+                          className="h-full flex-1 bg-[#fff7ef] text-lg font-semibold text-[#c45a0c] hover:bg-[#ffead8]"
                         >
                           −
                         </button>
@@ -782,11 +530,7 @@ export default function PrasadamPage() {
                           type="button"
                           onClick={() => increase(product.id, selectedWeight)}
                           aria-label="Increase quantity"
-                          className="
-                            h-full flex-1 bg-[#e87519]
-                            text-lg font-semibold text-white
-                            hover:bg-[#cf5f0d]
-                          "
+                          className="h-full flex-1 bg-[#e87519] text-lg font-semibold text-white hover:bg-[#cf5f0d]"
                         >
                           +
                         </button>
@@ -804,7 +548,7 @@ export default function PrasadamPage() {
         {filteredProducts.length === 0 && (
           <div className="px-4 py-16 text-center">
             <p className="text-3xl">🪔</p>
-            <h3 className="mt-3 font-serif text-lg font-semibold text-[#641010]">
+            <h3 className="mt-3 text-lg font-semibold text-[#641010]">
               No products found
             </h3>
             <p className="mt-1 text-sm text-gray-500">

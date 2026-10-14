@@ -15,82 +15,17 @@ import {
 import { GiCow } from "react-icons/gi";
 
 import { useLanguage } from "@/contexts/LanguageProvider";
-import type { TranslationKey } from "@/utils/i18n";
 import HomeHeader from "@/components/Header";
 import ProfileDrawer from "@/components/navigation/ProfileDrawer";
 
-/* =========================================================
-   TYPES
-========================================================= */
-
-type DarshanItem = {
-  nameKey: TranslationKey;
-  hour: number;
-  minute: number;
-  image: string;
-};
-
-type ActionItem = {
-  key: string;
-  icon: keyof typeof iconMap;
-  labels: [TranslationKey, TranslationKey?];
-  route?: string;
-};
-
-/* =========================================================
-   DARSHAN SCHEDULE
-========================================================= */
-
-const DARSHAN_SCHEDULE: DarshanItem[] = [
-  {
-    nameKey: "mangala",
-    hour: 5,
-    minute: 30,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "shringar",
-    hour: 7,
-    minute: 30,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "gwal",
-    hour: 9,
-    minute: 0,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "rajbhog",
-    hour: 12,
-    minute: 15,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "utthapan",
-    hour: 16,
-    minute: 0,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "bhog",
-    hour: 18,
-    minute: 0,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "sandhyaAarti",
-    hour: 19,
-    minute: 30,
-    image: "/images/mangala.jpg",
-  },
-  {
-    nameKey: "shayan",
-    hour: 21,
-    minute: 0,
-    image: "/images/mangala.jpg",
-  },
-];
+import {
+  DARSHAN_SCHEDULE,
+  type DarshanScheduleItem as DarshanItem,
+} from "@/data/darshan";
+import {
+  ACTION_ITEMS,
+  type DashboardActionItem as ActionItem,
+} from "@/data/dashboard";
 
 /* =========================================================
    ICONS
@@ -105,36 +40,6 @@ const iconMap = {
   food: Utensils,
   grid: Grid2X2,
 };
-
-/* =========================================================
-   ACTION ITEMS
-========================================================= */
-
-const ACTION_ITEMS: ActionItem[] = [
-  {
-    key: "darshan",
-    icon: "gift",
-    labels: ["darshan", "darshanTimings"],
-    route: "/darshan-timings",
-  },
-  {
-    key: "events",
-    icon: "gift",
-    labels: ["events"],
-    route: "/events",
-  },
-  {
-    key: "prasadam",
-    icon: "food",
-    labels: ["prasadam"],
-    route: "/prasadam",
-  },
-  {
-    key: "more",
-    icon: "grid",
-    labels: ["more"],
-  },
-];
 
 /* =========================================================
    HELPERS
@@ -257,26 +162,7 @@ export default function Dashboard() {
   ======================================================= */
 
   return (
-    <main
-      className="
-        min-h-dvh
-        w-full
-        overflow-x-hidden
-        bg-[#fffaf0]
-        px-3
-        pb-[84px]
-        pt-0
-        text-[#40372f]
-        sm:px-5
-        md:px-6
-        lg:ml-[92px]
-        lg:w-[calc(100%-92px)]
-        lg:px-8
-        lg:pb-10
-        xl:px-10
-        2xl:px-12
-      "
-    >
+    <main className="min-h-dvh w-full overflow-x-hidden bg-[#fffaf0] px-3 pb-[84px] pt-0 text-[#40372f] sm:px-5 md:px-6 lg:ml-[92px] lg:w-[calc(100%-92px)] lg:px-8 lg:pb-10 xl:px-10 2xl:px-12">
       <div className="mx-auto w-full max-w-[1800px]">
         {/* HEADER */}
 
@@ -287,83 +173,21 @@ export default function Dashboard() {
         <button
           type="button"
           onClick={() => router.push("/live-darshan")}
-          className="
-            relative
-            isolate
-            mt-0
-            block
-            h-[190px]
-            w-full
-            overflow-hidden
-            rounded-xl
-            bg-[#e8d8bc]
-            p-0
-            text-left
-            shadow-[0_5px_18px_rgba(86,47,20,0.08)]
-            sm:h-[260px]
-            sm:rounded-2xl
-            md:h-[320px]
-            lg:mt-5
-            lg:h-[clamp(330px,35vw,510px)]
-            lg:rounded-[20px]
-          "
+          className="relative isolate mt-0 block h-[190px] w-full overflow-hidden rounded-xl bg-[#e8d8bc] p-0 text-left shadow-[0_5px_18px_rgba(86,47,20,0.08)] sm:h-[260px] sm:rounded-2xl md:h-[320px] lg:mt-5 lg:h-[clamp(330px,35vw,510px)] lg:rounded-[20px]"
         >
           <img
             src="/images/haveli.jpg"
             alt="Shri Govardhannath Haveli"
             fetchPriority="high"
-            className="
-              absolute
-              inset-0
-              block
-              h-full
-              w-full
-              object-cover
-              object-center
-            "
+            className="absolute inset-0 block h-full w-full object-cover object-center"
           />
 
-          <div
-            className="
-              absolute
-              inset-x-0
-              bottom-0
-              flex
-              min-h-[55px]
-              items-end
-              justify-between
-              gap-3
-              bg-[linear-gradient(to_bottom,transparent_0%,rgba(70,15,12,0.40)_25%,rgba(132,19,19,0.96)_100%)]
-              px-3
-              pb-3
-              pt-7
-              text-white
-              sm:px-4
-              lg:min-h-[90px]
-              lg:px-6
-              lg:pb-5
-              lg:pt-10
-            "
-          >
+          <div className="absolute inset-x-0 bottom-0 flex min-h-[55px] items-end justify-between gap-3 bg-[linear-gradient(to_bottom,transparent_0%,rgba(70,15,12,0.40)_25%,rgba(132,19,19,0.96)_100%)] px-3 pb-3 pt-7 text-white sm:px-4 lg:min-h-[90px] lg:px-6 lg:pb-5 lg:pt-10">
             <strong className="text-[13px] sm:text-base lg:text-xl">
               🙏 {t("liveDarshanNow")}
             </strong>
 
-            <span
-              className="
-                shrink-0
-                rounded-md
-                bg-[#b51212]
-                px-2
-                py-1
-                text-[9px]
-                font-bold
-                sm:text-[10px]
-                lg:px-3
-                lg:py-1.5
-                lg:text-xs
-              "
-            >
+            <span className="shrink-0 rounded-md bg-[#b51212] px-2 py-1 text-[9px] font-bold sm:text-[10px] lg:px-3 lg:py-1.5 lg:text-xs">
               • {t("live")}
             </span>
           </div>
@@ -371,83 +195,20 @@ export default function Dashboard() {
 
         {/* NEXT DARSHAN */}
 
-        <section
-          className="
-            mt-3
-            flex
-            min-h-[110px]
-            w-full
-            items-center
-            justify-between
-            gap-2
-            rounded-xl
-            border
-            border-[#eadbc5]
-            bg-[#fffdf8]
-            px-3
-            py-3
-            shadow-[0_2px_8px_rgba(100,60,10,0.03)]
-            sm:gap-4
-            sm:px-4
-            md:px-5
-            md:py-4
-            lg:mt-4
-            lg:min-h-[145px]
-            lg:px-6
-            lg:py-5
-            xl:min-h-[155px]
-          "
-        >
+        <section className="mt-3 flex min-h-[110px] w-full items-center justify-between gap-2 rounded-xl border border-[#eadbc5] bg-[#fffdf8] px-3 py-3 shadow-[0_2px_8px_rgba(100,60,10,0.03)] sm:gap-4 sm:px-4 md:px-5 md:py-4 lg:mt-4 lg:min-h-[145px] lg:px-6 lg:py-5 xl:min-h-[155px]">
           {/* LEFT SIDE */}
 
           <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-            <div
-              className="
-                h-12
-                w-12
-                shrink-0
-                overflow-hidden
-                rounded-full
-                border
-                border-[#d8bd83]
-                bg-[#fff8e9]
-                p-[3px]
-                shadow-[0_3px_10px_rgba(100,60,10,0.10)]
-                sm:h-14
-                sm:w-14
-                md:h-16
-                md:w-16
-                lg:h-[72px]
-                lg:w-[72px]
-                xl:h-[78px]
-                xl:w-[78px]
-              "
-            >
+            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full border border-[#d8bd83] bg-[#fff8e9] p-[3px] shadow-[0_3px_10px_rgba(100,60,10,0.10)] sm:h-14 sm:w-14 md:h-16 md:w-16 lg:h-[72px] lg:w-[72px] xl:h-[78px] xl:w-[78px]">
               <img
                 src={nextDarshan.image}
                 alt={t(nextDarshan.nameKey)}
-                className="
-                  h-full
-                  w-full
-                  rounded-full
-                  object-contain
-                  object-center
-                "
+                className="h-full w-full rounded-full object-contain object-center"
               />
             </div>
 
             <div className="min-w-0">
-              <h2
-                className="
-                  mb-1.5
-                  font-serif
-                  text-base
-                  font-bold
-                  text-[#40372f]
-                  sm:text-lg
-                  lg:text-[22px]
-                "
-              >
+              <h2 className="mb-1.5 text-base font-bold text-[#40372f] sm:text-lg lg:text-[22px]">
                 {t("nextDarshan")}
               </h2>
 
@@ -463,59 +224,19 @@ export default function Dashboard() {
 
           {/* RIGHT SIDE */}
 
-          <div
-            className="
-              flex
-              shrink-0
-              flex-col
-              items-end
-              justify-center
-              gap-1
-              whitespace-nowrap
-              text-right
-              sm:gap-1.5
-              lg:gap-2
-            "
-          >
+          <div className="flex shrink-0 flex-col items-end justify-center gap-1 whitespace-nowrap text-right sm:gap-1.5 lg:gap-2">
             <span className="text-[9px] font-medium text-[#81766d] sm:text-[10px] lg:text-xs">
               {formattedTime}
             </span>
 
-            <span
-              className="
-                rounded
-                bg-[#dff0df]
-                px-2
-                py-1
-                text-[11px]
-                font-bold
-                tracking-wide
-                text-[#47784e]
-                sm:px-2.5
-                sm:text-[13px]
-                lg:px-3
-                lg:py-1.5
-                lg:text-base
-              "
-            >
+            <span className="rounded bg-[#dff0df] px-2 py-1 text-[11px] font-bold tracking-wide text-[#47784e] sm:px-2.5 sm:text-[13px] lg:px-3 lg:py-1.5 lg:text-base">
               {countdown}
             </span>
 
             <button
               type="button"
               onClick={() => router.push("/darshan-timings")}
-              className="
-                whitespace-nowrap
-                border-0
-                bg-transparent
-                p-0
-                text-[9px]
-                font-semibold
-                text-[#a71919]
-                hover:underline
-                sm:text-[10px]
-                lg:text-xs
-              "
+              className="whitespace-nowrap border-0 bg-transparent p-0 text-[9px] font-semibold text-[#a71919] hover:underline sm:text-[10px] lg:text-xs"
             >
               {t("viewSchedule")} ›
             </button>
@@ -524,21 +245,7 @@ export default function Dashboard() {
 
         {/* ACTION CARDS */}
 
-        <section
-          className="
-            mt-3
-            grid
-            w-full
-            grid-cols-2
-            gap-3
-            sm:grid-cols-4
-            sm:gap-3
-            md:gap-4
-            lg:mt-5
-            lg:gap-4
-            xl:gap-5
-          "
-        >
+        <section className="mt-3 grid w-full grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-3 md:gap-4 lg:mt-5 lg:gap-4 xl:gap-5">
           {ACTION_ITEMS.map((item) => {
             const IconComponent = iconMap[item.icon];
 
@@ -547,62 +254,13 @@ export default function Dashboard() {
                 key={item.key}
                 type="button"
                 onClick={() => handleAction(item)}
-                className="
-                  group
-                  flex
-                  h-[88px]
-                  min-w-0
-                  flex-col
-                  items-center
-                  justify-center
-                  rounded-xl
-                  border
-                  border-[#efdfc9]
-                  bg-[#fffdf9]
-                  px-2
-                  py-2
-                  text-[#a71919]
-                  shadow-[0_2px_8px_rgba(100,60,10,0.04)]
-                  transition-all
-                  duration-200
-                  active:scale-[0.97]
-                  sm:h-[100px]
-                  md:h-[110px]
-                  lg:h-[120px]
-                  lg:rounded-[14px]
-                  lg:hover:-translate-y-1
-                  lg:hover:border-[#d7b879]
-                  lg:hover:shadow-[0_10px_25px_rgba(90,50,20,0.10)]
-                  xl:h-[128px]
-                "
+                className="group flex h-[88px] min-w-0 flex-col items-center justify-center rounded-xl border border-[#efdfc9] bg-[#fffdf9] px-2 py-2 text-[#a71919] shadow-[0_2px_8px_rgba(100,60,10,0.04)] transition-all duration-200 active:scale-[0.97] sm:h-[100px] md:h-[110px] lg:h-[120px] lg:rounded-[14px] lg:hover:-translate-y-1 lg:hover:border-[#d7b879] lg:hover:shadow-[0_10px_25px_rgba(90,50,20,0.10)] xl:h-[128px]"
               >
-                <span
-                  className="
-                    grid
-                    h-8
-                    place-items-center
-                    transition-transform
-                    duration-200
-                    group-hover:scale-110
-                    lg:h-9
-                  "
-                >
+                <span className="grid h-8 place-items-center transition-transform duration-200 group-hover:scale-110 lg:h-9">
                   <IconComponent size={25} strokeWidth={1.8} />
                 </span>
 
-                <span
-                  className="
-                    mt-1.5
-                    min-w-0
-                    text-center
-                    text-[10px]
-                    leading-[1.3]
-                    text-[#4d453e]
-                    sm:text-[11px]
-                    lg:mt-2
-                    lg:text-xs
-                  "
-                >
+                <span className="mt-1.5 min-w-0 text-center text-[10px] leading-[1.3] text-[#4d453e] sm:text-[11px] lg:mt-2 lg:text-xs">
                   <strong className="block font-semibold">
                     {t(item.labels[0])}
                   </strong>
@@ -620,21 +278,7 @@ export default function Dashboard() {
 
         {/* DECORATION */}
 
-        <div
-          className="
-            flex
-            h-12
-            items-center
-            justify-center
-            overflow-hidden
-            text-[24px]
-            tracking-[6px]
-            text-[#c99435]
-            opacity-30
-            lg:h-16
-            lg:text-[30px]
-          "
-        >
+        <div className="flex h-12 items-center justify-center overflow-hidden text-[24px] tracking-[6px] text-[#c99435] opacity-30 lg:h-16 lg:text-[30px]">
           ❧ ❧ ❧ ❧ ❧
         </div>
       </div>

@@ -6,60 +6,12 @@ import { CheckCircle2 } from "lucide-react";
 import CommonHeader from "@/components/layout/CommonHeader";
 
 import { useLanguage } from "@/contexts/LanguageProvider";
-import type { TranslationKey } from "@/utils/i18n";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 
-type SevaDetailData = {
-  titleKey: TranslationKey;
-  subtitleKey: TranslationKey;
-  image: string;
-  descriptionKey: TranslationKey;
-};
-
-type DonationAmount = {
-  label: string;
-  value: number;
-};
-
-const sevaData: Record<string, SevaDetailData> = {
-  "go-seva": {
-    titleKey: "goSeva",
-    subtitleKey: "careForGauMata",
-    image: "/images/go-seva.jpg",
-    descriptionKey: "goSevaDescription",
-  },
-  "nitya-bhog": {
-    titleKey: "nityaBhogSeva",
-    subtitleKey: "dailyFoodOffering",
-    image: "/images/nitya-bhog.jpg",
-    descriptionKey: "nityaBhogDescription",
-  },
-  flower: {
-    titleKey: "flowerSeva",
-    subtitleKey: "templeDecoration",
-    image: "/images/flower-seva.jpg",
-    descriptionKey: "flowerSevaDescription",
-  },
-  annakut: {
-    titleKey: "annakutSeva",
-    subtitleKey: "specialUtsavSeva",
-    image: "/images/annakut.jpg",
-    descriptionKey: "annakutDescription",
-  },
-  "temple-maintenance": {
-    titleKey: "templeMaintenance",
-    subtitleKey: "supportTempleServices",
-    image: "/images/temple-maintenance.jpg",
-    descriptionKey: "templeMaintenanceDescription",
-  },
-};
-
-const donationAmounts: DonationAmount[] = [
-  { label: "₹101", value: 101 },
-  { label: "₹501", value: 501 },
-  { label: "₹1,001", value: 1001 },
-  { label: "₹5,001", value: 5001 },
-];
+import {
+  SEVA_DETAILS_DATA as sevaData,
+  SEVA_DONATION_AMOUNTS as donationAmounts,
+} from "@/data/seva";
 
 const formatAmount = (amount: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -147,7 +99,7 @@ export default function SevaDetail() {
 
           <div className="box-border w-full min-w-0 rounded-[15px] border border-[#eadbc5] bg-[#fffdf8] p-3.5 shadow-[0_8px_30px_rgba(80,40,10,0.045)] min-[375px]:p-4 sm:rounded-[19px] sm:p-5 md:p-6 xl:rounded-[22px] xl:p-6 2xl:p-9">
             <div className="min-w-0 border-b border-[#efe5d7] pb-4 sm:pb-5">
-              <h2 className="break-words font-serif text-[24px] font-bold leading-tight text-[#641010] min-[375px]:text-[26px] sm:text-[30px] xl:text-[34px] 2xl:text-[40px]">
+              <h2 className="break-words text-[24px] font-bold leading-tight text-[#641010] min-[375px]:text-[26px] sm:text-[30px] xl:text-[34px] 2xl:text-[40px]">
                 {t(seva.titleKey)}
               </h2>
               <p className="mt-2 break-words text-[12px] leading-5 text-[#806f63] sm:text-sm sm:leading-6">
@@ -177,11 +129,7 @@ export default function SevaDetail() {
                     key={item.value}
                     aria-pressed={active}
                     onClick={() => handlePresetAmount(item.value)}
-                    className={`box-border flex min-h-[48px] min-w-0 items-center justify-center gap-1.5 rounded-xl border px-2 py-3 text-[13px] font-bold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a71919] focus-visible:ring-offset-2 active:scale-[0.98] min-[375px]:text-sm sm:min-h-[56px] sm:gap-2 sm:text-base ${
-                      active
-                        ? "border-[#a71919] bg-[#fff0e7] text-[#a71919] shadow-[0_3px_12px_rgba(167,25,25,0.08)]"
-                        : "border-[#eadbc5] bg-white text-[#514035] hover:border-[#c99435] hover:bg-[#fffaf1]"
-                    }`}
+                    className={`box-border flex min-h-[48px] min-w-0 items-center justify-center gap-1.5 rounded-xl border px-2 py-3 text-[13px] font-bold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a71919] focus-visible:ring-offset-2 active:scale-[0.98] min-[375px]:text-sm sm:min-h-[56px] sm:gap-2 sm:text-base ${active ? "border-[#a71919] bg-[#fff0e7] text-[#a71919] shadow-[0_3px_12px_rgba(167,25,25,0.08)]" : "border-[#eadbc5] bg-white text-[#514035] hover:border-[#c99435] hover:bg-[#fffaf1]"}`}
                   >
                     {active && (
                       <CheckCircle2
@@ -200,11 +148,7 @@ export default function SevaDetail() {
               type="button"
               aria-pressed={selectedAmount === null}
               onClick={handleCustomAmount}
-              className={`mt-3 flex min-h-[46px] w-full min-w-0 items-center justify-center gap-2 rounded-xl border px-3 py-3 text-[12px] font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a71919] focus-visible:ring-offset-2 active:scale-[0.99] sm:min-h-[52px] sm:text-sm ${
-                selectedAmount === null
-                  ? "border-[#a71919] bg-[#fff0e7] text-[#a71919]"
-                  : "border-dashed border-[#d9c6ad] bg-white text-[#776d65] hover:border-[#c99435] hover:bg-[#fffaf1]"
-              }`}
+              className={`mt-3 flex min-h-[46px] w-full min-w-0 items-center justify-center gap-2 rounded-xl border px-3 py-3 text-[12px] font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a71919] focus-visible:ring-offset-2 active:scale-[0.99] sm:min-h-[52px] sm:text-sm ${selectedAmount === null ? "border-[#a71919] bg-[#fff0e7] text-[#a71919]" : "border-dashed border-[#d9c6ad] bg-white text-[#776d65] hover:border-[#c99435] hover:bg-[#fffaf1]"}`}
             >
               {selectedAmount === null && (
                 <CheckCircle2 size={16} className="shrink-0" />
@@ -222,11 +166,7 @@ export default function SevaDetail() {
                 </label>
 
                 <div
-                  className={`box-border flex h-[48px] w-full min-w-0 items-center overflow-hidden rounded-xl border bg-white transition-colors sm:h-[54px] ${
-                    amountError
-                      ? "border-red-500"
-                      : "border-[#d9c6ad] focus-within:border-[#a71919]"
-                  }`}
+                  className={`box-border flex h-[48px] w-full min-w-0 items-center overflow-hidden rounded-xl border bg-white transition-colors sm:h-[54px] ${amountError ? "border-red-500" : "border-[#d9c6ad] focus-within:border-[#a71919]"}`}
                 >
                   <span className="flex h-full shrink-0 items-center border-r border-[#efe5d7] bg-[#fffaf1] px-3 text-sm font-bold text-[#641010] sm:px-4 sm:text-base">
                     ₹
@@ -273,7 +213,7 @@ export default function SevaDetail() {
                   {t(seva.titleKey)}
                 </p>
               </div>
-              <p className="shrink-0 whitespace-nowrap font-serif text-[20px] font-bold text-[#641010] min-[375px]:text-[22px] sm:text-[26px]">
+              <p className="shrink-0 whitespace-nowrap text-[20px] font-bold text-[#641010] min-[375px]:text-[22px] sm:text-[26px]">
                 ₹
                 {formatAmount(
                   selectedAmount !== null

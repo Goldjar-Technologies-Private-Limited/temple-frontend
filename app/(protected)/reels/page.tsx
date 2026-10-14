@@ -2,45 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
-
-const reels = [
-  {
-    id: 1,
-    video: "/videos/reel1.mp4",
-    title: "Today's Shringar Darshan",
-    subtitle: "Jai Shrinathji 🙏",
-    username: "@govardhannath_haveli",
-    likes: "5.2K",
-  },
-  {
-    id: 2,
-    video: "/videos/reel2.mp4",
-    title: "Divine Darshan",
-    subtitle: "Shri Govardhannathji 🌸",
-    username: "@govardhannath_haveli",
-    likes: "3.8K",
-  },
-  {
-    id: 3,
-    video: "/videos/reel3.mp4",
-    title: "Sandhya Aarti",
-    subtitle: "Jai Shree Krishna 🙏",
-    username: "@govardhannath_haveli",
-    likes: "4.6K",
-  },
-  {
-    id: 4,
-    video: "/videos/reel4.mp4",
-    title: "Evening Darshan",
-    subtitle: "Shri Govardhannathji 🙏",
-    username: "@govardhannath_haveli",
-    likes: "4.6K",
-  },
-];
+import { REELS_DATA as reels } from "@/data/reels";
 
 export default function Reels() {
- 
-
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const touchStartY = useRef(0);
   const isWheeling = useRef(false);
@@ -252,36 +216,14 @@ export default function Reels() {
           DESKTOP BACKGROUND
       ================================================== */}
 
-      <div
-        className="
-          pointer-events-none
-          absolute
-          inset-0
-          bg-[radial-gradient(circle_at_top,#3a281c_0%,#17100c_40%,#080605_100%)]
-        "
-      />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,#3a281c_0%,#17100c_40%,#080605_100%)]" />
 
       {/* ==================================================
           MAIN REEL AREA
       ================================================== */}
 
       <div
-        className="
-          relative
-          mx-auto
-          h-[calc(100dvh-64px)]
-          w-full
-          overflow-hidden
-          bg-black
-          touch-none
-          select-none
-          md:h-full
-          md:max-w-[500px]
-          lg:max-w-[540px]
-          lg:border-x
-          lg:border-white/10
-          lg:shadow-[0_0_80px_rgba(0,0,0,0.7)]
-        "
+        className="relative mx-auto h-[calc(100dvh-64px)] w-full overflow-hidden bg-black touch-none select-none md:h-full md:max-w-[500px] lg:max-w-[540px] lg:border-x lg:border-white/10 lg:shadow-[0_0_80px_rgba(0,0,0,0.7)]"
         onWheel={handleWheel}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -291,20 +233,12 @@ export default function Reels() {
             BACK BUTTON
         ================================================== */}
 
-
-
         {/* ==================================================
             SLIDER
         ================================================== */}
 
         <div
-          className={`
-            flex
-            h-full
-            w-full
-            flex-col
-            ${isDragging ? "" : "transition-transform duration-300 ease-out"}
-          `}
+          className={`flex h-full w-full flex-col ${isDragging ? "" : "transition-transform duration-300 ease-out"}`}
           style={{
             transform: `translateY(calc(-${current * 100}% + ${dragOffset}px))`,
           }}
@@ -316,14 +250,7 @@ export default function Reels() {
             return (
               <section
                 key={reel.id}
-                className="
-                  relative
-                  h-full
-                  w-full
-                  shrink-0
-                  overflow-hidden
-                  bg-black
-                "
+                className="relative h-full w-full shrink-0 overflow-hidden bg-black"
               >
                 {/* ==================================================
                     VIDEO
@@ -334,13 +261,7 @@ export default function Reels() {
                     videoRefs.current[index] = video;
                   }}
                   src={reel.video}
-                  className="
-                    absolute
-                    inset-0
-                    h-full
-                    w-full
-                    object-cover
-                  "
+                  className="absolute inset-0 h-full w-full object-cover"
                   autoPlay={index === 0}
                   muted={isMuted}
                   loop
@@ -353,33 +274,9 @@ export default function Reels() {
                     GRADIENTS
                 ================================================== */}
 
-                <div
-                  className="
-                    pointer-events-none
-                    absolute
-                    inset-x-0
-                    top-0
-                    h-52
-                    bg-gradient-to-b
-                    from-black/80
-                    via-black/30
-                    to-transparent
-                  "
-                />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-52 bg-gradient-to-b from-black/80 via-black/30 to-transparent" />
 
-                <div
-                  className="
-                    pointer-events-none
-                    absolute
-                    inset-x-0
-                    bottom-0
-                    h-[420px]
-                    bg-gradient-to-t
-                    from-black
-                    via-black/70
-                    to-transparent
-                  "
-                />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[420px] bg-gradient-to-t from-black via-black/70 to-transparent" />
 
                 {/* ==================================================
                     SOUND
@@ -389,29 +286,7 @@ export default function Reels() {
                   type="button"
                   onClick={toggleSound}
                   aria-label={isMuted ? "Turn sound on" : "Turn sound off"}
-                  className="
-                    group
-                    absolute
-                    right-4
-                    top-[70px]
-                    z-40
-                    grid
-                    h-11
-                    w-11
-                    place-items-center
-                    rounded-full
-                    border
-                    border-white/20
-                    bg-black/40
-                    text-white
-                    shadow-xl
-                    backdrop-blur-xl
-                    transition-all
-                    duration-200
-                    hover:scale-105
-                    hover:bg-black/60
-                    active:scale-90
-                  "
+                  className="group absolute right-4 top-[70px] z-40 grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-black/40 text-white shadow-xl backdrop-blur-xl transition-all duration-200 hover:scale-105 hover:bg-black/60 active:scale-90"
                 >
                   {isMuted ? (
                     <svg
@@ -451,30 +326,8 @@ export default function Reels() {
                 ================================================== */}
 
                 {showPlayIcon === index && (
-                  <div
-                    className="
-                      pointer-events-none
-                      absolute
-                      inset-0
-                      z-40
-                      grid
-                      place-items-center
-                    "
-                  >
-                    <div
-                      className="
-                        grid
-                        h-20
-                        w-20
-                        place-items-center
-                        rounded-full
-                        border
-                        border-white/20
-                        bg-black/45
-                        shadow-2xl
-                        backdrop-blur-xl
-                      "
-                    >
+                  <div className="pointer-events-none absolute inset-0 z-40 grid place-items-center">
+                    <div className="grid h-20 w-20 place-items-center rounded-full border border-white/20 bg-black/45 shadow-2xl backdrop-blur-xl">
                       {isPlaying ? (
                         <svg
                           width="28"
@@ -503,54 +356,16 @@ export default function Reels() {
                     RIGHT ACTIONS
                 ================================================== */}
 
-                <div
-                  className="
-                    absolute
-                    bottom-28
-                    right-3
-                    z-40
-                    flex
-                    flex-col
-                    items-center
-                    gap-5
-                  "
-                >
+                <div className="absolute bottom-28 right-3 z-40 flex flex-col items-center gap-5">
                   {/* LIKE */}
 
                   <button
                     type="button"
                     onClick={(e) => handleLike(e, reel.id)}
-                    className="
-                      group
-                      flex
-                      w-14
-                      flex-col
-                      items-center
-                      gap-1
-                      transition-transform
-                      active:scale-90
-                    "
+                    className="group flex w-14 flex-col items-center gap-1 transition-transform active:scale-90"
                   >
                     <span
-                      className={`
-                        grid
-                        h-12
-                        w-12
-                        place-items-center
-                        rounded-full
-                        border
-                        bg-black/40
-                        shadow-xl
-                        backdrop-blur-xl
-                        transition-all
-                        duration-200
-                        group-hover:scale-105
-                        ${
-                          isLiked
-                            ? "border-red-400/30 bg-red-500/10 text-red-500"
-                            : "border-white/15 text-white"
-                        }
-                      `}
+                      className={`grid h-12 w-12 place-items-center rounded-full border bg-black/40 shadow-xl backdrop-blur-xl transition-all duration-200 group-hover:scale-105 ${isLiked ? "border-red-400/30 bg-red-500/10 text-red-500" : "border-white/15 text-white"}`}
                     >
                       {isLiked ? (
                         <svg
@@ -585,35 +400,9 @@ export default function Reels() {
                   <button
                     type="button"
                     onClick={(e) => handleShare(e, reel)}
-                    className="
-                      group
-                      flex
-                      w-14
-                      flex-col
-                      items-center
-                      gap-1
-                      transition-transform
-                      active:scale-90
-                    "
+                    className="group flex w-14 flex-col items-center gap-1 transition-transform active:scale-90"
                   >
-                    <span
-                      className="
-                        grid
-                        h-12
-                        w-12
-                        place-items-center
-                        rounded-full
-                        border
-                        border-white/15
-                        bg-black/40
-                        shadow-xl
-                        backdrop-blur-xl
-                        transition-all
-                        duration-200
-                        group-hover:scale-105
-                        group-hover:bg-black/60
-                      "
-                    >
+                    <span className="grid h-12 w-12 place-items-center rounded-full border border-white/15 bg-black/40 shadow-xl backdrop-blur-xl transition-all duration-200 group-hover:scale-105 group-hover:bg-black/60">
                       <svg
                         width="23"
                         height="23"
@@ -637,33 +426,11 @@ export default function Reels() {
                     CONTENT
                 ================================================== */}
 
-                <div
-                  className="
-                    absolute
-                    bottom-5
-                    left-4
-                    right-20
-                    z-30
-                  "
-                >
+                <div className="absolute bottom-5 left-4 right-20 z-30">
                   {/* PROFILE */}
 
                   <div className="mb-3 flex items-center gap-2">
-                    <div
-                      className="
-                        grid
-                        h-10
-                        w-10
-                        shrink-0
-                        place-items-center
-                        rounded-full
-                        border-2
-                        border-white
-                        bg-[#f4e6cc]
-                        text-base
-                        shadow-lg
-                      "
-                    >
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white bg-[#f4e6cc] text-base shadow-lg">
                       🛕
                     </div>
 
@@ -676,48 +443,21 @@ export default function Reels() {
                         Shrinathji Darshan
                       </span>
                     </div>
-
                   </div>
 
                   {/* TITLE */}
 
-                  <h1
-                    className="
-                      font-serif
-                      text-xl
-                      font-semibold
-                      leading-tight
-                      drop-shadow-lg
-                    "
-                  >
+                  <h1 className="text-xl font-semibold leading-tight drop-shadow-lg">
                     {reel.title}
                   </h1>
 
                   {/* SUBTITLE */}
 
-                  <p
-                    className="
-                      mt-1
-                      font-serif
-                      text-sm
-                      drop-shadow-lg
-                    "
-                  >
-                    {reel.subtitle}
-                  </p>
+                  <p className="mt-1 text-sm drop-shadow-lg">{reel.subtitle}</p>
 
                   {/* AUDIO */}
 
-                  <div
-                    className="
-                      mt-3
-                      flex
-                      items-center
-                      gap-2
-                      text-[10px]
-                      text-white/80
-                    "
-                  >
+                  <div className="mt-3 flex items-center gap-2 text-[10px] text-white/80">
                     <svg
                       width="13"
                       height="13"

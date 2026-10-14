@@ -2,14 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2 } from "lucide-react";
 import CommonHeader from "@/components/layout/CommonHeader";
+import {
+  CART_CHECKOUT_PRODUCTS as products,
+  type CartCheckoutProduct as Product,
+  type PrasadamWeight as Weight,
+} from "@/data/prasadam";
 
 /* =====================================================
    TYPES
 ===================================================== */
-
-type Weight = "250g" | "500g" | "1kg";
 
 type CartItemData = {
   productId: number;
@@ -17,45 +19,7 @@ type CartItemData = {
   quantity: number;
 };
 
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-};
-
 type CartItem = Product & CartItemData;
-
-/* =====================================================
-   PRODUCTS
-===================================================== */
-
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Makhana Prasadam",
-    price: 200,
-    image: "/images/makhana-prasadam.jpg",
-  },
-  {
-    id: 2,
-    name: "Peda",
-    price: 180,
-    image: "/images/peda.jpg",
-  },
-  {
-    id: 3,
-    name: "Dry Prasadam",
-    price: 250,
-    image: "/images/dry-prasadam.jpg",
-  },
-  {
-    id: 4,
-    name: "Panchamrit",
-    price: 300,
-    image: "/images/panchamrit.jpg",
-  },
-];
 
 /* =====================================================
    CONSTANTS
@@ -368,15 +332,7 @@ export default function CartPage() {
 
   if (!loaded) {
     return (
-      <main
-        className="
-          min-h-[100dvh]
-          bg-[#fffaf3]
-
-          lg:ml-[92px]
-          lg:w-[calc(100%-92px)]
-        "
-      />
+      <main className="min-h-[100dvh] bg-[#fffaf3] lg:ml-[92px] lg:w-[calc(100%-92px)]" />
     );
   }
 
@@ -386,94 +342,27 @@ export default function CartPage() {
 
   if (cartItems.length === 0) {
     return (
-      <main
-        className="
-          min-h-[100dvh]
-          bg-[#fffaf3]
-          pb-[100px]
+      <main className="min-h-[100dvh] bg-[#fffaf3] pb-[100px] lg:ml-[92px] lg:w-[calc(100%-92px)]">
+        <CartHeader totalItems={0} />
 
-          lg:ml-[92px]
-          lg:w-[calc(100%-92px)]
-        "
-      >
-        <CartHeader totalItems={0} onBack={() => router.back()} />
-
-        <section
-          className="
-            flex
-            min-h-[calc(100dvh-170px)]
-            items-center
-            justify-center
-            px-4
-          "
-        >
-          <div
-            className="
-              w-full
-              max-w-[430px]
-              text-center
-            "
-          >
-            <div
-              className="
-                mx-auto
-                grid
-                h-[90px]
-                w-[90px]
-                place-items-center
-                rounded-full
-                border
-                border-[#eadbc5]
-                bg-[#fffdf8]
-                shadow-sm
-              "
-            >
+        <section className="flex min-h-[calc(100dvh-170px)] items-center justify-center px-4">
+          <div className="w-full max-w-[430px] text-center">
+            <div className="mx-auto grid h-[90px] w-[90px] place-items-center rounded-full border border-[#eadbc5] bg-[#fffdf8] shadow-sm">
               <CartIcon />
             </div>
 
-            <h2
-              className="
-                mt-6
-                font-serif
-                text-2xl
-                font-bold
-                text-[#561010]
-              "
-            >
+            <h2 className="mt-6 text-2xl font-bold text-[#561010]">
               Your cart is empty
             </h2>
 
-            <p
-              className="
-                mx-auto
-                mt-2
-                max-w-[330px]
-                text-sm
-                leading-6
-                text-[#81756c]
-              "
-            >
+            <p className="mx-auto mt-2 max-w-[330px] text-sm leading-6 text-[#81756c]">
               Add your favourite prasadam before placing an order.
             </p>
 
             <button
               type="button"
               onClick={() => router.push("/prasadam")}
-              className="
-                mt-7
-                min-h-[48px]
-                rounded-xl
-                bg-[#a71919]
-                px-8
-                text-sm
-                font-bold
-                text-white
-                shadow-md
-                transition
-
-                hover:bg-[#861414]
-                active:scale-[0.98]
-              "
+              className="mt-7 min-h-[48px] rounded-xl bg-[#a71919] px-8 text-sm font-bold text-white shadow-md transition hover:bg-[#861414] active:scale-[0.98]"
             >
               Explore Prasadam
             </button>
@@ -488,63 +377,17 @@ export default function CartPage() {
   =================================================== */
 
   return (
-    <main
-      className="
-        min-h-[100dvh]
-        overflow-x-hidden
-        bg-[#fffaf3]
-        pb-10
+    <main className="min-h-[100dvh] overflow-x-hidden bg-[#fffaf3] pb-10 lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-12">
+      <CartHeader totalItems={totalItems} />
 
-        lg:ml-[92px]
-        lg:w-[calc(100%-92px)]
-        lg:pb-12
-      "
-    >
-      <CartHeader totalItems={totalItems} onBack={() => router.back()} />
-
-      <div
-        className="
-          mx-auto
-          w-full
-          max-w-[1400px]
-          px-3
-          py-5
-
-          sm:px-5
-          sm:py-6
-
-          lg:px-8
-          lg:py-8
-        "
-      >
-        <div
-          className="
-            grid
-            grid-cols-1
-            gap-5
-
-            lg:grid-cols-[minmax(0,1fr)_360px]
-            lg:items-start
-            lg:gap-7
-
-            xl:grid-cols-[minmax(0,1fr)_390px]
-          "
-        >
+      <div className="mx-auto w-full max-w-[1400px] px-3 py-5 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-7 xl:grid-cols-[minmax(0,1fr)_390px]">
           {/* =================================================
               CART ITEMS
           ================================================= */}
 
           <section className="min-w-0">
-            <div
-              className="
-                overflow-hidden
-                rounded-[18px]
-                border
-                border-[#eadbc5]
-                bg-[#fffdf8]
-                shadow-[0_8px_25px_rgba(80,45,15,0.05)]
-              "
-            >
+            <div className="overflow-hidden rounded-[18px] border border-[#eadbc5] bg-[#fffdf8] shadow-[0_8px_25px_rgba(80,45,15,0.05)]">
               {cartItems.map((item, index) => {
                 const itemPrice = getWeightPrice(item.price, item.weight);
 
@@ -553,138 +396,39 @@ export default function CartPage() {
                 return (
                   <article
                     key={`${item.productId}-${item.weight}`}
-                    className={`
-                      p-3
-
-                      sm:p-4
-
-                      lg:p-5
-
-                      ${
-                        index !== cartItems.length - 1
-                          ? "border-b border-[#eee1cf]"
-                          : ""
-                      }
-                    `}
+                    className={`p-3 sm:p-4 lg:p-5 ${index !== cartItems.length - 1 ? "border-b border-[#eee1cf]" : ""}`}
                   >
-                    <div
-                      className="
-                        flex
-                        min-w-0
-                        items-start
-                        gap-3
-
-                        sm:gap-4
-                      "
-                    >
+                    <div className="flex min-w-0 items-start gap-3 sm:gap-4">
                       {/* IMAGE */}
 
-                      <div
-                        className="
-                          relative
-                          h-[76px]
-                          w-[76px]
-                          shrink-0
-                          overflow-hidden
-                          rounded-xl
-                          border
-                          border-[#eee1cf]
-                          bg-[#f7eddf]
-
-                          sm:h-[100px]
-                          sm:w-[100px]
-
-                          lg:h-[120px]
-                          lg:w-[120px]
-                        "
-                      >
+                      <div className="relative h-[76px] w-[76px] shrink-0 overflow-hidden rounded-xl border border-[#eee1cf] bg-[#f7eddf] sm:h-[100px] sm:w-[100px] lg:h-[120px] lg:w-[120px]">
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="
-                            block
-                            h-full
-                            w-full
-                            object-cover
-                            object-center
-                          "
+                          className="block h-full w-full object-cover object-center"
                         />
                       </div>
 
                       {/* INFO */}
 
-                      <div
-                        className="
-                          min-w-0
-                          flex-1
-                        "
-                      >
-                        <div
-                          className="
-                            flex
-                            min-w-0
-                            items-start
-                            justify-between
-                            gap-2
-                          "
-                        >
-                          <div
-                            className="
-                              min-w-0
-                              flex-1
-                            "
-                          >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex min-w-0 items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
                             {/* CATEGORY */}
 
-                            <span
-                              className="
-                                block
-                                text-[9px]
-                                font-bold
-                                uppercase
-                                tracking-[1px]
-                                text-[#c18b32]
-                              "
-                            >
+                            <span className="block text-[9px] font-bold uppercase tracking-[1px] text-[#c18b32]">
                               Prasadam
                             </span>
 
                             {/* NAME */}
 
-                            <h3
-                              className="
-                                mt-1
-                                truncate
-                                font-serif
-                                text-[15px]
-                                font-bold
-                                text-[#4d1616]
-
-                                sm:text-lg
-                              "
-                            >
+                            <h3 className="mt-1 truncate text-[15px] font-bold text-[#4d1616] sm:text-lg">
                               {item.name}
                             </h3>
 
                             {/* WEIGHT */}
 
-                            <span
-                              className="
-                                mt-1
-                                inline-flex
-                                rounded-md
-                                border
-                                border-[#eadbc5]
-                                bg-[#fff8ea]
-                                px-2
-                                py-1
-                                text-[9px]
-                                font-bold
-                                text-[#8a641f]
-
-                                sm:text-[10px]
-                              "
-                            >
+                            <span className="mt-1 inline-flex rounded-md border border-[#eadbc5] bg-[#fff8ea] px-2 py-1 text-[9px] font-bold text-[#8a641f] sm:text-[10px]">
                               {getWeightLabel(item.weight)}
                             </span>
                           </div>
@@ -699,19 +443,7 @@ export default function CartPage() {
                             aria-label={`Remove ${item.name} ${getWeightLabel(
                               item.weight,
                             )}`}
-                            className="
-                              grid
-                              h-8
-                              w-8
-                              shrink-0
-                              place-items-center
-                              rounded-full
-                              text-[#9a8b7e]
-                              transition
-
-                              hover:bg-[#fff0e8]
-                              hover:text-[#a71919]
-                            "
+                            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#9a8b7e] transition hover:bg-[#fff0e8] hover:text-[#a71919]"
                           >
                             <TrashIcon />
                           </button>
@@ -719,55 +451,17 @@ export default function CartPage() {
 
                         {/* PRICE */}
 
-                        <p
-                          className="
-                            mt-2
-                            text-[13px]
-                            font-bold
-                            text-[#a71919]
-
-                            sm:text-base
-                          "
-                        >
+                        <p className="mt-2 text-[13px] font-bold text-[#a71919] sm:text-base">
                           ₹{formatPrice(itemPrice)}
-                          <span
-                            className="
-                              ml-1
-                              text-[9px]
-                              font-medium
-                              text-[#8d8177]
-                            "
-                          >
+                          <span className="ml-1 text-[9px] font-medium text-[#8d8177]">
                             / {getWeightLabel(item.weight)}
                           </span>
                         </p>
 
                         {/* QUANTITY */}
 
-                        <div
-                          className="
-                            mt-3
-                            flex
-                            flex-wrap
-                            items-center
-                            justify-between
-                            gap-3
-                          "
-                        >
-                          <div
-                            className="
-                              flex
-                              h-9
-                              items-center
-                              overflow-hidden
-                              rounded-lg
-                              border
-                              border-[#dfcdb4]
-                              bg-white
-
-                              sm:h-10
-                            "
-                          >
+                        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex h-9 items-center overflow-hidden rounded-lg border border-[#dfcdb4] bg-white sm:h-10">
                             {/* MINUS */}
 
                             <button
@@ -776,36 +470,14 @@ export default function CartPage() {
                                 decrease(item.productId, item.weight)
                               }
                               aria-label="Decrease quantity"
-                              className="
-                                grid
-                                h-full
-                                w-9
-                                place-items-center
-                                text-lg
-                                font-bold
-                                text-[#a71919]
-
-                                hover:bg-[#fff3df]
-                              "
+                              className="grid h-full w-9 place-items-center text-lg font-bold text-[#a71919] hover:bg-[#fff3df]"
                             >
                               −
                             </button>
 
                             {/* QUANTITY */}
 
-                            <span
-                              className="
-                                grid
-                                h-full
-                                min-w-[38px]
-                                place-items-center
-                                border-x
-                                border-[#eee1cf]
-                                px-2
-                                text-xs
-                                font-bold
-                              "
-                            >
+                            <span className="grid h-full min-w-[38px] place-items-center border-x border-[#eee1cf] px-2 text-xs font-bold">
                               {item.quantity}
                             </span>
 
@@ -817,18 +489,7 @@ export default function CartPage() {
                                 increase(item.productId, item.weight)
                               }
                               aria-label="Increase quantity"
-                              className="
-                                grid
-                                h-full
-                                w-9
-                                place-items-center
-                                bg-[#e74b18]
-                                text-lg
-                                font-bold
-                                text-white
-
-                                hover:bg-[#d83f11]
-                              "
+                              className="grid h-full w-9 place-items-center bg-[#e74b18] text-lg font-bold text-white hover:bg-[#d83f11]"
                             >
                               +
                             </button>
@@ -836,14 +497,7 @@ export default function CartPage() {
 
                           {/* ITEM TOTAL */}
 
-                          <strong
-                            className="
-                              text-sm
-                              text-[#4d1616]
-
-                              sm:text-base
-                            "
-                          >
+                          <strong className="text-sm text-[#4d1616] sm:text-base">
                             ₹{formatPrice(itemTotal)}
                           </strong>
                         </div>
@@ -859,25 +513,7 @@ export default function CartPage() {
             <button
               type="button"
               onClick={() => router.push("/prasadam")}
-              className="
-                mt-4
-                flex
-                min-h-[46px]
-                w-full
-                items-center
-                justify-center
-                rounded-xl
-                border
-                border-dashed
-                border-[#d5b97f]
-                bg-[#fffaf0]
-                text-xs
-                font-bold
-                text-[#a71919]
-                transition
-
-                hover:bg-[#fff3df]
-              "
+              className="mt-4 flex min-h-[46px] w-full items-center justify-center rounded-xl border border-dashed border-[#d5b97f] bg-[#fffaf0] text-xs font-bold text-[#a71919] transition hover:bg-[#fff3df]"
             >
               + Add More Prasadam
             </button>
@@ -887,69 +523,21 @@ export default function CartPage() {
               ORDER SUMMARY
           ================================================= */}
 
-          <aside
-            className="
-              block
-              w-full
-
-              lg:sticky
-              lg:top-[100px]
-            "
-          >
-            <div
-              className="
-                rounded-[18px]
-                border
-                border-[#eadbc5]
-                bg-[#fffdf8]
-                p-4
-                shadow-[0_10px_30px_rgba(80,45,15,0.07)]
-
-                sm:p-5
-
-                lg:p-6
-              "
-            >
+          <aside className="block w-full lg:sticky lg:top-[100px]">
+            <div className="rounded-[18px] border border-[#eadbc5] bg-[#fffdf8] p-4 shadow-[0_10px_30px_rgba(80,45,15,0.07)] sm:p-5 lg:p-6">
               {/* TITLE */}
 
-              <span
-                className="
-                  block
-                  text-[10px]
-                  font-bold
-                  uppercase
-                  tracking-[1.3px]
-                  text-[#c18b32]
-                "
-              >
+              <span className="block text-[10px] font-bold uppercase tracking-[1.3px] text-[#c18b32]">
                 Order Details
               </span>
 
-              <h2
-                className="
-                  mt-1
-                  font-serif
-                  text-[21px]
-                  font-bold
-                  text-[#561010]
-
-                  sm:text-[22px]
-                "
-              >
+              <h2 className="mt-1 text-[21px] font-bold text-[#561010] sm:text-[22px]">
                 Order Summary
               </h2>
 
               {/* SUMMARY */}
 
-              <div
-                className="
-                  mt-5
-                  space-y-3
-                  border-b
-                  border-[#eee1cf]
-                  pb-5
-                "
-              >
+              <div className="mt-5 space-y-3 border-b border-[#eee1cf] pb-5">
                 <SummaryRow
                   label={`Subtotal (${totalItems} ${
                     totalItems === 1 ? "item" : "items"
@@ -965,47 +553,18 @@ export default function CartPage() {
 
               {/* TOTAL */}
 
-              <div
-                className="
-                  flex
-                  items-center
-                  justify-between
-                  gap-4
-                  py-5
-                "
-              >
+              <div className="flex items-center justify-between gap-4 py-5">
                 <div className="min-w-0">
-                  <p
-                    className="
-                      text-xs
-                      font-semibold
-                      text-[#4c4037]
-                    "
-                  >
+                  <p className="text-xs font-semibold text-[#4c4037]">
                     Total Amount
                   </p>
 
-                  <p
-                    className="
-                      mt-0.5
-                      text-[9px]
-                      text-[#97897d]
-                    "
-                  >
+                  <p className="mt-0.5 text-[9px] text-[#97897d]">
                     Inclusive of all charges
                   </p>
                 </div>
 
-                <strong
-                  className="
-                    shrink-0
-                    text-xl
-                    font-bold
-                    text-[#a71919]
-
-                    sm:text-2xl
-                  "
-                >
+                <strong className="shrink-0 text-xl font-bold text-[#a71919] sm:text-2xl">
                   ₹{formatPrice(totalAmount)}
                 </strong>
               </div>
@@ -1015,25 +574,7 @@ export default function CartPage() {
               <button
                 type="button"
                 onClick={handlePlaceOrder}
-                className="
-                  flex
-                  min-h-[50px]
-                  w-full
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  bg-[#a71919]
-                  px-5
-                  text-sm
-                  font-bold
-                  text-white
-                  shadow-[0_8px_20px_rgba(167,25,25,0.18)]
-                  transition
-
-                  hover:bg-[#821313]
-                  active:scale-[0.99]
-                "
+                className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-[#a71919] px-5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(167,25,25,0.18)] transition hover:bg-[#821313] active:scale-[0.99]"
               >
                 Place Order
                 <span>→</span>
@@ -1041,14 +582,7 @@ export default function CartPage() {
 
               {/* SECURE CHECKOUT */}
 
-              <p
-                className="
-                  mt-4
-                  text-center
-                  text-[10px]
-                  text-[#8b7d72]
-                "
-              >
+              <p className="mt-4 text-center text-[10px] text-[#8b7d72]">
                 🔒 Secure checkout
               </p>
             </div>
@@ -1063,13 +597,7 @@ export default function CartPage() {
    HEADER
 ===================================================== */
 
-function CartHeader({
-  totalItems,
-  onBack,
-}: {
-  totalItems: number;
-  onBack: () => void;
-}) {
+function CartHeader({ totalItems }: { totalItems: number }) {
   return (
     <CommonHeader
       title="My Cart"
@@ -1090,15 +618,7 @@ function CartHeader({
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
-    <div
-      className="
-        flex
-        items-center
-        justify-between
-        gap-4
-        text-xs
-      "
-    >
+    <div className="flex items-center justify-between gap-4 text-xs">
       <span className="min-w-0 text-[#81756c]">{label}</span>
 
       <strong className="shrink-0 text-[#4b4038]">{value}</strong>
@@ -1119,11 +639,7 @@ function CartIcon() {
       strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="
-        h-10
-        w-10
-        text-[#a71919]
-      "
+      className="h-10 w-10 text-[#a71919]"
     >
       <circle cx="9" cy="20" r="1" />
 
@@ -1147,10 +663,7 @@ function TrashIcon() {
       strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="
-        h-4
-        w-4
-      "
+      className="h-4 w-4"
     >
       <path d="M3 6h18" />
 

@@ -12,32 +12,7 @@ type CommonHeaderProps = {
   rightAction?: ReactNode;
 };
 
-const pageInfo: Record<string, { title: string; subtitle: string }> = {
-  "/dashboard": {
-    title: "Dashboard",
-    subtitle: "Your account overview",
-  },
-  "/profile": {
-    title: "My Profile",
-    subtitle: "View your personal information",
-  },
-  "/edit-profile": {
-    title: "Edit Profile",
-    subtitle: "Manage your personal details",
-  },
-  "/seva": {
-    title: "Seva",
-    subtitle: "Explore devotional offerings",
-  },
-  "/donate": {
-    title: "Donation",
-    subtitle: "Complete your offering",
-  },
-  "/payment": {
-    title: "Payment",
-    subtitle: "Manage your payment",
-  },
-};
+import { PAGE_INFO as pageInfo } from "@/data/commonHeader";
 
 function formatPageName(pathname: string) {
   const lastSegment = pathname.split("/").filter(Boolean).pop();
@@ -98,7 +73,7 @@ export default function CommonHeader({
 
         {/* Current page title and description */}
         <div className="min-w-0 flex-1">
-          <h1 className="truncate uppercase font-serif text-[17px] font-bold leading-tight text-[#641010] min-[375px]:text-[19px] sm:text-[22px] lg:text-[25px]">
+          <h1 className="truncate uppercase text-[17px] font-bold leading-tight text-[#641010] min-[375px]:text-[19px] sm:text-[22px] lg:text-[25px]">
             {pageTitle}
           </h1>
 

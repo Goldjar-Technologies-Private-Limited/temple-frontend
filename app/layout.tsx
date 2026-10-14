@@ -1,16 +1,19 @@
-import type {
-  Metadata,
-} from "next";
-
+import type { Metadata } from "next";
+import { Lexend } from "next/font/google";
 import "./globals.css";
 
 import Providers from "./providers";
 
 export const metadata: Metadata = {
   title: "Shri Govardhannath",
-  description:
-    "Shri Govardhannath Haveli",
+  description: "Shri Govardhannath Haveli",
 };
+
+const lexend = Lexend({
+  subsets: ["latin"],
+  variable: "--font-lexend",
+  display: "swap",
+});
 
 export default function RootLayout({
   children,
@@ -19,10 +22,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <Providers>
-          {children}
-        </Providers>
+      <body className={lexend.className}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

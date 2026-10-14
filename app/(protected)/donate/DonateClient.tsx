@@ -3,20 +3,15 @@
 import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CommonHeader from "@/components/layout/CommonHeader";
-
-const frequencies = [
-  { id: "daily", title: "Daily", subtitle: "Every day" },
-  { id: "weekly", title: "Weekly", subtitle: "Every week" },
-  { id: "monthly", title: "Monthly", subtitle: "Every month" },
-];
-
-const amounts = ["101", "501", "1001", "5001"];
+import {
+  DONATION_FREQUENCIES as frequencies,
+  DONATION_AMOUNTS as amounts,
+} from "@/data/donations";
 
 type DonationType = "one-time" | "auto";
 type PaymentMethod = "upi" | "card" | "netbanking";
 
-const sectionTitle =
-  "mb-3 mt-6 font-[Georgia,'Times_New_Roman',serif] text-base text-[#3d332c] sm:text-lg lg:mt-7";
+const sectionTitle = "mb-3 mt-6 text-base text-[#3d332c] sm:text-lg lg:mt-7";
 
 const optionButton =
   "flex min-h-[67px] min-w-0 items-center gap-3 rounded-xl border px-3 py-3 text-left transition-all sm:min-h-[76px] sm:px-4 lg:min-h-[84px]";
@@ -46,16 +41,10 @@ function DonationTypeButton({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`${optionButton} ${
-        active
-          ? "border-[#a71919] bg-[#fff1e7] text-[#a71919]"
-          : "border-[#eadbc5] bg-[#fffdf8] text-[#443932] hover:border-[#d6b77d]"
-      }`}
+      className={`${optionButton} ${active ? "border-[#a71919] bg-[#fff1e7] text-[#a71919]" : "border-[#eadbc5] bg-[#fffdf8] text-[#443932] hover:border-[#d6b77d]"}`}
     >
       <span
-        className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-base font-bold sm:h-10 sm:w-10 ${
-          active ? "bg-[#a71919] text-white" : "bg-[#f6ead5] text-[#a71919]"
-        }`}
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-base font-bold sm:h-10 sm:w-10 ${active ? "bg-[#a71919] text-white" : "bg-[#f6ead5] text-[#a71919]"}`}
       >
         {icon}
       </span>
@@ -88,11 +77,7 @@ function PaymentButton({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`${paymentButton} ${
-        active
-          ? "border-[#a71919] bg-[#fff8f2]"
-          : "border-[#eadbc5] bg-[#fffdf8]"
-      } hover:border-[#d7b97f]`}
+      className={`${paymentButton} ${active ? "border-[#a71919] bg-[#fff8f2]" : "border-[#eadbc5] bg-[#fffdf8]"} hover:border-[#d7b97f]`}
     >
       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#e4f4e8] text-sm font-bold text-[#14945f] sm:h-10 sm:w-10">
         {icon}
@@ -109,9 +94,7 @@ function PaymentButton({
 
       <span
         aria-hidden="true"
-        className={`shrink-0 text-lg ${
-          active ? "text-[#a71919]" : "text-[#b8aa9b]"
-        }`}
+        className={`shrink-0 text-lg ${active ? "text-[#a71919]" : "text-[#b8aa9b]"}`}
       >
         {active ? "●" : "○"}
       </span>
@@ -154,17 +137,11 @@ function AutoSevaBox({
             type="button"
             onClick={() => setFrequency(item.id)}
             aria-pressed={frequency === item.id}
-            className={`flex min-h-[60px] min-w-0 flex-col items-center justify-center gap-1 rounded-lg border px-1 py-2 sm:min-h-[70px] ${
-              frequency === item.id
-                ? "border-[#a71919] bg-[#a71919] text-white"
-                : "border-[#eadbc5] bg-white text-[#443932] hover:border-[#a71919]"
-            }`}
+            className={`flex min-h-[60px] min-w-0 flex-col items-center justify-center gap-1 rounded-lg border px-1 py-2 sm:min-h-[70px] ${frequency === item.id ? "border-[#a71919] bg-[#a71919] text-white" : "border-[#eadbc5] bg-white text-[#443932] hover:border-[#a71919]"}`}
           >
             <strong className="text-xs sm:text-sm">{item.title}</strong>
             <span
-              className={`text-[9px] sm:text-[10px] ${
-                frequency === item.id ? "text-[#f9e8df]" : "text-[#8a8077]"
-              }`}
+              className={`text-[9px] sm:text-[10px] ${frequency === item.id ? "text-[#f9e8df]" : "text-[#8a8077]"}`}
             >
               {item.subtitle}
             </span>
@@ -279,7 +256,7 @@ function Summary({
         Donation Summary
       </span>
 
-      <h2 className="mt-2 break-words font-[Georgia,'Times_New_Roman',serif] text-xl text-[#641010] sm:text-2xl">
+      <h2 className="mt-2 break-words text-xl text-[#641010] sm:text-2xl">
         {seva}
       </h2>
 
@@ -301,7 +278,7 @@ function Summary({
 
       <div className="flex items-center justify-between gap-3">
         <span className="text-sm text-[#776d65]">Total Amount</span>
-        <strong className="break-words text-right font-[Georgia,'Times_New_Roman',serif] text-2xl text-[#a71919]">
+        <strong className="break-words text-right text-2xl text-[#a71919]">
           ₹{formattedAmount}
         </strong>
       </div>
@@ -496,11 +473,7 @@ export default function DonatePage() {
                   setError("");
                 }}
                 aria-pressed={amount === value}
-                className={`min-h-11 rounded-lg border px-2 text-sm font-bold transition-colors sm:min-h-[48px] ${
-                  amount === value
-                    ? "border-[#a71919] bg-[#fff1e7] text-[#a71919]"
-                    : "border-[#eadbc5] bg-[#fffdf8] text-[#433932] hover:border-[#a71919]"
-                }`}
+                className={`min-h-11 rounded-lg border px-2 text-sm font-bold transition-colors sm:min-h-[48px] ${amount === value ? "border-[#a71919] bg-[#fff1e7] text-[#a71919]" : "border-[#eadbc5] bg-[#fffdf8] text-[#433932] hover:border-[#a71919]"}`}
               >
                 ₹{Number(value).toLocaleString("en-IN")}
               </button>
@@ -513,11 +486,7 @@ export default function DonatePage() {
                 setError("");
               }}
               aria-pressed={amount === "custom"}
-              className={`min-h-11 rounded-lg border px-2 text-sm font-bold sm:min-h-[48px] ${
-                amount === "custom"
-                  ? "border-[#a71919] bg-[#fff1e7] text-[#a71919]"
-                  : "border-[#eadbc5] bg-[#fffdf8] text-[#433932] hover:border-[#a71919]"
-              }`}
+              className={`min-h-11 rounded-lg border px-2 text-sm font-bold sm:min-h-[48px] ${amount === "custom" ? "border-[#a71919] bg-[#fff1e7] text-[#a71919]" : "border-[#eadbc5] bg-[#fffdf8] text-[#433932] hover:border-[#a71919]"}`}
             >
               Custom
             </button>

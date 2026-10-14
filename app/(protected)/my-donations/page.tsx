@@ -3,107 +3,13 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import CommonHeader from "@/components/layout/CommonHeader";
-/* =========================================================
-   TYPES
-========================================================= */
-
-type DonationStatus = "successful" | "pending" | "failed";
-
-type Donation = {
-  id: string;
-  transactionId: string;
-  title: string;
-  date: string;
-  amount: number;
-  paymentMethod: string;
-  status: DonationStatus;
-  donorName: string;
-};
-
-type FilterType = "all" | DonationStatus;
-
-/* =========================================================
-   FILTERS
-========================================================= */
-
-const filters: {
-  key: FilterType;
-  label: string;
-}[] = [
-  {
-    key: "all",
-    label: "All",
-  },
-  {
-    key: "successful",
-    label: "Successful",
-  },
-  {
-    key: "pending",
-    label: "Pending",
-  },
-  {
-    key: "failed",
-    label: "Failed",
-  },
-];
-
-/* =========================================================
-   DUMMY DONATION DATA
-========================================================= */
-
-const dummyDonations: Donation[] = [
-  {
-    id: "DON001",
-    transactionId: "TXN20260001",
-    title: "Food Seva",
-    date: "28 Sep 2026",
-    amount: 500,
-    paymentMethod: "UPI",
-    status: "successful",
-    donorName: "Krishna Sharma",
-  },
-  {
-    id: "DON002",
-    transactionId: "TXN20260002",
-    title: "Education Seva",
-    date: "20 Sep 2026",
-    amount: 1000,
-    paymentMethod: "Credit Card",
-    status: "successful",
-    donorName: "Krishna Sharma",
-  },
-  {
-    id: "DON003",
-    transactionId: "TXN20260003",
-    title: "Medical Seva",
-    date: "15 Sep 2026",
-    amount: 750,
-    paymentMethod: "UPI",
-    status: "pending",
-    donorName: "Krishna Sharma",
-  },
-  {
-    id: "DON004",
-    transactionId: "TXN20260004",
-    title: "Gau Seva",
-    date: "10 Sep 2026",
-    amount: 250,
-    paymentMethod: "UPI",
-    status: "failed",
-    donorName: "Krishna Sharma",
-  },
-  {
-    id: "DON005",
-    transactionId: "TXN20260005",
-    title: "Annadan Seva",
-    date: "05 Sep 2026",
-    amount: 1100,
-    paymentMethod: "Net Banking",
-    status: "successful",
-    donorName: "Krishna Sharma",
-  },
-];
+import {
+  DONATION_FILTERS as filters,
+  DUMMY_DONATIONS as dummyDonations,
+  type DonationStatus,
+  type DonationItem as Donation,
+  type DonationFilterType as FilterType,
+} from "@/data/donations";
 
 /* =========================================================
    PAGE
@@ -164,18 +70,7 @@ export default function MyDonationsPage() {
   ======================================================= */
 
   return (
-    <main
-      className="
-        min-h-[100dvh]
-        bg-[#fffaf1]
-        pb-[110px]
-        text-[#40372f]
-
-        lg:ml-[92px]
-        lg:w-[calc(100%-92px)]
-        lg:pb-12
-      "
-    >
+    <main className="min-h-[100dvh] bg-[#fffaf1] pb-[110px] text-[#40372f] lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-12">
       {/* COMMON HEADER */}
       <CommonHeader
         title="My Donations"
@@ -185,23 +80,7 @@ export default function MyDonationsPage() {
           <button
             type="button"
             onClick={() => router.push("/seva-donation")}
-            className="
-        hidden
-        min-h-[42px]
-        items-center
-        justify-center
-        gap-2
-        rounded-xl
-        bg-[#a71919]
-        px-5
-        text-[11px]
-        font-bold
-        text-white
-        transition
-        hover:bg-[#841313]
-        active:scale-[0.98]
-        lg:flex
-      "
+            className="hidden min-h-[42px] items-center justify-center gap-2 rounded-xl bg-[#a71919] px-5 text-[11px] font-bold text-white transition hover:bg-[#841313] active:scale-[0.98] lg:flex"
           >
             <HeartIcon />
             Make a Donation
@@ -213,96 +92,22 @@ export default function MyDonationsPage() {
           HERO / SUMMARY
       =================================================== */}
 
-      <section
-        className="
-          border-b
-          border-[#eadbc5]
-          bg-[linear-gradient(135deg,#fff3dd_0%,#fffaf1_60%,#fff7ea_100%)]
-        "
-      >
-        <div
-          className="
-            mx-auto
-            w-full
-            max-w-[1400px]
-            px-4
-            py-6
-
-            sm:px-6
-            sm:py-8
-
-            lg:px-8
-            lg:py-10
-          "
-        >
-          <div
-            className="
-              grid
-              grid-cols-1
-              gap-5
-
-              lg:grid-cols-[minmax(0,1fr)_440px]
-              lg:items-center
-              lg:gap-10
-            "
-          >
+      <section className="border-b border-[#eadbc5] bg-[linear-gradient(135deg,#fff3dd_0%,#fffaf1_60%,#fff7ea_100%)]">
+        <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-center lg:gap-10">
             {/* LEFT */}
 
             <div>
-              <span
-                className="
-                  inline-flex
-                  items-center
-                  gap-2
-                  rounded-full
-                  border
-                  border-[#ead4a9]
-                  bg-white/70
-                  px-3
-                  py-1.5
-                  text-[9px]
-                  font-bold
-                  uppercase
-                  tracking-[0.1em]
-                  text-[#a56f21]
-                "
-              >
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#ead4a9] bg-white/70 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#a56f21]">
                 <HeartIcon />
                 Seva Through Giving
               </span>
 
-              <h2
-                className="
-                  mt-3
-                  max-w-[650px]
-                  font-serif
-                  text-[24px]
-                  font-bold
-                  leading-tight
-                  text-[#641010]
-
-                  sm:text-[29px]
-
-                  lg:text-[36px]
-                "
-              >
+              <h2 className="mt-3 max-w-[650px] text-[24px] font-bold leading-tight text-[#641010] sm:text-[29px] lg:text-[36px]">
                 Your contribution supports temple seva
               </h2>
 
-              <p
-                className="
-                  mt-2
-                  max-w-[610px]
-                  text-[11px]
-                  leading-5
-                  text-[#80746a]
-
-                  sm:text-xs
-
-                  lg:text-[13px]
-                  lg:leading-6
-                "
-              >
+              <p className="mt-2 max-w-[610px] text-[11px] leading-5 text-[#80746a] sm:text-xs lg:text-[13px] lg:leading-6">
                 View your donation history, payment status and receipts in one
                 place.
               </p>
@@ -310,13 +115,7 @@ export default function MyDonationsPage() {
 
             {/* SUMMARY */}
 
-            <div
-              className="
-                grid
-                grid-cols-2
-                gap-3
-              "
-            >
+            <div className="grid grid-cols-2 gap-3">
               <SummaryCard
                 label="Total Donated"
                 value={`₹${formatPrice(totalDonated)}`}
@@ -337,97 +136,30 @@ export default function MyDonationsPage() {
           CONTENT
       =================================================== */}
 
-      <div
-        className="
-          mx-auto
-          w-full
-          max-w-[1400px]
-          px-3
-          py-5
-
-          sm:px-5
-          sm:py-6
-
-          lg:px-8
-          lg:py-8
-        "
-      >
+      <div className="mx-auto w-full max-w-[1400px] px-3 py-5 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
         {/* =================================================
             TITLE + FILTER
         ================================================= */}
 
-        <div
-          className="
-            flex
-            flex-col
-            gap-4
-
-            md:flex-row
-            md:items-end
-            md:justify-between
-          "
-        >
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p
-              className="
-                text-[9px]
-                font-bold
-                uppercase
-                tracking-[0.12em]
-                text-[#b78a3d]
-              "
-            >
+            <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#b78a3d]">
               HISTORY
             </p>
 
-            <h2
-              className="
-                mt-1
-                font-serif
-                text-xl
-                font-bold
-                text-[#641010]
-
-                lg:text-[26px]
-              "
-            >
+            <h2 className="mt-1 text-xl font-bold text-[#641010] lg:text-[26px]">
               Donation History
             </h2>
 
-            <p
-              className="
-                mt-1
-                text-[10px]
-                text-[#8c7e72]
-
-                sm:text-[11px]
-              "
-            >
+            <p className="mt-1 text-[10px] text-[#8c7e72] sm:text-[11px]">
               Track all your temple contributions.
             </p>
           </div>
 
           {/* FILTER */}
 
-          <div
-            className="
-              overflow-x-auto
-              [scrollbar-width:none]
-              [&::-webkit-scrollbar]:hidden
-            "
-          >
-            <div
-              className="
-                flex
-                min-w-max
-                gap-1
-                rounded-xl
-                border
-                border-[#eadfce]
-                bg-[#fffdf8]
-                p-1
-              "
-            >
+          <div className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex min-w-max gap-1 rounded-xl border border-[#eadfce] bg-[#fffdf8] p-1">
               {filters.map((filter) => {
                 const active = activeFilter === filter.key;
 
@@ -443,53 +175,12 @@ export default function MyDonationsPage() {
                     key={filter.key}
                     type="button"
                     onClick={() => setActiveFilter(filter.key)}
-                    className={`
-                      flex
-                      min-h-[37px]
-                      items-center
-                      justify-center
-                      gap-1.5
-                      rounded-lg
-                      px-3
-                      text-[9px]
-                      font-bold
-                      transition
-
-                      sm:px-4
-                      sm:text-[10px]
-
-                      ${
-                        active
-                          ? `
-                            bg-[#a71919]
-                            text-white
-                            shadow-sm
-                          `
-                          : `
-                            text-[#76695e]
-                            hover:bg-[#fff3e1]
-                          `
-                      }
-                    `}
+                    className={`flex min-h-[37px] items-center justify-center gap-1.5 rounded-lg px-3 text-[9px] font-bold transition sm:px-4 sm:text-[10px] ${active ? `bg-[#a71919] text-white shadow-sm` : `text-[#76695e] hover:bg-[#fff3e1]`}`}
                   >
                     {filter.label}
 
                     <span
-                      className={`
-                        grid
-                        h-[18px]
-                        min-w-[18px]
-                        place-items-center
-                        rounded-full
-                        px-1
-                        text-[7px]
-
-                        ${
-                          active
-                            ? "bg-white/20 text-white"
-                            : "bg-[#fff0da] text-[#a71919]"
-                        }
-                      `}
+                      className={`grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[7px] ${active ? "bg-white/20 text-white" : "bg-[#fff0da] text-[#a71919]"}`}
                     >
                       {count}
                     </span>
@@ -505,18 +196,7 @@ export default function MyDonationsPage() {
         ================================================= */}
 
         {filteredDonations.length > 0 ? (
-          <section
-            className="
-              mt-5
-              grid
-              grid-cols-1
-              gap-4
-
-              md:grid-cols-2
-
-              xl:grid-cols-3
-            "
-          >
+          <section className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {filteredDonations.map((donation) => (
               <DonationCard key={donation.id} donation={donation} />
             ))}
@@ -532,19 +212,7 @@ export default function MyDonationsPage() {
             SECURE INFORMATION
         ================================================= */}
 
-        <section
-          className="
-            mt-7
-            grid
-            grid-cols-1
-            gap-3
-
-            md:grid-cols-3
-
-            lg:mt-9
-            lg:gap-5
-          "
-        >
+        <section className="mt-7 grid grid-cols-1 gap-3 md:grid-cols-3 lg:mt-9 lg:gap-5">
           <InfoCard
             icon="shield"
             title="Secure Payments"
@@ -569,43 +237,11 @@ export default function MyDonationsPage() {
           MOBILE DONATE BUTTON
       =================================================== */}
 
-      <div
-        className="
-          fixed
-          bottom-[calc(76px+env(safe-area-inset-bottom))]
-          left-0
-          right-0
-          z-30
-          border-t
-          border-[#eadbc5]
-          bg-[#fffdf8]/95
-          p-3
-          backdrop-blur-md
-
-          lg:hidden
-        "
-      >
+      <div className="fixed bottom-[calc(76px+env(safe-area-inset-bottom))] left-0 right-0 z-30 border-t border-[#eadbc5] bg-[#fffdf8]/95 p-3 backdrop-blur-md lg:hidden">
         <button
           type="button"
           onClick={() => router.push("/seva-donation")}
-          className="
-            mx-auto
-            flex
-            min-h-[48px]
-            w-full
-            max-w-[600px]
-            items-center
-            justify-center
-            gap-2
-            rounded-xl
-            bg-[#a71919]
-            px-5
-            text-xs
-            font-bold
-            text-white
-            shadow-[0_7px_18px_rgba(167,25,25,0.17)]
-            active:scale-[0.99]
-          "
+          className="mx-auto flex min-h-[48px] w-full max-w-[600px] items-center justify-center gap-2 rounded-xl bg-[#a71919] px-5 text-xs font-bold text-white shadow-[0_7px_18px_rgba(167,25,25,0.17)] active:scale-[0.99]"
         >
           <HeartIcon />
           Make a Donation
@@ -625,80 +261,21 @@ function DonationCard({ donation }: { donation: Donation }) {
   };
 
   return (
-    <article
-      className="
-        overflow-hidden
-        rounded-[18px]
-        border
-        border-[#eadfce]
-        bg-[#fffdf9]
-        shadow-[0_6px_22px_rgba(74,42,16,0.045)]
-        transition-all
-
-        lg:hover:-translate-y-1
-        lg:hover:shadow-[0_12px_30px_rgba(74,42,16,0.08)]
-      "
-    >
+    <article className="overflow-hidden rounded-[18px] border border-[#eadfce] bg-[#fffdf9] shadow-[0_6px_22px_rgba(74,42,16,0.045)] transition-all lg:hover:-translate-y-1 lg:hover:shadow-[0_12px_30px_rgba(74,42,16,0.08)]">
       {/* TOP */}
 
-      <div
-        className="
-          flex
-          items-start
-          justify-between
-          gap-3
-          border-b
-          border-[#f0e4d3]
-          bg-[linear-gradient(135deg,#fff8eb,#fffdf9)]
-          p-4
-        "
-      >
-        <div
-          className="
-            flex
-            min-w-0
-            items-center
-            gap-3
-          "
-        >
-          <div
-            className="
-              grid
-              h-11
-              w-11
-              shrink-0
-              place-items-center
-              rounded-xl
-              bg-[#fff0d8]
-              text-[#a71919]
-            "
-          >
+      <div className="flex items-start justify-between gap-3 border-b border-[#f0e4d3] bg-[linear-gradient(135deg,#fff8eb,#fffdf9)] p-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#fff0d8] text-[#a71919]">
             <DonationIcon />
           </div>
 
           <div className="min-w-0">
-            <p
-              className="
-                text-[8px]
-                font-bold
-                uppercase
-                tracking-[0.08em]
-                text-[#b4873e]
-              "
-            >
+            <p className="text-[8px] font-bold uppercase tracking-[0.08em] text-[#b4873e]">
               Donation
             </p>
 
-            <h3
-              className="
-                mt-[2px]
-                truncate
-                font-serif
-                text-[15px]
-                font-bold
-                text-[#641010]
-              "
-            >
+            <h3 className="mt-[2px] truncate text-[15px] font-bold text-[#641010]">
               {donation.title}
             </h3>
           </div>
@@ -712,62 +289,25 @@ function DonationCard({ donation }: { donation: Donation }) {
       <div className="p-4">
         {/* AMOUNT */}
 
-        <div
-          className="
-            flex
-            items-end
-            justify-between
-            gap-3
-          "
-        >
+        <div className="flex items-end justify-between gap-3">
           <div>
-            <p
-              className="
-                text-[8px]
-                font-semibold
-                uppercase
-                tracking-[0.08em]
-                text-[#9e9083]
-              "
-            >
+            <p className="text-[8px] font-semibold uppercase tracking-[0.08em] text-[#9e9083]">
               Amount
             </p>
 
-            <strong
-              className="
-                mt-1
-                block
-                font-serif
-                text-[24px]
-                text-[#a71919]
-              "
-            >
+            <strong className="mt-1 block text-[24px] text-[#a71919]">
               ₹{formatPrice(donation.amount)}
             </strong>
           </div>
 
-          <p
-            className="
-              text-[9px]
-              font-medium
-              text-[#918479]
-            "
-          >
+          <p className="text-[9px] font-medium text-[#918479]">
             {donation.date}
           </p>
         </div>
 
         {/* DETAILS */}
 
-        <div
-          className="
-            mt-4
-            space-y-2.5
-            rounded-xl
-            bg-[#fff9ef]
-            p-3
-          "
-        >
+        <div className="mt-4 space-y-2.5 rounded-xl bg-[#fff9ef] p-3">
           <DetailRow label="Donation ID" value={donation.id} />
 
           <DetailRow label="Transaction ID" value={donation.transactionId} />
@@ -779,27 +319,8 @@ function DonationCard({ donation }: { donation: Donation }) {
 
         {/* ACTION */}
 
-        <div
-          className="
-            mt-4
-            flex
-            items-center
-            justify-between
-            gap-3
-            border-t
-            border-[#f0e5d6]
-            pt-3
-          "
-        >
-          <span
-            className="
-              flex
-              items-center
-              gap-1.5
-              text-[9px]
-              text-[#95887d]
-            "
-          >
+        <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#f0e5d6] pt-3">
+          <span className="flex items-center gap-1.5 text-[9px] text-[#95887d]">
             <TempleSmallIcon />
             Shri Govardhannath
           </span>
@@ -810,17 +331,7 @@ function DonationCard({ donation }: { donation: Donation }) {
               onClick={() => {
                 console.log("Download receipt:", donation.id);
               }}
-              className="
-                flex
-                items-center
-                gap-1.5
-                text-[10px]
-                font-bold
-                text-[#a71919]
-                transition
-
-                hover:text-[#7f1212]
-              "
+              className="flex items-center gap-1.5 text-[10px] font-bold text-[#a71919] transition hover:text-[#7f1212]"
             >
               <ReceiptIcon />
               Receipt
@@ -828,13 +339,7 @@ function DonationCard({ donation }: { donation: Donation }) {
           )}
 
           {donation.status === "pending" && (
-            <span
-              className="
-                text-[9px]
-                font-semibold
-                text-[#9a6514]
-              "
-            >
+            <span className="text-[9px] font-semibold text-[#9a6514]">
               Processing
             </span>
           )}
@@ -842,11 +347,7 @@ function DonationCard({ donation }: { donation: Donation }) {
           {donation.status === "failed" && (
             <button
               type="button"
-              className="
-                text-[10px]
-                font-bold
-                text-[#a71919]
-              "
+              className="text-[10px] font-bold text-[#a71919]"
             >
               Try Again
             </button>
@@ -878,16 +379,7 @@ function StatusBadge({ status }: { status: DonationStatus }) {
 
   return (
     <span
-      className={`
-        shrink-0
-        rounded-full
-        border
-        px-2.5
-        py-1
-        text-[8px]
-        font-bold
-        ${styles[status]}
-      `}
+      className={`shrink-0 rounded-full border px-2.5 py-1 text-[8px] font-bold ${styles[status]}`}
     >
       {labels[status]}
     </span>
@@ -908,58 +400,16 @@ function SummaryCard({
   icon: string;
 }) {
   return (
-    <div
-      className="
-        rounded-[16px]
-        border
-        border-[#ead7b7]
-        bg-[#fffdf8]/90
-        p-4
-        shadow-[0_5px_18px_rgba(74,42,16,0.04)]
-
-        lg:p-5
-      "
-    >
-      <div
-        className="
-          grid
-          h-9
-          w-9
-          place-items-center
-          rounded-xl
-          bg-[#fff0d8]
-          text-sm
-          font-bold
-          text-[#a71919]
-        "
-      >
+    <div className="rounded-[16px] border border-[#ead7b7] bg-[#fffdf8]/90 p-4 shadow-[0_5px_18px_rgba(74,42,16,0.04)] lg:p-5">
+      <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#fff0d8] text-sm font-bold text-[#a71919]">
         {icon}
       </div>
 
-      <strong
-        className="
-          mt-3
-          block
-          font-serif
-          text-[20px]
-          text-[#641010]
-
-          lg:text-[23px]
-        "
-      >
+      <strong className="mt-3 block text-[20px] text-[#641010] lg:text-[23px]">
         {value}
       </strong>
 
-      <p
-        className="
-          mt-1
-          text-[9px]
-          font-medium
-          text-[#918479]
-
-          lg:text-[10px]
-        "
-      >
+      <p className="mt-1 text-[9px] font-medium text-[#918479] lg:text-[10px]">
         {label}
       </p>
     </div>
@@ -972,34 +422,10 @@ function SummaryCard({
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div
-      className="
-        flex
-        items-start
-        justify-between
-        gap-4
-      "
-    >
-      <span
-        className="
-          shrink-0
-          text-[9px]
-          text-[#998b7e]
-        "
-      >
-        {label}
-      </span>
+    <div className="flex items-start justify-between gap-4">
+      <span className="shrink-0 text-[9px] text-[#998b7e]">{label}</span>
 
-      <strong
-        className="
-          min-w-0
-          break-all
-          text-right
-          text-[9px]
-          font-semibold
-          text-[#554a41]
-        "
-      >
+      <strong className="min-w-0 break-all text-right text-[9px] font-semibold text-[#554a41]">
         {value}
       </strong>
     </div>
@@ -1020,30 +446,8 @@ function InfoCard({
   description: string;
 }) {
   return (
-    <div
-      className="
-        flex
-        items-start
-        gap-3
-        rounded-[15px]
-        border
-        border-[#eadfce]
-        bg-[#fffdf9]
-        p-4
-      "
-    >
-      <div
-        className="
-          grid
-          h-9
-          w-9
-          shrink-0
-          place-items-center
-          rounded-xl
-          bg-[#fff0d8]
-          text-[#a71919]
-        "
-      >
+    <div className="flex items-start gap-3 rounded-[15px] border border-[#eadfce] bg-[#fffdf9] p-4">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#fff0d8] text-[#a71919]">
         {icon === "shield" && <ShieldIcon />}
 
         {icon === "receipt" && <ReceiptIcon />}
@@ -1052,27 +456,9 @@ function InfoCard({
       </div>
 
       <div>
-        <h3
-          className="
-            text-[11px]
-            font-bold
-            text-[#51463d]
-          "
-        >
-          {title}
-        </h3>
+        <h3 className="text-[11px] font-bold text-[#51463d]">{title}</h3>
 
-        <p
-          className="
-            mt-1
-            text-[9px]
-            leading-4
-            text-[#918479]
-
-            lg:text-[10px]
-            lg:leading-5
-          "
-        >
+        <p className="mt-1 text-[9px] leading-4 text-[#918479] lg:text-[10px] lg:leading-5">
           {description}
         </p>
       </div>
@@ -1092,54 +478,16 @@ function EmptyState({
   onDonate: () => void;
 }) {
   return (
-    <section
-      className="
-        mx-auto
-        mt-8
-        max-w-[450px]
-        rounded-[20px]
-        border
-        border-[#eadfce]
-        bg-[#fffdf9]
-        p-8
-        text-center
-      "
-    >
-      <div
-        className="
-          mx-auto
-          grid
-          h-[72px]
-          w-[72px]
-          place-items-center
-          rounded-full
-          bg-[#fff0d8]
-          text-[#a71919]
-        "
-      >
+    <section className="mx-auto mt-8 max-w-[450px] rounded-[20px] border border-[#eadfce] bg-[#fffdf9] p-8 text-center">
+      <div className="mx-auto grid h-[72px] w-[72px] place-items-center rounded-full bg-[#fff0d8] text-[#a71919]">
         <DonationIcon />
       </div>
 
-      <h2
-        className="
-          mt-5
-          font-serif
-          text-xl
-          font-bold
-          text-[#641010]
-        "
-      >
+      <h2 className="mt-5 text-xl font-bold text-[#641010]">
         No donations found
       </h2>
 
-      <p
-        className="
-          mt-2
-          text-[11px]
-          leading-5
-          text-[#887b70]
-        "
-      >
+      <p className="mt-2 text-[11px] leading-5 text-[#887b70]">
         {filter === "all"
           ? "Your temple donation history will appear here."
           : `You don't have any ${filter} donations.`}
@@ -1148,16 +496,7 @@ function EmptyState({
       <button
         type="button"
         onClick={onDonate}
-        className="
-          mt-5
-          min-h-[44px]
-          rounded-xl
-          bg-[#a71919]
-          px-6
-          text-[11px]
-          font-bold
-          text-white
-        "
+        className="mt-5 min-h-[44px] rounded-xl bg-[#a71919] px-6 text-[11px] font-bold text-white"
       >
         Make a Donation
       </button>

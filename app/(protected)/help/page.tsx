@@ -1,57 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import CommonHeader from "@/components/layout/CommonHeader";
-
-type FAQ = {
-  id: number;
-  question: string;
-  answer: string;
-};
-
-const faqs: FAQ[] = [
-  {
-    id: 1,
-    question: "How can I book a Seva?",
-    answer:
-      "Go to the Seva section, select the Seva you want, choose the available option and continue with the booking process.",
-  },
-  {
-    id: 2,
-    question: "How can I make a donation?",
-    answer:
-      "Open the Donation section, select a donation purpose or enter your preferred amount, then continue to payment.",
-  },
-  {
-    id: 3,
-    question: "Where can I see my bookings?",
-    answer:
-      "Open Profile and select My Bookings to view your upcoming, completed and cancelled bookings.",
-  },
-  {
-    id: 4,
-    question: "Where can I find my donation receipt?",
-    answer:
-      "Open Profile → My Donations. Successful donations will show the receipt option when receipt generation is connected.",
-  },
-  {
-    id: 5,
-    question: "How can I order Prasadam?",
-    answer:
-      "Open Prasadam, add the items you want to your cart, open My Cart and continue to checkout.",
-  },
-  {
-    id: 6,
-    question: "How can I change the app language?",
-    answer:
-      "Open Profile → Settings and select English, Hindi or Gujarati. Your selected language will be saved automatically.",
-  },
-];
+import { FAQS_DATA as faqs } from "@/data/help";
 
 export default function HelpSupportPage() {
-  const router = useRouter();
-
   const [openFaq, setOpenFaq] = useState<number | null>(1);
 
   const toggleFaq = (id: number) => {
@@ -59,21 +12,7 @@ export default function HelpSupportPage() {
   };
 
   return (
-    <main
-      className="
-        min-h-[100dvh]
-        overflow-x-hidden
-        bg-[#fffaf1]
-        pb-[80px]
-        text-[#40372f]
-
-        md:pb-[90px]
-
-        lg:ml-[92px]
-        lg:w-[calc(100%-92px)]
-        lg:pb-10
-      "
-    >
+    <main className="min-h-[100dvh] overflow-x-hidden bg-[#fffaf1] pb-[80px] text-[#40372f] md:pb-[90px] lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-10">
       {/* =====================================================
           HEADER
       ====================================================== */}
@@ -87,161 +26,46 @@ export default function HelpSupportPage() {
           CONTENT
       ====================================================== */}
 
-      <div
-        className="
-          mx-auto
-          w-full
-          max-w-[1200px]
-          px-3
-          py-3.5
-
-          sm:px-5
-          sm:py-5
-
-          md:px-6
-          md:py-6
-
-          lg:px-8
-          lg:py-7
-        "
-      >
+      <div className="mx-auto w-full max-w-[1200px] px-3 py-3.5 sm:px-5 sm:py-5 md:px-6 md:py-6 lg:px-8 lg:py-7">
         {/* =================================================
             HERO
         ================================================== */}
 
-        <section
-          className="
-            relative
-            overflow-hidden
-            rounded-[16px]
-            bg-[linear-gradient(135deg,#701212_0%,#9e201a_55%,#c05b2c_100%)]
-            px-4
-            py-4.5
-            text-white
-            shadow-[0_8px_25px_rgba(94,28,17,0.14)]
-
-            sm:rounded-[18px]
-            sm:px-6
-            sm:py-6
-
-            md:px-7
-            md:py-7
-
-            lg:rounded-[22px]
-            lg:px-8
-            lg:py-8
-          "
-        >
+        <section className="relative overflow-hidden rounded-[16px] bg-[linear-gradient(135deg,#701212_0%,#9e201a_55%,#c05b2c_100%)] px-4 py-4.5 text-white shadow-[0_8px_25px_rgba(94,28,17,0.14)] sm:rounded-[18px] sm:px-6 sm:py-6 md:px-7 md:py-7 lg:rounded-[22px] lg:px-8 lg:py-8">
           {/* DECORATION */}
 
           <div
             aria-hidden="true"
-            className="
-              absolute
-              -right-16
-              -top-20
-              h-[180px]
-              w-[180px]
-              rounded-full
-              border
-              border-white/10
-              bg-white/[0.04]
-            "
+            className="absolute -right-16 -top-20 h-[180px] w-[180px] rounded-full border border-white/10 bg-white/[0.04]"
           />
 
           <div
             aria-hidden="true"
-            className="
-              absolute
-              -bottom-20
-              right-10
-              h-[150px]
-              w-[150px]
-              rounded-full
-              bg-[#f0c46c]/10
-
-              sm:right-16
-            "
+            className="absolute -bottom-20 right-10 h-[150px] w-[150px] rounded-full bg-[#f0c46c]/10 sm:right-16"
           />
 
           <div className="relative z-10 max-w-[680px]">
             {/* SUPPORT ICON */}
 
-            <div
-              className="
-                grid
-                h-9
-                w-9
-                place-items-center
-                rounded-[10px]
-                border
-                border-white/15
-                bg-white/10
-                text-[#ffe2a0]
-
-                sm:h-11
-                sm:w-11
-              "
-            >
+            <div className="grid h-9 w-9 place-items-center rounded-[10px] border border-white/15 bg-white/10 text-[#ffe2a0] sm:h-11 sm:w-11">
               <SupportIcon />
             </div>
 
             {/* LABEL */}
 
-            <p
-              className="
-                mt-2.5
-                text-[7px]
-                font-bold
-                uppercase
-                tracking-[0.14em]
-                text-[#f1cd82]
-
-                sm:mt-3
-                sm:text-[8px]
-              "
-            >
+            <p className="mt-2.5 text-[7px] font-bold uppercase tracking-[0.14em] text-[#f1cd82] sm:mt-3 sm:text-[8px]">
               DEVOTEE SUPPORT
             </p>
 
             {/* TITLE */}
 
-            <h2
-              className="
-                mt-0.5
-                font-serif
-                text-[21px]
-                font-bold
-                leading-tight
-
-                sm:text-[27px]
-
-                md:text-[29px]
-
-                lg:text-[32px]
-              "
-            >
+            <h2 className="mt-0.5 text-[21px] font-bold leading-tight sm:text-[27px] md:text-[29px] lg:text-[32px]">
               How can we help you?
             </h2>
 
             {/* DESCRIPTION */}
 
-            <p
-              className="
-                mt-1.5
-                max-w-[620px]
-                text-[8.5px]
-                leading-4
-                text-white/75
-
-                sm:text-[10px]
-                sm:leading-5
-
-                md:text-[11px]
-
-                lg:text-[12px]
-              "
-            >
+            <p className="mt-1.5 max-w-[620px] text-[8.5px] leading-4 text-white/75 sm:text-[10px] sm:leading-5 md:text-[11px] lg:text-[12px]">
               Get help with Seva, Darshan, Donations, Prasadam, bookings and
               other services of Shri Govardhannath Haveli.
             </p>
@@ -254,83 +78,26 @@ export default function HelpSupportPage() {
             CONTACT SUPPORT
         ================================================== */}
 
-        <section
-          className="
-            mt-5
-
-            sm:mt-6
-
-            md:mt-7
-
-            lg:mt-8
-          "
-        >
+        <section className="mt-5 sm:mt-6 md:mt-7 lg:mt-8">
           {/* SECTION HEADING */}
 
           <div>
-            <p
-              className="
-                text-[7px]
-                font-bold
-                uppercase
-                tracking-[0.12em]
-                text-[#b4873e]
-
-                sm:text-[8px]
-              "
-            >
+            <p className="text-[7px] font-bold uppercase tracking-[0.12em] text-[#b4873e] sm:text-[8px]">
               CONTACT US
             </p>
 
-            <h2
-              className="
-                mt-0.5
-                font-serif
-                text-[17px]
-                font-bold
-                leading-tight
-                text-[#641010]
-
-                sm:text-xl
-
-                md:text-[22px]
-
-                lg:text-[24px]
-              "
-            >
+            <h2 className="mt-0.5 text-[17px] font-bold leading-tight text-[#641010] sm:text-xl md:text-[22px] lg:text-[24px]">
               Contact Support
             </h2>
 
-            <p
-              className="
-                mt-0.5
-                text-[8.5px]
-                leading-4
-                text-[#8c7e72]
-
-                sm:text-[10px]
-              "
-            >
+            <p className="mt-0.5 text-[8.5px] leading-4 text-[#8c7e72] sm:text-[10px]">
               Choose a convenient way to contact the temple support team.
             </p>
           </div>
 
           {/* SUPPORT CARDS */}
 
-          <div
-            className="
-              mt-2.5
-              grid
-              grid-cols-1
-              gap-2
-
-              sm:grid-cols-2
-              sm:gap-2.5
-
-              lg:grid-cols-3
-              lg:gap-3
-            "
-          >
+          <div className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-2.5 lg:grid-cols-3 lg:gap-3">
             {/* CALL */}
 
             <SupportCard
@@ -390,76 +157,20 @@ export default function HelpSupportPage() {
             FAQ
         ================================================== */}
 
-        <section
-          className="
-            mt-6
-
-            sm:mt-7
-
-            md:mt-8
-
-            lg:mt-9
-          "
-        >
-          <div
-            className="
-              grid
-              grid-cols-1
-              gap-3.5
-
-              md:gap-5
-
-              lg:grid-cols-[270px_minmax(0,1fr)]
-              lg:gap-7
-          "
-          >
+        <section className="mt-6 sm:mt-7 md:mt-8 lg:mt-9">
+          <div className="grid grid-cols-1 gap-3.5 md:gap-5 lg:grid-cols-[270px_minmax(0,1fr)] lg:gap-7">
             {/* FAQ INTRO */}
 
             <div>
-              <p
-                className="
-                  text-[7px]
-                  font-bold
-                  uppercase
-                  tracking-[0.12em]
-                  text-[#b4873e]
-
-                  sm:text-[8px]
-                "
-              >
+              <p className="text-[7px] font-bold uppercase tracking-[0.12em] text-[#b4873e] sm:text-[8px]">
                 FAQ
               </p>
 
-              <h2
-                className="
-                  mt-0.5
-                  font-serif
-                  text-[17px]
-                  font-bold
-                  leading-tight
-                  text-[#641010]
-
-                  sm:text-xl
-
-                  md:text-[22px]
-
-                  lg:text-[24px]
-                "
-              >
+              <h2 className="mt-0.5 text-[17px] font-bold leading-tight text-[#641010] sm:text-xl md:text-[22px] lg:text-[24px]">
                 Frequently Asked Questions
               </h2>
 
-              <p
-                className="
-                  mt-1.5
-                  max-w-[500px]
-                  text-[8.5px]
-                  leading-4
-                  text-[#8c7e72]
-
-                  sm:text-[10px]
-                "
-              >
+              <p className="mt-1.5 max-w-[500px] text-[8.5px] leading-4 text-[#8c7e72] sm:text-[10px]">
                 Find answers to common questions about temple services.
               </p>
             </div>
@@ -473,19 +184,7 @@ export default function HelpSupportPage() {
                 return (
                   <div
                     key={faq.id}
-                    className={`
-                      overflow-hidden
-                      rounded-[11px]
-                      border
-                      bg-[#fffdf9]
-                      transition
-
-                      ${
-                        isOpen
-                          ? "border-[#d8bd8d] shadow-[0_3px_12px_rgba(74,42,16,0.035)]"
-                          : "border-[#eadfce]"
-                      }
-                    `}
+                    className={`overflow-hidden rounded-[11px] border bg-[#fffdf9] transition ${isOpen ? "border-[#d8bd8d] shadow-[0_3px_12px_rgba(74,42,16,0.035)]" : "border-[#eadfce]"}`}
                   >
                     {/* QUESTION */}
 
@@ -494,56 +193,14 @@ export default function HelpSupportPage() {
                       onClick={() => toggleFaq(faq.id)}
                       aria-expanded={isOpen}
                       aria-controls={`faq-answer-${faq.id}`}
-                      className="
-                        flex
-                        min-h-[40px]
-                        w-full
-                        items-center
-                        justify-between
-                        gap-2.5
-                        px-2.5
-                        py-2
-                        text-left
-
-                        sm:min-h-[44px]
-                        sm:px-4
-
-                        md:min-h-[46px]
-                      "
+                      className="flex min-h-[40px] w-full items-center justify-between gap-2.5 px-2.5 py-2 text-left sm:min-h-[44px] sm:px-4 md:min-h-[46px]"
                     >
-                      <span
-                        className="
-                          text-[9.5px]
-                          font-bold
-                          leading-4
-                          text-[#54483e]
-
-                          sm:text-[11px]
-
-                          md:text-[11.5px]
-                        "
-                      >
+                      <span className="text-[9.5px] font-bold leading-4 text-[#54483e] sm:text-[11px] md:text-[11.5px]">
                         {faq.question}
                       </span>
 
                       <span
-                        className={`
-                          grid
-                          h-5.5
-                          w-5.5
-                          shrink-0
-                          place-items-center
-                          rounded-full
-                          bg-[#fff0d8]
-                          text-[#a71919]
-                          transition-transform
-                          duration-200
-
-                          sm:h-6
-                          sm:w-6
-
-                          ${isOpen ? "rotate-180" : ""}
-                        `}
+                        className={`grid h-5.5 w-5.5 shrink-0 place-items-center rounded-full bg-[#fff0d8] text-[#a71919] transition-transform duration-200 sm:h-6 sm:w-6 ${isOpen ? "rotate-180" : ""}`}
                       >
                         <ChevronIcon />
                       </span>
@@ -554,27 +211,9 @@ export default function HelpSupportPage() {
                     {isOpen && (
                       <div
                         id={`faq-answer-${faq.id}`}
-                        className="
-                          border-t
-                          border-[#f1e6d6]
-                          px-2.5
-                          pb-2.5
-                          pt-2
-
-                          sm:px-4
-                          sm:pb-3
-                        "
+                        className="border-t border-[#f1e6d6] px-2.5 pb-2.5 pt-2 sm:px-4 sm:pb-3"
                       >
-                        <p
-                          className="
-                            text-[8.5px]
-                            leading-4
-                            text-[#887a6f]
-
-                            sm:text-[10px]
-                            sm:leading-5
-                          "
-                        >
+                        <p className="text-[8.5px] leading-4 text-[#887a6f] sm:text-[10px] sm:leading-5">
                           {faq.answer}
                         </p>
                       </div>
@@ -590,81 +229,24 @@ export default function HelpSupportPage() {
             STILL NEED HELP
         ================================================== */}
 
-        <section
-          className="
-            mt-6
-            overflow-hidden
-            rounded-[15px]
-            border
-            border-[#e4d2b5]
-            bg-[linear-gradient(135deg,#fff1da,#fff9ee)]
-            p-3.5
-
-            sm:mt-7
-            sm:p-5
-
-            md:flex
-            md:items-center
-            md:justify-between
-            md:gap-5
-
-            lg:mt-9
-            lg:p-6
-          "
-        >
+        <section className="mt-6 overflow-hidden rounded-[15px] border border-[#e4d2b5] bg-[linear-gradient(135deg,#fff1da,#fff9ee)] p-3.5 sm:mt-7 sm:p-5 md:flex md:items-center md:justify-between md:gap-5 lg:mt-9 lg:p-6">
           {/* LEFT */}
 
           <div className="flex min-w-0 items-start gap-2.5">
             {/* ICON */}
 
-            <div
-              className="
-                grid
-                h-8
-                w-8
-                shrink-0
-                place-items-center
-                rounded-full
-                bg-[#a71919]
-                text-white
-
-                sm:h-9
-                sm:w-9
-              "
-            >
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#a71919] text-white sm:h-9 sm:w-9">
               <SupportIcon />
             </div>
 
             {/* TEXT */}
 
             <div className="min-w-0">
-              <h3
-                className="
-                  font-serif
-                  text-[14px]
-                  font-bold
-                  leading-tight
-                  text-[#641010]
-
-                  sm:text-[15px]
-
-                  lg:text-lg
-                "
-              >
+              <h3 className="text-[14px] font-bold leading-tight text-[#641010] sm:text-[15px] lg:text-lg">
                 Still need help?
               </h3>
 
-              <p
-                className="
-                  mt-0.5
-                  max-w-[600px]
-                  text-[8.5px]
-                  leading-4
-                  text-[#88786c]
-
-                  sm:text-[10px]
-                "
-              >
+              <p className="mt-0.5 max-w-[600px] text-[8.5px] leading-4 text-[#88786c] sm:text-[10px]">
                 Contact the temple support team for assistance with your query.
               </p>
             </div>
@@ -681,29 +263,7 @@ export default function HelpSupportPage() {
                 router.push("/help/contact");
               */
             }}
-            className="
-              mt-2.5
-              h-8
-              w-full
-              rounded-lg
-              bg-[#a71919]
-              px-4
-              text-[9px]
-              font-bold
-              text-white
-              shadow-[0_5px_14px_rgba(167,25,25,0.14)]
-              transition
-
-              hover:bg-[#851313]
-              active:scale-[0.98]
-
-              sm:h-9
-
-              md:mt-0
-              md:w-auto
-
-              lg:h-9
-            "
+            className="mt-2.5 h-8 w-full rounded-lg bg-[#a71919] px-4 text-[9px] font-bold text-white shadow-[0_5px_14px_rgba(167,25,25,0.14)] transition hover:bg-[#851313] active:scale-[0.98] sm:h-9 md:mt-0 md:w-auto lg:h-9"
           >
             Contact Support
           </button>
@@ -713,18 +273,7 @@ export default function HelpSupportPage() {
             FOOTER
         ================================================== */}
 
-        <div
-          className="
-            mt-5
-            text-center
-
-            sm:mt-6
-
-            md:mt-7
-
-            lg:mt-8
-          "
-        >
+        <div className="mt-5 text-center sm:mt-6 md:mt-7 lg:mt-8">
           <div className="flex items-center justify-center gap-1.5">
             <span className="h-px w-7 bg-[#ddc69b] sm:w-8" />
 
@@ -737,29 +286,11 @@ export default function HelpSupportPage() {
             <span className="h-px w-7 bg-[#ddc69b] sm:w-8" />
           </div>
 
-          <p
-            className="
-              mt-1.5
-              font-serif
-              text-[10px]
-              font-semibold
-              text-[#7b251e]
-
-              sm:text-[11px]
-            "
-          >
+          <p className="mt-1.5 text-[10px] font-semibold text-[#7b251e] sm:text-[11px]">
             🙏 Jai Shree Krishna
           </p>
 
-          <p
-            className="
-              mt-0.5
-              text-[7px]
-              text-[#a29487]
-
-              sm:text-[8px]
-            "
-          >
+          <p className="mt-0.5 text-[7px] text-[#a29487] sm:text-[8px]">
             Shri Govardhannath Haveli
           </p>
         </div>
@@ -786,86 +317,24 @@ function SupportCard({
   onClick: () => void;
 }) {
   return (
-    <article
-      className="
-        flex
-        min-h-[72px]
-        w-full
-        items-center
-        justify-between
-        gap-2
-        rounded-[12px]
-        border
-        border-[#eadfce]
-        bg-[#fffdf9]
-        px-2.5
-        py-2
-        shadow-[0_3px_12px_rgba(74,42,16,0.04)]
-
-        sm:min-h-[80px]
-        sm:px-3
-
-        md:min-h-[82px]
-
-        lg:min-h-[86px]
-        lg:px-3.5
-      "
-    >
+    <article className="flex min-h-[72px] w-full items-center justify-between gap-2 rounded-[12px] border border-[#eadfce] bg-[#fffdf9] px-2.5 py-2 shadow-[0_3px_12px_rgba(74,42,16,0.04)] sm:min-h-[80px] sm:px-3 md:min-h-[82px] lg:min-h-[86px] lg:px-3.5">
       {/* LEFT SIDE */}
 
       <div className="flex min-w-0 items-center gap-2">
         {/* ICON */}
 
-        <div
-          className="
-            grid
-            h-8
-            w-8
-            shrink-0
-            place-items-center
-            rounded-[8px]
-            bg-[#fff0d8]
-            text-[#a71919]
-
-            sm:h-9
-            sm:w-9
-          "
-        >
+        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] bg-[#fff0d8] text-[#a71919] sm:h-9 sm:w-9">
           {icon}
         </div>
 
         {/* TITLE + DESCRIPTION */}
 
         <div className="min-w-0">
-          <h3
-            className="
-              font-serif
-              text-[11.5px]
-              font-bold
-              leading-tight
-              text-[#641010]
-
-              sm:text-[13px]
-
-              md:text-[13px]
-            "
-          >
+          <h3 className="text-[11.5px] font-bold leading-tight text-[#641010] sm:text-[13px] md:text-[13px]">
             {title}
           </h3>
 
-          <p
-            className="
-              mt-0.5
-              max-w-[130px]
-              truncate
-              text-[7.5px]
-              leading-3
-              text-[#948579]
-
-              sm:max-w-[170px]
-              sm:text-[9px]
-            "
-          >
+          <p className="mt-0.5 max-w-[130px] truncate text-[7.5px] leading-3 text-[#948579] sm:max-w-[170px] sm:text-[9px]">
             {description}
           </p>
         </div>
@@ -876,29 +345,7 @@ function SupportCard({
       <button
         type="button"
         onClick={onClick}
-        className="
-    h-5.5
-    shrink-0
-    rounded-[5px]
-    border
-    border-[#e2cba6]
-    bg-[#fff6e8]
-    px-1.5
-    text-[6px]
-    font-bold
-    leading-none
-    text-[#a71919]
-    transition
-
-    hover:border-[#cfae79]
-    hover:bg-[#ffedd2]
-
-    active:scale-[0.97]
-
-    sm:h-6
-    sm:px-2
-    sm:text-[7px]
-  "
+        className="h-5.5 shrink-0 rounded-[5px] border border-[#e2cba6] bg-[#fff6e8] px-1.5 text-[6px] font-bold leading-none text-[#a71919] transition hover:border-[#cfae79] hover:bg-[#ffedd2] active:scale-[0.97] sm:h-6 sm:px-2 sm:text-[7px]"
       >
         {buttonText}
       </button>
