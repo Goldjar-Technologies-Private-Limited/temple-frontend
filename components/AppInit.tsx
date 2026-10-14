@@ -19,50 +19,153 @@ export default function AppInit() {
       "color: #c99435; font-weight: bold;",
     );
 
-    // 1. Setup hardware back button listener for Android
-    let backListenerHandle: { remove: () => Promise<void> | void } | null =
-      null;
+    let disposed = false;
+    let backListenerHandle: { remove: () => Promise<void> } | null = null;
+    let lastBackPressTime = 0;
+    let isNavigatingBack = false;
+    let navigationUnlockTimer: ReturnType<typeof setTimeout> | null = null;
 
-    if (isNative) {
-      console.log("[Govardhannath App] Native back-button handler initialized.");
-      CapacitorApp.addListener("backButton", (event) => {
-        console.log(`[Govardhannath App] Hardware back pressed. canGoBack: ${event.canGoBack}`);
-        if (event.canGoBack) {
-          router.back();
+    const ROOT_ROUTES = ["/", "/dashboard", "/login", "/onboarding"];
+
+    // 1. Android hardware back-button handling
+    if (isNative && platform === "android") {
+      console.log(
+        "[Govardhannath App] Native Android back-button handler initialized.",
+      );
+
+      const setupBackListener = async () => {
+        const handle = await CapacitorApp.addListener(
+          "backButton",
+          ({ canGoBack }) => {
+            const now = Date.now();
+
+            // Ignore rapid duplicate events.
+            if (now - lastBackPressTime < 400) {
+              return;
+            }
+
+            // Avoid overlapping navigation operations.
+            if (isNavigatingBack) {
+              return;
+            }
+
+            lastBackPressTime = now;
+
+            const currentPath =
+              window.location.pathname.replace(/\/$/, "") || "/";
+
+            console.log(
+              `[Govardhannath App] Hardware back pressed at path: ${currentPath}`,
+            );
+
+            // Close an open modal or drawer before navigating.
+            const openModal = document.querySelector(
+              "[role='dialog'], [aria-modal='true']",
+            );
+
+            if (openModal) {
+              window.dispatchEvent(
+                new KeyboardEvent("keydown", {
+                  key: "Escape",
+                  bubbles: true,
+                }),
+              );
+              return;
+            }
+
+            // At designated root pages, minimize instead of navigating away.
+            if (ROOT_ROUTES.includes(currentPath)) {
+              console.log(
+                "[Govardhannath App] Root route reached. Minimizing app.",
+              );
+              void CapacitorApp.minimizeApp();
+              return;
+            }
+
+            // Do not call router.back() if the WebView reports no history.
+            if (!canGoBack) {
+              console.log(
+                "[Govardhannath App] No WebView history. Minimizing app.",
+              );
+              void CapacitorApp.minimizeApp();
+              return;
+            }
+
+            // Perform exactly one navigation action.
+            isNavigatingBack = true;
+
+            console.log("[Govardhannath App] Navigating back one step.");
+
+            router.back();
+
+            // Unlock after navigation has had time to settle.
+            if (navigationUnlockTimer) {
+              clearTimeout(navigationUnlockTimer);
+            }
+
+            navigationUnlockTimer = setTimeout(() => {
+              isNavigatingBack = false;
+              navigationUnlockTimer = null;
+            }, 600);
+          },
+        );
+
+        // Handle React Strict Mode cleanup or unmount during registration.
+        if (disposed) {
+          await handle.remove();
         } else {
-          CapacitorApp.minimizeApp();
+          backListenerHandle = handle;
         }
-      }).then((handle) => {
-        backListenerHandle = handle;
+      };
+
+      void setupBackListener().catch((error) => {
+        console.error(
+          "[Govardhannath App] Failed to initialize back-button listener:",
+          error,
+        );
       });
     }
 
-    // 2. Prevent copy/paste interactions
-    const handleCopyPaste = (e: ClipboardEvent) => {
-      e.preventDefault();
+    // 2. Prevent copy, cut, and paste
+    const handleCopyPaste = (event: ClipboardEvent) => {
+      event.preventDefault();
     };
 
-    const handleContextMenu = (e: MouseEvent) => {
-      // Allow context menu on input/textarea but block it elsewhere
-      const target = e.target as HTMLElement;
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+    // 3. Block context menus outside editable fields
+    const handleContextMenu = (event: MouseEvent) => {
+      const target = event.target;
+
+      if (!(target instanceof HTMLElement)) {
+        event.preventDefault();
         return;
       }
-      e.preventDefault();
+
+      const editableElement = target.closest(
+        "input, textarea, [contenteditable='true']",
+      );
+
+      if (!editableElement) {
+        event.preventDefault();
+      }
     };
 
-    // Add CSS user-select: none globally but allow on inputs
+    // 4. Disable text selection globally while preserving form editing.
     const style = document.createElement("style");
-    style.innerHTML = `
+    style.dataset.appInit = "true";
+    style.textContent = `
       body {
         -webkit-user-select: none;
         user-select: none;
       }
-      input, textarea {
-        -webkit-user-select: auto;
-        user-select: auto;
+
+      input,
+      textarea,
+      [contenteditable="true"] {
+        -webkit-user-select: text;
+        user-select: text;
       }
     `;
+
     document.head.appendChild(style);
 
     document.addEventListener("copy", handleCopyPaste);
@@ -71,14 +174,22 @@ export default function AppInit() {
     document.addEventListener("contextmenu", handleContextMenu);
 
     return () => {
-      if (backListenerHandle && backListenerHandle.remove) {
-        backListenerHandle.remove();
+      disposed = true;
+
+      if (navigationUnlockTimer) {
+        clearTimeout(navigationUnlockTimer);
       }
+
+      if (backListenerHandle) {
+        void backListenerHandle.remove();
+      }
+
       document.removeEventListener("copy", handleCopyPaste);
       document.removeEventListener("cut", handleCopyPaste);
       document.removeEventListener("paste", handleCopyPaste);
       document.removeEventListener("contextmenu", handleContextMenu);
-      document.head.removeChild(style);
+
+      style.remove();
     };
   }, [router]);
 
