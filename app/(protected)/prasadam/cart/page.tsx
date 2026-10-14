@@ -146,11 +146,7 @@ function loadCart(): CartItemData[] {
 
     /* OLD FORMAT */
 
-    if (
-      parsed &&
-      typeof parsed === "object" &&
-      !Array.isArray(parsed)
-    ) {
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       return Object.entries(parsed)
         .map(([productId, quantity]) => ({
           productId: Number(productId),
@@ -162,9 +158,7 @@ function loadCart(): CartItemData[] {
             Number.isFinite(item.productId) &&
             Number.isFinite(item.quantity) &&
             item.quantity > 0 &&
-            products.some(
-              (product) => product.id === item.productId,
-            ),
+            products.some((product) => product.id === item.productId),
         );
     }
 
@@ -181,10 +175,7 @@ function loadCart(): CartItemData[] {
 
 function saveCart(cart: CartItemData[]): void {
   try {
-    localStorage.setItem(
-      CART_STORAGE_KEY,
-      JSON.stringify(cart),
-    );
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
 
     localStorage.removeItem(OLD_WEIGHT_STORAGE_KEY);
 
@@ -234,9 +225,7 @@ export default function CartPage() {
   const cartItems = useMemo<CartItem[]>(() => {
     return cart
       .map((cartItem) => {
-        const product = products.find(
-          (item) => item.id === cartItem.productId,
-        );
+        const product = products.find((item) => item.id === cartItem.productId);
 
         if (!product) {
           return null;
@@ -249,9 +238,7 @@ export default function CartPage() {
           quantity: cartItem.quantity,
         };
       })
-      .filter(
-        (item): item is CartItem => item !== null,
-      );
+      .filter((item): item is CartItem => item !== null);
   }, [cart]);
 
   /* ===================================================
@@ -259,10 +246,7 @@ export default function CartPage() {
   =================================================== */
 
   const totalItems = useMemo(() => {
-    return cartItems.reduce(
-      (total, item) => total + item.quantity,
-      0,
-    );
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
   }, [cartItems]);
 
   /* ===================================================
@@ -271,10 +255,7 @@ export default function CartPage() {
 
   const subtotal = useMemo(() => {
     return cartItems.reduce((total, item) => {
-      const price = getWeightPrice(
-        item.price,
-        item.weight,
-      );
+      const price = getWeightPrice(item.price, item.weight);
 
       return total + price * item.quantity;
     }, 0);
@@ -284,8 +265,7 @@ export default function CartPage() {
      DELIVERY
   =================================================== */
 
-  const deliveryCharge =
-    subtotal > 0 ? DELIVERY_CHARGE : 0;
+  const deliveryCharge = subtotal > 0 ? DELIVERY_CHARGE : 0;
 
   /* ===================================================
      TOTAL
@@ -297,21 +277,15 @@ export default function CartPage() {
      INCREASE QUANTITY
   =================================================== */
 
-  const increase = (
-    productId: number,
-    weight: Weight,
-  ): void => {
+  const increase = (productId: number, weight: Weight): void => {
     setCart((previousCart) => {
       const exists = previousCart.some(
-        (item) =>
-          item.productId === productId &&
-          item.weight === weight,
+        (item) => item.productId === productId && item.weight === weight,
       );
 
       if (exists) {
         return previousCart.map((item) =>
-          item.productId === productId &&
-          item.weight === weight
+          item.productId === productId && item.weight === weight
             ? {
                 ...item,
                 quantity: item.quantity + 1,
@@ -335,15 +309,11 @@ export default function CartPage() {
      DECREASE QUANTITY
   =================================================== */
 
-  const decrease = (
-    productId: number,
-    weight: Weight,
-  ): void => {
+  const decrease = (productId: number, weight: Weight): void => {
     setCart((previousCart) =>
       previousCart
         .map((item) =>
-          item.productId === productId &&
-          item.weight === weight
+          item.productId === productId && item.weight === weight
             ? {
                 ...item,
                 quantity: item.quantity - 1,
@@ -358,17 +328,10 @@ export default function CartPage() {
      REMOVE ITEM
   =================================================== */
 
-  const removeItem = (
-    productId: number,
-    weight: Weight,
-  ): void => {
+  const removeItem = (productId: number, weight: Weight): void => {
     setCart((previousCart) =>
       previousCart.filter(
-        (item) =>
-          !(
-            item.productId === productId &&
-            item.weight === weight
-          ),
+        (item) => !(item.productId === productId && item.weight === weight),
       ),
     );
   };
@@ -395,10 +358,7 @@ export default function CartPage() {
 
       router.push("/prasadam/checkout");
     } catch (error) {
-      console.error(
-        "Failed to proceed to checkout:",
-        error,
-      );
+      console.error("Failed to proceed to checkout:", error);
     }
   };
 
@@ -436,10 +396,7 @@ export default function CartPage() {
           lg:w-[calc(100%-92px)]
         "
       >
-        <CartHeader
-          totalItems={0}
-          onBack={() => router.back()}
-        />
+        <CartHeader totalItems={0} onBack={() => router.back()} />
 
         <section
           className="
@@ -496,15 +453,12 @@ export default function CartPage() {
                 text-[#81756c]
               "
             >
-              Add your favourite prasadam before
-              placing an order.
+              Add your favourite prasadam before placing an order.
             </p>
 
             <button
               type="button"
-              onClick={() =>
-                router.push("/prasadam")
-              }
+              onClick={() => router.push("/prasadam")}
               className="
                 mt-7
                 min-h-[48px]
@@ -546,10 +500,7 @@ export default function CartPage() {
         lg:pb-12
       "
     >
-      <CartHeader
-        totalItems={totalItems}
-        onBack={() => router.back()}
-      />
+      <CartHeader totalItems={totalItems} onBack={() => router.back()} />
 
       <div
         className="
@@ -595,13 +546,9 @@ export default function CartPage() {
               "
             >
               {cartItems.map((item, index) => {
-                const itemPrice = getWeightPrice(
-                  item.price,
-                  item.weight,
-                );
+                const itemPrice = getWeightPrice(item.price, item.weight);
 
-                const itemTotal =
-                  itemPrice * item.quantity;
+                const itemTotal = itemPrice * item.quantity;
 
                 return (
                   <article
@@ -747,14 +694,9 @@ export default function CartPage() {
                           <button
                             type="button"
                             onClick={() =>
-                              removeItem(
-                                item.productId,
-                                item.weight,
-                              )
+                              removeItem(item.productId, item.weight)
                             }
-                            aria-label={`Remove ${
-                              item.name
-                            } ${getWeightLabel(
+                            aria-label={`Remove ${item.name} ${getWeightLabel(
                               item.weight,
                             )}`}
                             className="
@@ -788,7 +730,6 @@ export default function CartPage() {
                           "
                         >
                           ₹{formatPrice(itemPrice)}
-
                           <span
                             className="
                               ml-1
@@ -797,10 +738,7 @@ export default function CartPage() {
                               text-[#8d8177]
                             "
                           >
-                            /{" "}
-                            {getWeightLabel(
-                              item.weight,
-                            )}
+                            / {getWeightLabel(item.weight)}
                           </span>
                         </p>
 
@@ -835,10 +773,7 @@ export default function CartPage() {
                             <button
                               type="button"
                               onClick={() =>
-                                decrease(
-                                  item.productId,
-                                  item.weight,
-                                )
+                                decrease(item.productId, item.weight)
                               }
                               aria-label="Decrease quantity"
                               className="
@@ -879,10 +814,7 @@ export default function CartPage() {
                             <button
                               type="button"
                               onClick={() =>
-                                increase(
-                                  item.productId,
-                                  item.weight,
-                                )
+                                increase(item.productId, item.weight)
                               }
                               aria-label="Increase quantity"
                               className="
@@ -926,9 +858,7 @@ export default function CartPage() {
 
             <button
               type="button"
-              onClick={() =>
-                router.push("/prasadam")
-              }
+              onClick={() => router.push("/prasadam")}
               className="
                 mt-4
                 flex
@@ -1022,20 +952,14 @@ export default function CartPage() {
               >
                 <SummaryRow
                   label={`Subtotal (${totalItems} ${
-                    totalItems === 1
-                      ? "item"
-                      : "items"
+                    totalItems === 1 ? "item" : "items"
                   })`}
-                  value={`₹${formatPrice(
-                    subtotal,
-                  )}`}
+                  value={`₹${formatPrice(subtotal)}`}
                 />
 
                 <SummaryRow
                   label="Delivery"
-                  value={`₹${formatPrice(
-                    deliveryCharge,
-                  )}`}
+                  value={`₹${formatPrice(deliveryCharge)}`}
                 />
               </div>
 
@@ -1112,7 +1036,6 @@ export default function CartPage() {
                 "
               >
                 Place Order
-
                 <span>→</span>
               </button>
 
@@ -1149,15 +1072,15 @@ function CartHeader({
 }) {
   return (
     <CommonHeader
-  title="My Cart"
-  subtitle="Shri Govardhannath Haveli"
-  backHref="/prasadam"
-  rightAction={
-    <span className="whitespace-nowrap rounded-full border border-[#eadbc5] bg-white px-3 py-1.5 text-xs font-bold text-[#75685e]">
-      {totalItems} {totalItems === 1 ? "Item" : "Items"}
-    </span>
-  }
-/>
+      title="My Cart"
+      subtitle="Shri Govardhannath Haveli"
+      backHref="/prasadam"
+      rightAction={
+        <span className="whitespace-nowrap rounded-full border border-[#eadbc5] bg-white px-3 py-1.5 text-xs font-bold text-[#75685e]">
+          {totalItems} {totalItems === 1 ? "Item" : "Items"}
+        </span>
+      }
+    />
   );
 }
 
@@ -1165,13 +1088,7 @@ function CartHeader({
    SUMMARY ROW
 ===================================================== */
 
-function SummaryRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div
       className="
@@ -1182,13 +1099,9 @@ function SummaryRow({
         text-xs
       "
     >
-      <span className="min-w-0 text-[#81756c]">
-        {label}
-      </span>
+      <span className="min-w-0 text-[#81756c]">{label}</span>
 
-      <strong className="shrink-0 text-[#4b4038]">
-        {value}
-      </strong>
+      <strong className="shrink-0 text-[#4b4038]">{value}</strong>
     </div>
   );
 }
@@ -1212,17 +1125,9 @@ function CartIcon() {
         text-[#a71919]
       "
     >
-      <circle
-        cx="9"
-        cy="20"
-        r="1"
-      />
+      <circle cx="9" cy="20" r="1" />
 
-      <circle
-        cx="18"
-        cy="20"
-        r="1"
-      />
+      <circle cx="18" cy="20" r="1" />
 
       <path d="M3 4h2l2.4 10.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 8H6" />
     </svg>

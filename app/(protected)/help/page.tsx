@@ -78,7 +78,7 @@ export default function HelpSupportPage() {
           HEADER
       ====================================================== */}
 
-          <CommonHeader
+      <CommonHeader
         title="Help & Support"
         subtitle="Shri Govardhannath Haveli"
         backHref="/dashboard"
@@ -909,22 +909,6 @@ function SupportCard({
 /* =========================================================
    ICONS
 ========================================================= */
-
-function BackIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[16px] w-[16px] sm:h-[17px] sm:w-[17px]"
-    >
-      <path d="m15 18-6-6 6-6" />
-    </svg>
-  );
-}
 
 function SupportIcon() {
   return (

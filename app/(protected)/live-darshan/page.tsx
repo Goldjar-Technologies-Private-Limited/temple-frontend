@@ -37,7 +37,6 @@ const chats = [
 ];
 
 export default function LiveDarshan() {
-  const router = useRouter();
   const { t } = useLanguage();
 
   const selected = 0;

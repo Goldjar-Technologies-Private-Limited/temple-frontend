@@ -6,7 +6,6 @@ import CommonHeader from "@/components/layout/CommonHeader";
 import {
   Check,
   CheckCircle2,
-  ChevronRight,
   CircleAlert,
   Home,
   Info,

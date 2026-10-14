@@ -6,16 +6,32 @@ import { useRouter } from "next/navigation";
 export default function Splash() {
   const router = useRouter();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  const navigateNext = () => {
+    try {
       router.replace("/onboarding");
-    }, 2500);
+    } catch (_) {}
+    setTimeout(() => {
+      if (typeof window !== "undefined" && (window.location.pathname === "/" || window.location.pathname === "")) {
+        window.location.assign("/onboarding");
+      }
+    }, 400);
+  };
+
+  useEffect(() => {
+    console.log("[Splash] Screen mounted. Setting automatic transition timer...");
+    const timer = setTimeout(() => {
+      console.log("[Splash] Auto transition triggered.");
+      navigateNext();
+    }, 2000);
 
     return () => clearTimeout(timer);
-  }, [router]);
+  }, []);
 
   return (
     <main
+      onClick={navigateNext}
+      role="button"
+      tabIndex={0}
       style={{
         position: "fixed",
         inset: 0,
@@ -24,6 +40,7 @@ export default function Splash() {
         overflow: "hidden",
         background: "#000",
         zIndex: 9999,
+        cursor: "pointer",
       }}
     >
       <picture

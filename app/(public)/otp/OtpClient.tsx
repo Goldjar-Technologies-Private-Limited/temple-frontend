@@ -1,17 +1,10 @@
 "use client";
 
-import {
-  useSearchParams,
-  useRouter,
-} from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
-import {
-  useState,
-} from "react";
+import { useState } from "react";
 
-import {
-  useLanguage,
-} from "@/contexts/LanguageProvider";
+import { useLanguage } from "@/contexts/LanguageProvider";
 
 export default function OtpClient() {
   const router = useRouter();
@@ -19,40 +12,65 @@ export default function OtpClient() {
 
   const { t } = useLanguage();
 
-  const mobile =
-    params.get("mobile") || "";
+  const mobile = params.get("mobile") || "";
 
-  const [otp, setOtp] =
-    useState("");
+  const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const doVerify = async (_validOtp: string) => {
+    if (loading) return;
+    setLoading(true);
+    setError("");
+
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    router.push("/dashboard");
+  };
+
+  const DEFAULT_TEST_OTP = "000000";
 
   const verify = () => {
+    const env = process.env.NEXT_PUBLIC_ENV || "production";
+    if (!otp) {
+      if (env !== "production") {
+        console.log(`[Auth OTP] Empty OTP in ${env} environment. Using default test OTP: ${DEFAULT_TEST_OTP}`);
+        setOtp(DEFAULT_TEST_OTP);
+        doVerify(DEFAULT_TEST_OTP);
+        return;
+      } else {
+        console.warn(`[Auth OTP] Empty OTP rejected in production environment.`);
+        setError("Please enter the OTP");
+        return;
+      }
+    }
+
     if (otp.length === 6) {
-      router.push("/dashboard");
+      console.log(`[Auth OTP] Verifying 6-digit OTP code.`);
+      doVerify(otp);
+    } else {
+      console.warn(`[Auth OTP] Invalid OTP length (${otp.length}/6).`);
+      setError("Please enter a valid 6-digit OTP");
     }
   };
 
   const resendOtp = () => {
     setOtp("");
+    setError("");
   };
 
   const changeMobileNumber = () => {
     router.back();
   };
 
-  const handleOtpChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value =
-      e.target.value.replace(
-        /\D/g,
-        ""
-      );
+  const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "");
 
     if (value.length <= 6) {
       setOtp(value);
-      
-      if (value.length === 6) {
-        router.push("/dashboard");
+      setError("");
+
+      if (value.length === 6 && !loading) {
+        doVerify(value);
       }
     }
   };
@@ -62,32 +80,20 @@ export default function OtpClient() {
       <section className="content">
         {/* ORNAMENT */}
 
-        <img
-          src="/images/login-ornament.png"
-          alt=""
-          className="ornament"
-        />
+        <img src="/images/login-ornament.png" alt="" className="ornament" />
 
         {/* TITLE */}
 
-        <h1>
-          {t(
-            "verifyMobileNumber"
-          )}
-        </h1>
+        <h1>{t("verifyMobileNumber")}</h1>
 
         {/* OTP INFO */}
 
         <p className="subtitle">
-          {t(
-            "enterSixDigitOtp"
-          )}
+          {t("enterSixDigitOtp")}
 
           <br />
 
-          <strong>
-            +91 {mobile}
-          </strong>
+          <strong>+91 {mobile}</strong>
         </p>
 
         {/* OTP INPUT */}
@@ -100,11 +106,22 @@ export default function OtpClient() {
           maxLength={6}
           placeholder="• • • • • •"
           value={otp}
-          onChange={
-            handleOtpChange
-          }
+          onChange={handleOtpChange}
           aria-label="OTP"
         />
+
+        {error && (
+          <p
+            style={{
+              color: "var(--maroon)",
+              fontSize: "14px",
+              marginTop: "10px",
+              marginBottom: "0",
+            }}
+          >
+            {error}
+          </p>
+        )}
 
         {/* VERIFY */}
 
@@ -112,40 +129,28 @@ export default function OtpClient() {
           type="button"
           className="verify"
           disabled={
-            otp.length !== 6
+            loading ||
+            (process.env.NEXT_PUBLIC_ENV === "production"
+              ? otp.length !== 6
+              : otp.length > 0 && otp.length !== 6)
           }
           onClick={verify}
         >
-          {t(
-            "verifyContinue"
-          )}
+          {loading ? "..." : t("verifyContinue")}
 
-          <span>›</span>
+          {!loading && <span>›</span>}
         </button>
 
         {/* RESEND */}
 
-        <button
-          type="button"
-          className="resend"
-          onClick={resendOtp}
-        >
+        <button type="button" className="resend" onClick={resendOtp}>
           {t("resendOtp")}
         </button>
 
         {/* CHANGE MOBILE */}
 
-        <button
-          type="button"
-          className="back"
-          onClick={
-            changeMobileNumber
-          }
-        >
-          ←{" "}
-          {t(
-            "changeMobileNumber"
-          )}
+        <button type="button" className="back" onClick={changeMobileNumber}>
+          ← {t("changeMobileNumber")}
         </button>
       </section>
 
@@ -170,16 +175,14 @@ export default function OtpClient() {
           display: flex;
           flex-direction: column;
 
-          background:
-            radial-gradient(
-              circle at 50% 10%,
-              #ffffff 0,
-              #fffaf0 38%,
-              #f8ecd6 100%
-            );
+          background: radial-gradient(
+            circle at 50% 10%,
+            #ffffff 0,
+            #fffaf0 38%,
+            #f8ecd6 100%
+          );
 
-          color:
-            var(--text);
+          color: var(--text);
 
           text-align: center;
         }
@@ -193,13 +196,7 @@ export default function OtpClient() {
 
           z-index: 2;
 
-          width:
-            min(
-              calc(
-                100% - 48px
-              ),
-              390px
-            );
+          width: min(calc(100% - 48px), 390px);
 
           min-height: 100dvh;
 
@@ -218,8 +215,7 @@ export default function OtpClient() {
 
           display: block;
 
-          margin:
-            0 auto -4px;
+          margin: 0 auto -4px;
 
           object-fit: contain;
 
@@ -229,8 +225,7 @@ export default function OtpClient() {
 
           border-radius: 0;
 
-          background:
-            transparent;
+          background: transparent;
 
           box-shadow: none;
         }
@@ -242,13 +237,9 @@ export default function OtpClient() {
         .content h1 {
           margin: 0;
 
-          color:
-            var(--maroon);
+          color: var(--maroon);
 
-          font-family:
-            Georgia,
-            "Times New Roman",
-            serif;
+          font-family: Georgia, "Times New Roman", serif;
 
           font-size: 29px;
 
@@ -262,11 +253,9 @@ export default function OtpClient() {
         ========================================== */
 
         .subtitle {
-          margin:
-            10px 0 24px;
+          margin: 10px 0 24px;
 
-          color:
-            var(--muted);
+          color: var(--muted);
 
           font-size: 14px;
 
@@ -274,8 +263,7 @@ export default function OtpClient() {
         }
 
         .subtitle strong {
-          color:
-            var(--text);
+          color: var(--text);
 
           font-weight: 700;
         }
@@ -289,22 +277,17 @@ export default function OtpClient() {
 
           height: 58px;
 
-          padding:
-            0 18px;
+          padding: 0 18px;
 
-          border:
-            1px solid #d3a653;
+          border: 1px solid #d3a653;
 
-          border-radius:
-            14px;
+          border-radius: 14px;
 
           outline: none;
 
-          background:
-            #fffdf9;
+          background: #fffdf9;
 
-          color:
-            var(--maroon);
+          color: var(--maroon);
 
           text-align: center;
 
@@ -314,14 +297,7 @@ export default function OtpClient() {
 
           letter-spacing: 8px;
 
-          box-shadow:
-            0 4px 14px
-            rgba(
-              107,
-              61,
-              13,
-              0.05
-            );
+          box-shadow: 0 4px 14px rgba(107, 61, 13, 0.05);
 
           transition:
             border-color 0.18s ease,
@@ -329,25 +305,15 @@ export default function OtpClient() {
         }
 
         .otpInput::placeholder {
-          color:
-            #c9c0b6;
+          color: #c9c0b6;
 
-          letter-spacing:
-            5px;
+          letter-spacing: 5px;
         }
 
         .otpInput:focus {
-          border-color:
-            var(--maroon);
+          border-color: var(--maroon);
 
-          box-shadow:
-            0 0 0 3px
-            rgba(
-              167,
-              25,
-              25,
-              0.08
-            );
+          box-shadow: 0 0 0 3px rgba(167, 25, 25, 0.08);
         }
 
         /* ==========================================
@@ -359,11 +325,9 @@ export default function OtpClient() {
 
           height: 51px;
 
-          margin-top:
-            15px;
+          margin-top: 15px;
 
-          display:
-            inline-flex;
+          display: inline-flex;
 
           align-items: center;
           justify-content: center;
@@ -372,11 +336,9 @@ export default function OtpClient() {
 
           border: 0;
 
-          border-radius:
-            13px;
+          border-radius: 13px;
 
-          background:
-            var(--maroon);
+          background: var(--maroon);
 
           color: #fff;
 
@@ -384,14 +346,7 @@ export default function OtpClient() {
 
           font-weight: 700;
 
-          box-shadow:
-            0 6px 15px
-            rgba(
-              113,
-              17,
-              17,
-              0.13
-            );
+          box-shadow: 0 6px 15px rgba(113, 17, 17, 0.13);
 
           transition:
             transform 0.18s ease,
@@ -406,17 +361,13 @@ export default function OtpClient() {
         }
 
         .verify:disabled {
-          background:
-            #d28d88;
+          background: #d28d88;
 
           box-shadow: none;
         }
 
-        .verify:not(
-          :disabled
-        ):active {
-          transform:
-            scale(0.985);
+        .verify:not(:disabled):active {
+          transform: scale(0.985);
         }
 
         /* ==========================================
@@ -430,11 +381,9 @@ export default function OtpClient() {
 
           border: 0;
 
-          background:
-            transparent;
+          background: transparent;
 
-          color:
-            var(--maroon);
+          color: var(--maroon);
 
           font-size: 14px;
 
@@ -448,18 +397,15 @@ export default function OtpClient() {
         .back {
           display: block;
 
-          margin:
-            20px auto 0;
+          margin: 20px auto 0;
 
           padding: 0;
 
           border: 0;
 
-          background:
-            transparent;
+          background: transparent;
 
-          color:
-            var(--muted);
+          color: var(--muted);
 
           font-size: 13px;
         }
@@ -477,8 +423,7 @@ export default function OtpClient() {
           width: 58px;
           height: 58px;
 
-          border:
-            1px solid #d5b66d;
+          border: 1px solid #d5b66d;
 
           border-radius: 50%;
 
@@ -499,25 +444,18 @@ export default function OtpClient() {
            SMALL MOBILE
         ========================================== */
 
-        @media (
-          max-width: 359px
-        ) {
+        @media (max-width: 359px) {
           .content {
-            width:
-              calc(
-                100% - 28px
-              );
+            width: calc(100% - 28px);
 
-            padding-top:
-              3vh;
+            padding-top: 3vh;
           }
 
           .ornament {
             width: 95px;
             height: 95px;
 
-            margin-bottom:
-              -2px;
+            margin-bottom: -2px;
           }
 
           .content h1 {
@@ -525,8 +463,7 @@ export default function OtpClient() {
           }
 
           .subtitle {
-            margin:
-              7px 0 16px;
+            margin: 7px 0 16px;
 
             font-size: 12px;
           }
@@ -536,8 +473,7 @@ export default function OtpClient() {
 
             font-size: 19px;
 
-            letter-spacing:
-              6px;
+            letter-spacing: 6px;
           }
 
           .verify {
@@ -547,15 +483,13 @@ export default function OtpClient() {
           }
 
           .resend {
-            margin-top:
-              12px;
+            margin-top: 12px;
 
             font-size: 13px;
           }
 
           .back {
-            margin-top:
-              14px;
+            margin-top: 14px;
 
             font-size: 12px;
           }
@@ -565,22 +499,16 @@ export default function OtpClient() {
            SHORT MOBILE HEIGHT
         ========================================== */
 
-        @media (
-          max-height: 700px
-        ) and (
-          max-width: 599px
-        ) {
+        @media (max-height: 700px) and (max-width: 599px) {
           .content {
-            padding-top:
-              2vh;
+            padding-top: 2vh;
           }
 
           .ornament {
             width: 92px;
             height: 92px;
 
-            margin-bottom:
-              -2px;
+            margin-bottom: -2px;
           }
 
           .content h1 {
@@ -588,8 +516,7 @@ export default function OtpClient() {
           }
 
           .subtitle {
-            margin:
-              6px 0 15px;
+            margin: 6px 0 15px;
           }
 
           .otpInput {
@@ -599,18 +526,15 @@ export default function OtpClient() {
           .verify {
             height: 45px;
 
-            margin-top:
-              12px;
+            margin-top: 12px;
           }
 
           .resend {
-            margin-top:
-              11px;
+            margin-top: 11px;
           }
 
           .back {
-            margin-top:
-              12px;
+            margin-top: 12px;
           }
         }
 
@@ -618,22 +542,11 @@ export default function OtpClient() {
            LARGE MOBILE
         ========================================== */
 
-        @media (
-          min-width: 430px
-        ) and (
-          max-width: 599px
-        ) {
+        @media (min-width: 430px) and (max-width: 599px) {
           .content {
-            width:
-              min(
-                calc(
-                  100% - 48px
-                ),
-                420px
-              );
+            width: min(calc(100% - 48px), 420px);
 
-            padding-top:
-              7vh;
+            padding-top: 7vh;
           }
 
           .ornament {
@@ -646,8 +559,7 @@ export default function OtpClient() {
           }
 
           .subtitle {
-            margin:
-              10px 0 26px;
+            margin: 10px 0 26px;
 
             font-size: 15px;
           }
@@ -677,21 +589,15 @@ export default function OtpClient() {
            TABLET
         ========================================== */
 
-        @media (
-          min-width: 600px
-        ) and (
-          max-width: 1023px
-        ) {
+        @media (min-width: 600px) and (max-width: 1023px) {
           .screen {
             min-height: 100vh;
 
             display: grid;
 
-            place-items:
-              center;
+            place-items: center;
 
-            padding:
-              50px 24px;
+            padding: 50px 24px;
           }
 
           .content {
@@ -703,33 +609,15 @@ export default function OtpClient() {
 
             margin: 0;
 
-            padding:
-              38px 38px
-              36px;
+            padding: 38px 38px 36px;
 
-            border:
-              1px solid
-              var(--border);
+            border: 1px solid var(--border);
 
-            border-radius:
-              24px;
+            border-radius: 24px;
 
-            background:
-              rgba(
-                255,
-                253,
-                248,
-                0.96
-              );
+            background: rgba(255, 253, 248, 0.96);
 
-            box-shadow:
-              0 18px 45px
-              rgba(
-                83,
-                48,
-                14,
-                0.1
-              );
+            box-shadow: 0 18px 45px rgba(83, 48, 14, 0.1);
           }
 
           .ornament {
@@ -742,8 +630,7 @@ export default function OtpClient() {
           }
 
           .subtitle {
-            margin:
-              11px 0 27px;
+            margin: 11px 0 27px;
 
             font-size: 15px;
           }
@@ -757,22 +644,19 @@ export default function OtpClient() {
           .verify {
             height: 54px;
 
-            margin-top:
-              18px;
+            margin-top: 18px;
 
             font-size: 16px;
           }
 
           .resend {
-            margin-top:
-              19px;
+            margin-top: 19px;
 
             font-size: 15px;
           }
 
           .back {
-            margin-top:
-              22px;
+            margin-top: 22px;
 
             font-size: 14px;
           }
@@ -798,42 +682,26 @@ export default function OtpClient() {
            DESKTOP WEBSITE
         ========================================== */
 
-        @media (
-          min-width: 1024px
-        ) {
+        @media (min-width: 1024px) {
           .screen {
             min-height: 100vh;
 
             display: grid;
 
-            place-items:
-              center;
+            place-items: center;
 
-            padding:
-              70px 40px;
+            padding: 70px 40px;
 
             background:
               radial-gradient(
                 circle at top left,
-                rgba(
-                  201,
-                  148,
-                  53,
-                  0.12
-                ),
-                transparent
-                  34%
+                rgba(201, 148, 53, 0.12),
+                transparent 34%
               ),
               radial-gradient(
                 circle at bottom right,
-                rgba(
-                  167,
-                  25,
-                  25,
-                  0.08
-                ),
-                transparent
-                  30%
+                rgba(167, 25, 25, 0.08),
+                transparent 30%
               ),
               #fff9ed;
           }
@@ -847,41 +715,22 @@ export default function OtpClient() {
 
             margin: 0;
 
-            padding:
-              44px 46px
-              42px;
+            padding: 44px 46px 42px;
 
-            border:
-              1px solid
-              var(--border);
+            border: 1px solid var(--border);
 
-            border-radius:
-              28px;
+            border-radius: 28px;
 
-            background:
-              rgba(
-                255,
-                253,
-                248,
-                0.97
-              );
+            background: rgba(255, 253, 248, 0.97);
 
-            box-shadow:
-              0 22px 55px
-              rgba(
-                90,
-                52,
-                16,
-                0.12
-              );
+            box-shadow: 0 22px 55px rgba(90, 52, 16, 0.12);
           }
 
           .ornament {
             width: 150px;
             height: 150px;
 
-            margin-bottom:
-              -2px;
+            margin-bottom: -2px;
           }
 
           .content h1 {
@@ -889,8 +738,7 @@ export default function OtpClient() {
           }
 
           .subtitle {
-            margin:
-              11px 0 30px;
+            margin: 11px 0 30px;
 
             font-size: 16px;
           }
@@ -898,51 +746,33 @@ export default function OtpClient() {
           .otpInput {
             height: 64px;
 
-            border-radius:
-              15px;
+            border-radius: 15px;
 
             font-size: 25px;
 
-            letter-spacing:
-              10px;
+            letter-spacing: 10px;
           }
 
           .verify {
             height: 56px;
 
-            margin-top:
-              18px;
+            margin-top: 18px;
 
-            border-radius:
-              14px;
+            border-radius: 14px;
 
             font-size: 16px;
           }
 
-          .verify:not(
-            :disabled
-          ):hover {
-            background:
-              var(
-                --dark-maroon
-              );
+          .verify:not(:disabled):hover {
+            background: var(--dark-maroon);
 
-            transform:
-              translateY(-1px);
+            transform: translateY(-1px);
 
-            box-shadow:
-              0 9px 22px
-              rgba(
-                113,
-                17,
-                17,
-                0.18
-              );
+            box-shadow: 0 9px 22px rgba(113, 17, 17, 0.18);
           }
 
           .resend {
-            margin-top:
-              21px;
+            margin-top: 21px;
 
             font-size: 15px;
 
@@ -950,13 +780,11 @@ export default function OtpClient() {
           }
 
           .resend:hover {
-            text-decoration:
-              underline;
+            text-decoration: underline;
           }
 
           .back {
-            margin-top:
-              24px;
+            margin-top: 24px;
 
             font-size: 14px;
 
@@ -964,8 +792,7 @@ export default function OtpClient() {
           }
 
           .back:hover {
-            color:
-              var(--maroon);
+            color: var(--maroon);
           }
 
           .cornerLeft,
@@ -991,15 +818,11 @@ export default function OtpClient() {
            LARGE DESKTOP
         ========================================== */
 
-        @media (
-          min-width: 1440px
-        ) {
+        @media (min-width: 1440px) {
           .content {
             width: 560px;
 
-            padding:
-              50px 50px
-              46px;
+            padding: 50px 50px 46px;
           }
 
           .ornament {

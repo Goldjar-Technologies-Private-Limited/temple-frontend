@@ -2,15 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import CommonHeader from "@/components/layout/CommonHeader"
+import CommonHeader from "@/components/layout/CommonHeader";
 /* =========================================================
    TYPES
 ========================================================= */
 
-type DonationStatus =
-  | "successful"
-  | "pending"
-  | "failed";
+type DonationStatus = "successful" | "pending" | "failed";
 
 type Donation = {
   id: string;
@@ -119,11 +116,9 @@ export default function MyDonationsPage() {
      STATE
   ======================================================= */
 
-  const [donations] =
-    useState<Donation[]>(dummyDonations);
+  const [donations] = useState<Donation[]>(dummyDonations);
 
-  const [activeFilter, setActiveFilter] =
-    useState<FilterType>("all");
+  const [activeFilter, setActiveFilter] = useState<FilterType>("all");
 
   /* =======================================================
      FILTER DONATIONS
@@ -134,10 +129,7 @@ export default function MyDonationsPage() {
       return donations;
     }
 
-    return donations.filter(
-      (donation) =>
-        donation.status === activeFilter
-    );
+    return donations.filter((donation) => donation.status === activeFilter);
   }, [activeFilter, donations]);
 
   /* =======================================================
@@ -145,10 +137,7 @@ export default function MyDonationsPage() {
   ======================================================= */
 
   const successfulDonations = useMemo(() => {
-    return donations.filter(
-      (donation) =>
-        donation.status === "successful"
-    );
+    return donations.filter((donation) => donation.status === "successful");
   }, [donations]);
 
   /* =======================================================
@@ -157,9 +146,8 @@ export default function MyDonationsPage() {
 
   const totalDonated = useMemo(() => {
     return successfulDonations.reduce(
-      (total, donation) =>
-        total + Number(donation.amount || 0),
-      0
+      (total, donation) => total + Number(donation.amount || 0),
+      0,
     );
   }, [successfulDonations]);
 
@@ -168,9 +156,7 @@ export default function MyDonationsPage() {
   ======================================================= */
 
   const formatPrice = (amount: number) => {
-    return Number(amount || 0).toLocaleString(
-      "en-IN"
-    );
+    return Number(amount || 0).toLocaleString("en-IN");
   };
 
   /* =======================================================
@@ -190,17 +176,16 @@ export default function MyDonationsPage() {
         lg:pb-12
       "
     >
-     
-{/* COMMON HEADER */}
-<CommonHeader
-  title="My Donations"
-  subtitle="Shri Govardhannath Haveli"
-  backHref="/dashboard"
-  rightAction={
-    <button
-      type="button"
-      onClick={() => router.push("/seva-donation")}
-      className="
+      {/* COMMON HEADER */}
+      <CommonHeader
+        title="My Donations"
+        subtitle="Shri Govardhannath Haveli"
+        backHref="/dashboard"
+        rightAction={
+          <button
+            type="button"
+            onClick={() => router.push("/seva-donation")}
+            className="
         hidden
         min-h-[42px]
         items-center
@@ -217,13 +202,12 @@ export default function MyDonationsPage() {
         active:scale-[0.98]
         lg:flex
       "
-    >
-      <HeartIcon />
-      Make a Donation
-    </button>
-  }
-/>
-
+          >
+            <HeartIcon />
+            Make a Donation
+          </button>
+        }
+      />
 
       {/* ===================================================
           HERO / SUMMARY
@@ -284,7 +268,6 @@ export default function MyDonationsPage() {
                 "
               >
                 <HeartIcon />
-
                 Seva Through Giving
               </span>
 
@@ -303,8 +286,7 @@ export default function MyDonationsPage() {
                   lg:text-[36px]
                 "
               >
-                Your contribution supports
-                temple seva
+                Your contribution supports temple seva
               </h2>
 
               <p
@@ -321,9 +303,8 @@ export default function MyDonationsPage() {
                   lg:leading-6
                 "
               >
-                View your donation history,
-                payment status and receipts in
-                one place.
+                View your donation history, payment status and receipts in one
+                place.
               </p>
             </div>
 
@@ -338,9 +319,7 @@ export default function MyDonationsPage() {
             >
               <SummaryCard
                 label="Total Donated"
-                value={`₹${formatPrice(
-                  totalDonated
-                )}`}
+                value={`₹${formatPrice(totalDonated)}`}
                 icon="₹"
               />
 
@@ -424,8 +403,7 @@ export default function MyDonationsPage() {
                 sm:text-[11px]
               "
             >
-              Track all your temple
-              contributions.
+              Track all your temple contributions.
             </p>
           </div>
 
@@ -451,27 +429,20 @@ export default function MyDonationsPage() {
               "
             >
               {filters.map((filter) => {
-                const active =
-                  activeFilter === filter.key;
+                const active = activeFilter === filter.key;
 
                 const count =
                   filter.key === "all"
                     ? donations.length
                     : donations.filter(
-                        (donation) =>
-                          donation.status ===
-                          filter.key
+                        (donation) => donation.status === filter.key,
                       ).length;
 
                 return (
                   <button
                     key={filter.key}
                     type="button"
-                    onClick={() =>
-                      setActiveFilter(
-                        filter.key
-                      )
-                    }
+                    onClick={() => setActiveFilter(filter.key)}
                     className={`
                       flex
                       min-h-[37px]
@@ -546,21 +517,14 @@ export default function MyDonationsPage() {
               xl:grid-cols-3
             "
           >
-            {filteredDonations.map(
-              (donation) => (
-                <DonationCard
-                  key={donation.id}
-                  donation={donation}
-                />
-              )
-            )}
+            {filteredDonations.map((donation) => (
+              <DonationCard key={donation.id} donation={donation} />
+            ))}
           </section>
         ) : (
           <EmptyState
             filter={activeFilter}
-            onDonate={() =>
-              router.push("/seva-donation")
-            }
+            onDonate={() => router.push("/seva-donation")}
           />
         )}
 
@@ -623,9 +587,7 @@ export default function MyDonationsPage() {
       >
         <button
           type="button"
-          onClick={() =>
-            router.push("/seva-donation")
-          }
+          onClick={() => router.push("/seva-donation")}
           className="
             mx-auto
             flex
@@ -646,7 +608,6 @@ export default function MyDonationsPage() {
           "
         >
           <HeartIcon />
-
           Make a Donation
         </button>
       </div>
@@ -658,15 +619,9 @@ export default function MyDonationsPage() {
    DONATION CARD
 ========================================================= */
 
-function DonationCard({
-  donation,
-}: {
-  donation: Donation;
-}) {
+function DonationCard({ donation }: { donation: Donation }) {
   const formatPrice = (amount: number) => {
-    return Number(amount || 0).toLocaleString(
-      "en-IN"
-    );
+    return Number(amount || 0).toLocaleString("en-IN");
   };
 
   return (
@@ -749,9 +704,7 @@ function DonationCard({
           </div>
         </div>
 
-        <StatusBadge
-          status={donation.status}
-        />
+        <StatusBadge status={donation.status} />
       </div>
 
       {/* BODY */}
@@ -789,10 +742,7 @@ function DonationCard({
                 text-[#a71919]
               "
             >
-              ₹
-              {formatPrice(
-                donation.amount
-              )}
+              ₹{formatPrice(donation.amount)}
             </strong>
           </div>
 
@@ -818,25 +768,13 @@ function DonationCard({
             p-3
           "
         >
-          <DetailRow
-            label="Donation ID"
-            value={donation.id}
-          />
+          <DetailRow label="Donation ID" value={donation.id} />
 
-          <DetailRow
-            label="Transaction ID"
-            value={donation.transactionId}
-          />
+          <DetailRow label="Transaction ID" value={donation.transactionId} />
 
-          <DetailRow
-            label="Payment"
-            value={donation.paymentMethod}
-          />
+          <DetailRow label="Payment" value={donation.paymentMethod} />
 
-          <DetailRow
-            label="Donor"
-            value={donation.donorName}
-          />
+          <DetailRow label="Donor" value={donation.donorName} />
         </div>
 
         {/* ACTION */}
@@ -863,19 +801,14 @@ function DonationCard({
             "
           >
             <TempleSmallIcon />
-
             Shri Govardhannath
           </span>
 
-          {donation.status ===
-            "successful" && (
+          {donation.status === "successful" && (
             <button
               type="button"
               onClick={() => {
-                console.log(
-                  "Download receipt:",
-                  donation.id
-                );
+                console.log("Download receipt:", donation.id);
               }}
               className="
                 flex
@@ -890,7 +823,6 @@ function DonationCard({
               "
             >
               <ReceiptIcon />
-
               Receipt
             </button>
           )}
@@ -929,20 +861,13 @@ function DonationCard({
    STATUS
 ========================================================= */
 
-function StatusBadge({
-  status,
-}: {
-  status: DonationStatus;
-}) {
+function StatusBadge({ status }: { status: DonationStatus }) {
   const styles = {
-    successful:
-      "border-[#cde4d1] bg-[#eff8f0] text-[#347243]",
+    successful: "border-[#cde4d1] bg-[#eff8f0] text-[#347243]",
 
-    pending:
-      "border-[#ead19d] bg-[#fff5dd] text-[#9a6514]",
+    pending: "border-[#ead19d] bg-[#fff5dd] text-[#9a6514]",
 
-    failed:
-      "border-[#efd0cb] bg-[#fff1ef] text-[#a23a32]",
+    failed: "border-[#efd0cb] bg-[#fff1ef] text-[#a23a32]",
   };
 
   const labels = {
@@ -1045,13 +970,7 @@ function SummaryCard({
    DETAIL ROW
 ========================================================= */
 
-function DetailRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div
       className="
@@ -1125,17 +1044,11 @@ function InfoCard({
           text-[#a71919]
         "
       >
-        {icon === "shield" && (
-          <ShieldIcon />
-        )}
+        {icon === "shield" && <ShieldIcon />}
 
-        {icon === "receipt" && (
-          <ReceiptIcon />
-        )}
+        {icon === "receipt" && <ReceiptIcon />}
 
-        {icon === "heart" && (
-          <HeartIcon />
-        )}
+        {icon === "heart" && <HeartIcon />}
       </div>
 
       <div>
@@ -1255,24 +1168,6 @@ function EmptyState({
 /* =========================================================
    ICONS
 ========================================================= */
-
-function BackIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="h-[18px] w-[18px]"
-    >
-      <path
-        d="m15 18-6-6 6-6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 function HeartIcon() {
   return (
