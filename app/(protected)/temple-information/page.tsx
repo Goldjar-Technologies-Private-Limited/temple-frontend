@@ -3,7 +3,32 @@
 import { useRouter } from "next/navigation";
 import CommonHeader from "@/components/layout/CommonHeader";
 
-import { TEMPLE_FACILITIES as facilities } from "@/data/temple";
+/* =========================================================
+   DATA
+========================================================= */
+
+const facilities = [
+  {
+    icon: "darshan",
+    title: "Darshan",
+    description: "Sacred darshan for devotees",
+  },
+  {
+    icon: "seva",
+    title: "Seva",
+    description: "Participate in temple seva",
+  },
+  {
+    icon: "prasadam",
+    title: "Prasadam",
+    description: "Receive blessed prasadam",
+  },
+  {
+    icon: "donation",
+    title: "Donation",
+    description: "Support temple activities",
+  },
+];
 
 /* =========================================================
    PAGE
@@ -14,109 +39,81 @@ export default function TempleInformationPage() {
 
   return (
     <main className="min-h-[100dvh] overflow-x-hidden bg-[#fffaf1] pb-[105px] text-[#40372f] lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-12">
-      {/* ===================================================
-          MOBILE HEADER
-      =================================================== */}
-
-      <header className="sticky top-0 z-40 border-b border-[#eadfce] bg-[#fffaf1]/95 backdrop-blur-md lg:hidden">
-        <div className="flex min-h-[64px] items-center gap-3 px-4">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label="Go back"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#ead7b8] bg-white text-[#a71919] shadow-sm active:scale-95"
-          ></button>
-
-          <div className="min-w-0">
-            <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#bd8b39]">
-              Shri Govardhannath
-            </p>
-
-            <h1 className="truncate text-[19px] font-bold text-[#641010]">
-              Temple Information
-            </h1>
-          </div>
-        </div>
-      </header>
+      {/* COMMON HEADER - ALL SCREEN SIZES */}
+      <CommonHeader
+        title="Temple Information"
+        subtitle="Shri Govardhannath Haveli"
+        backHref="/dashboard"
+      />
 
       {/* ===================================================
           COMPACT HERO - SAME WIDTH AS PAGE CONTENT
       =================================================== */}
 
-      <section className="relative overflow-hidden bg-[linear-gradient(145deg,#711313_0%,#941b18_50%,#bd5629_100%)] text-white lg:min-h-[330px]">
-        {/* BACKGROUND DECORATION */}
+      <div className="mx-auto w-full max-w-[1400px] px-3 pt-4 sm:px-5 sm:pt-5 md:px-6 lg:px-8 lg:pt-6 xl:px-10">
+        <section className="relative isolate overflow-hidden rounded-2xl border border-[#8e3025]/20 bg-[linear-gradient(120deg,#641010_0%,#851817_55%,#a83d25_100%)] text-white shadow-[0_8px_24px_rgba(100,16,16,0.10)] sm:rounded-[20px]">
+          {/* Decorative background */}
+          <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-12 -z-10 h-36 w-36 rounded-full border border-white/10 bg-white/[0.04] sm:h-48 sm:w-48 lg:h-56 lg:w-56" />
 
-        <div
-          aria-hidden="true"
-          className="absolute -right-20 -top-24 h-[260px] w-[260px] rounded-full border border-white/10 bg-white/[0.035] lg:h-[400px] lg:w-[400px]"
-        />
+          <div aria-hidden="true" className="pointer-events-none absolute -bottom-16 left-[35%] -z-10 h-32 w-32 rounded-full bg-[#efc56f]/10 blur-sm sm:h-40 sm:w-40" />
 
-        <div
-          aria-hidden="true"
-          className="absolute -bottom-28 left-[12%] h-[230px] w-[230px] rounded-full bg-[#efc56f]/10"
-        />
+          {/* Hero content */}
+          <div className="relative flex items-center justify-between gap-3 px-4 py-4 sm:gap-5 sm:px-6 sm:py-5 lg:px-8 lg:py-6">
+            <div className="min-w-0 flex-1">
+              <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.08] px-2.5 py-1 text-[9px] font-semibold tracking-[0.1em] text-[#ffe5af] sm:text-[10px]">
+                <span aria-hidden="true">🙏</span>
+                JAI SHREE KRISHNA
+              </div>
 
-        <div className="relative z-10 mx-auto flex w-full max-w-[1400px] flex-col px-4 py-8 sm:px-6 sm:py-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:px-10 lg:py-14 xl:px-12">
-          {/* HERO CONTENT */}
+              <h1 className="font-serif text-[23px] font-bold leading-tight tracking-tight sm:text-[30px] lg:text-[36px]">
+                Shri Govardhannath
+                <span className="ml-1.5 text-[#f2cc7d]">Haveli</span>
+              </h1>
 
-          <div className="max-w-[680px]">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[9px] font-semibold tracking-[0.08em] text-[#ffe5af] lg:text-[10px]">
-              <span>🙏</span>
-              JAI SHREE KRISHNA
+              <p className="mt-2 max-w-[590px] text-[11px] leading-5 text-white/80 sm:text-xs sm:leading-6 lg:text-sm">
+                A sacred place of devotion, seva and spiritual connection dedicated to Shri Govardhannathji.
+              </p>
+
+              {/* Hero buttons */}
+              <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
+                <button
+                  type="button"
+                  onClick={() => router.push("/live-darshan")}
+                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#f2c66d] px-3 text-[10px] font-bold text-[#671515] shadow-sm transition hover:bg-[#f7d384] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:px-4 sm:text-xs"
+                >
+                  <PlayIcon />
+                  Live Darshan
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => router.push("/darshan-timings")}
+                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/[0.07] px-3 text-[10px] font-bold text-white transition hover:bg-white/[0.14] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:px-4 sm:text-xs"
+                >
+                  <ClockIcon />
+                  Darshan Timings
+                </button>
+              </div>
             </div>
 
-            <h1 className="text-[29px] font-bold leading-tight sm:text-[34px] lg:text-[45px] xl:text-[50px]">
-              Shri Govardhannath
-              <span className="mt-1 block text-[#f2cc7d]">Haveli</span>
-            </h1>
-
-            <p className="mt-4 max-w-[600px] text-[12px] leading-6 text-white/80 sm:text-[13px] lg:text-[15px] lg:leading-7">
-              A sacred place of devotion, seva and spiritual connection
-              dedicated to Shri Govardhannathji.
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => router.push("/live-darshan")}
-                className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[#f2c66d] px-5 text-[11px] font-bold text-[#671515] shadow-lg transition hover:bg-[#f7d384] active:scale-[0.98] lg:min-h-[48px] lg:px-6 lg:text-xs"
-              >
-                <PlayIcon />
-                Live Darshan
-              </button>
-
-              <button
-                type="button"
-                onClick={() => router.push("/darshan-timings")}
-                className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 text-[11px] font-bold text-white transition hover:bg-white/15 active:scale-[0.98] lg:min-h-[48px] lg:px-6 lg:text-xs"
-              >
-                <ClockIcon />
-                Darshan Timings
-              </button>
-            </div>
-          </div>
-
-          {/* TEMPLE SYMBOL */}
-
-          <div className="mt-8 hidden shrink-0 lg:block">
-            <div className="grid h-[190px] w-[190px] place-items-center rounded-full border border-[#f1cd84]/30 bg-white/[0.07] shadow-[0_20px_50px_rgba(40,10,5,0.2)] xl:h-[210px] xl:w-[210px]">
-              <div className="grid h-[150px] w-[150px] place-items-center rounded-full border border-[#f1cd84]/30 bg-[#fff8e9]/10 text-[76px] xl:h-[165px] xl:w-[165px] xl:text-[84px]">
-                🛕
+            {/* Temple symbol */}
+            <div aria-hidden="true" className="hidden shrink-0 sm:block">
+              <div className="grid h-[68px] w-[68px] place-items-center rounded-full border border-[#f1cd84]/30 bg-white/[0.06] sm:h-[78px] sm:w-[78px] lg:h-[94px] lg:w-[94px]">
+                <div className="grid h-[54px] w-[54px] place-items-center rounded-full border border-[#f1cd84]/30 bg-[#fff8e9]/10 text-[27px] sm:h-[62px] sm:w-[62px] sm:text-[32px] lg:h-[76px] lg:w-[76px] lg:text-[38px]">
+                  🛕
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       {/* ===================================================
           PAGE CONTENT
       =================================================== */}
 
-      <div className="mx-auto w-full max-w-[1400px] px-3 py-5 sm:px-5 sm:py-7 md:px-6 lg:px-8 lg:py-9 xl:px-10">
-        {/* =================================================
-            QUICK INFO
-        ================================================= */}
-
+      <div className="mx-auto w-full max-w-[1400px] px-3 py-5 sm:px-5 sm:py-7 md:px-6 lg:px-8 lg:py-8 xl:px-10">
+        {/* QUICK INFO */}
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:gap-5">
           <QuickInfoCard
             icon="location"
@@ -133,13 +130,8 @@ export default function TempleInformationPage() {
           <QuickInfoCard icon="phone" label="Contact" value="Temple Office" />
         </section>
 
-        {/* =================================================
-            ABOUT + TIMINGS
-        ================================================= */}
-
-        <div className="mt-5 grid grid-cols-1 gap-5 lg:mt-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(330px,0.6fr)] lg:items-start lg:gap-7">
-          {/* ABOUT */}
-
+        {/* ABOUT */}
+        <div className="mt-5 grid grid-cols-1 gap-5 lg:mt-7 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)] lg:items-start lg:gap-7">
           <section className="rounded-[18px] border border-[#eadfce] bg-[#fffdf9] p-4 shadow-[0_6px_24px_rgba(76,42,16,0.045)] sm:p-5 lg:rounded-[20px] lg:p-7">
             <SectionHeading
               eyebrow="ABOUT THE TEMPLE"
@@ -149,44 +141,37 @@ export default function TempleInformationPage() {
 
             <div className="mt-4 space-y-3 text-[12px] leading-6 text-[#71665d] sm:text-[13px] lg:text-sm lg:leading-7">
               <p>
-                Shri Govardhannath Haveli is a sacred place where devotees come
-                together for darshan, seva, prayer and spiritual devotion.
+                Shri Govardhannath Haveli is a sacred place where devotees come together for darshan, seva, prayer and spiritual devotion.
               </p>
 
               <p>
-                The Haveli provides devotees with access to darshan information,
-                seva and donation services, prasadam, important temple updates
-                and religious events.
+                The Haveli provides devotees with access to darshan information, seva and donation services, prasadam, important temple updates and religious events.
               </p>
 
               <p>
-                Devotees can use this application to stay connected with temple
-                activities and access important services from one place.
+                Devotees can use this application to stay connected with temple activities and access important services from one place.
               </p>
             </div>
 
             {/* QUOTE */}
-
             <div className="mt-5 rounded-xl border-l-[3px] border-[#b52a20] bg-[#fff4e3] px-4 py-3">
-              <p className="text-[13px] font-semibold leading-6 text-[#6e321d] sm:text-sm">
-                “Seva, Bhakti and Darshan bring the devotee closer to Shri
-                Govardhannathji.”
+              <p className="font-serif text-[13px] font-semibold leading-6 text-[#6e321d] sm:text-sm">
+                “Seva, Bhakti and Darshan bring the devotee closer to Shri Govardhannathji.”
               </p>
             </div>
           </section>
         </div>
 
         {/* FACILITIES */}
-
-        <section className="mt-6 lg:mt-9">
+        <section className="mt-6 lg:mt-8">
           <div className="mb-4 flex items-end justify-between gap-4">
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#b78a3d]">
                 TEMPLE SERVICES
               </p>
 
-              <h2 className="mt-1 text-xl font-bold text-[#641010] lg:text-[27px]">
-                Facilities & Services
+              <h2 className="mt-1 font-serif text-xl font-bold text-[#641010] lg:text-[27px]">
+                Facilities &amp; Services
               </h2>
             </div>
           </div>
@@ -214,8 +199,7 @@ export default function TempleInformationPage() {
         </section>
 
         {/* IMPORTANT INFORMATION */}
-
-        <section className="mt-6 rounded-[18px] border border-[#eadfce] bg-[#fffdf9] p-4 sm:p-5 lg:mt-9 lg:p-7">
+        <section className="mt-6 rounded-[18px] border border-[#eadfce] bg-[#fffdf9] p-4 sm:p-5 lg:mt-8 lg:p-7">
           <SectionHeading
             eyebrow="FOR DEVOTEES"
             title="Important Information"
@@ -262,17 +246,15 @@ export default function TempleInformationPage() {
         </section>
 
         {/* CONTACT / LOCATION */}
-
-        <section className="mt-6 overflow-hidden rounded-[20px] border border-[#e5d2b2] bg-[linear-gradient(135deg,#fff4df_0%,#fffaf1_100%)] lg:mt-9">
+        <section className="mt-6 overflow-hidden rounded-[20px] border border-[#e5d2b2] bg-[linear-gradient(135deg,#fff4df_0%,#fffaf1_100%)] lg:mt-8">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_0.8fr]">
-            {/* CONTACT */}
-
+            {/* CONTACT DETAILS */}
             <div className="p-5 sm:p-6 lg:p-8">
               <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#b78a3d]">
                 VISIT US
               </p>
 
-              <h2 className="mt-1 text-xl font-bold text-[#641010] lg:text-[28px]">
+              <h2 className="mt-1 font-serif text-xl font-bold text-[#641010] lg:text-[28px]">
                 Temple Location
               </h2>
 
@@ -298,16 +280,19 @@ export default function TempleInformationPage() {
             </div>
 
             {/* DECORATIVE TEMPLE PANEL */}
+            <div className="relative hidden min-h-[240px] overflow-hidden bg-[linear-gradient(145deg,#7a1514,#ad3c20)] lg:grid lg:place-items-center">
+              <div aria-hidden="true" className="absolute -right-14 -top-16 h-52 w-52 rounded-full border border-white/10" />
 
-            <div className="relative hidden min-h-[270px] overflow-hidden bg-[linear-gradient(145deg,#7a1514,#ad3c20)] lg:grid lg:place-items-center">
-              <div className="absolute -right-14 -top-16 h-52 w-52 rounded-full border border-white/10" />
+              <div aria-hidden="true" className="absolute -bottom-16 -left-10 h-44 w-44 rounded-full border border-[#f0c878]/20" />
 
               <div className="relative z-10 text-center text-white">
                 <div className="mx-auto grid h-24 w-24 place-items-center rounded-full border border-[#f0c878]/30 bg-white/10 text-5xl">
                   🛕
                 </div>
 
-                <p className="mt-4 text-lg font-bold">Shri Govardhannath</p>
+                <p className="mt-4 font-serif text-lg font-bold">
+                  Shri Govardhannath
+                </p>
 
                 <p className="mt-1 text-[10px] tracking-[0.12em] text-[#f4d99f]">
                   JAI SHREE KRISHNA
@@ -318,21 +303,16 @@ export default function TempleInformationPage() {
         </section>
 
         {/* FOOTER MESSAGE */}
-
-        <div className="mt-6 text-center lg:mt-10">
+        <div className="mt-6 text-center lg:mt-8">
           <div className="flex items-center justify-center gap-2">
             <span className="h-px w-10 bg-[#ddc69b] lg:w-20" />
-
             <span className="text-[#b8893b]">❧</span>
-
             <span className="text-[#b8893b]">❧</span>
-
             <span className="text-[#b8893b]">❧</span>
-
             <span className="h-px w-10 bg-[#ddc69b] lg:w-20" />
           </div>
 
-          <p className="mt-3 text-[13px] font-semibold text-[#7b251e] lg:text-sm">
+          <p className="mt-3 font-serif text-[13px] font-semibold text-[#7b251e] lg:text-sm">
             🙏 Jai Shree Krishna
           </p>
         </div>
@@ -392,12 +372,12 @@ function SectionHeading({
         <SmallIcon name={icon} />
       </div>
 
-      <div>
+      <div className="min-w-0">
         <p className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#b78a3d]">
           {eyebrow}
         </p>
 
-        <h2 className="mt-[1px] text-[18px] font-bold text-[#641010] sm:text-xl lg:text-[23px]">
+        <h2 className="mt-[1px] font-serif text-[18px] font-bold text-[#641010] sm:text-xl lg:text-[23px]">
           {title}
         </h2>
       </div>
@@ -424,7 +404,7 @@ function InformationItem({
         {number}
       </span>
 
-      <div>
+      <div className="min-w-0">
         <h3 className="text-[11px] font-bold text-[#4d433a] lg:text-xs">
           {title}
         </h3>
@@ -456,7 +436,7 @@ function ContactRow({
         <SmallIcon name={icon} />
       </div>
 
-      <div>
+      <div className="min-w-0">
         <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#a08e7d]">
           {label}
         </p>
@@ -507,6 +487,10 @@ function ClockIcon() {
     </svg>
   );
 }
+
+/* =========================================================
+   REUSABLE SMALL ICONS
+========================================================= */
 
 function SmallIcon({ name }: { name: string }) {
   const className = "h-[18px] w-[18px]";
@@ -579,6 +563,7 @@ function SmallIcon({ name }: { name: string }) {
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
+        strokeLinejoin="round"
         className={className}
         aria-hidden="true"
       >
@@ -592,11 +577,19 @@ function SmallIcon({ name }: { name: string }) {
   }
 
   if (name === "flower") {
-    return <span className="text-base">❀</span>;
+    return (
+      <span className="text-base" aria-hidden="true">
+        ❀
+      </span>
+    );
   }
 
-  if (name === "diya") {
-    return <span className="text-base">🪔</span>;
+  if (name === "diya" || name === "prasadam") {
+    return (
+      <span className="text-base" aria-hidden="true">
+        🪔
+      </span>
+    );
   }
 
   if (name === "seva") {
@@ -625,14 +618,6 @@ function SmallIcon({ name }: { name: string }) {
     );
   }
 
-  if (name === "seva") {
-    return <span className="text-base">🙏</span>;
-  }
-
-  if (name === "prasadam") {
-    return <span className="text-base">🪔</span>;
-  }
-
   if (name === "donation") {
     return (
       <svg
@@ -650,7 +635,6 @@ function SmallIcon({ name }: { name: string }) {
     );
   }
 
-  // Default information icon
   return (
     <svg
       viewBox="0 0 24 24"

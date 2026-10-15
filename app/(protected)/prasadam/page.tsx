@@ -21,7 +21,7 @@ type CartItem = {
 type LegacyCart = Record<string, unknown>;
 
 /* =====================================================
-   CONSTANTS
+    CONSTANTS
 ==================================================== */
 
 const CART_STORAGE_KEY = "prasadam-cart";
@@ -40,7 +40,7 @@ const WEIGHT_OPTIONS: {
 ];
 
 /* =====================================================
-   WEIGHT HELPERS
+    WEIGHT HELPERS
 ===================================================== */
 
 function isValidWeight(value: unknown): value is Weight {
@@ -426,7 +426,11 @@ export default function PrasadamPage() {
                 type="button"
                 onClick={() => setCategory(item.id)}
                 aria-pressed={active}
-                className={`shrink-0 rounded-lg border px-4 py-2.5 text-xs font-semibold transition sm:px-5 sm:text-sm ${active ? "border-[#e87519] bg-[#e87519] text-white shadow-sm" : "border-[#e5d7c4] bg-white text-[#66584b] hover:border-[#e87519] hover:text-[#b55d17]"}`}
+                className={`shrink-0 rounded-lg border px-4 py-2.5 text-xs font-semibold transition sm:px-5 sm:text-sm ${
+                  active
+                    ? "border-[#e87519] bg-[#e87519] text-white shadow-sm"
+                    : "border-[#e5d7c4] bg-white text-[#66584b] hover:border-[#e87519] hover:text-[#b55d17]"
+                }`}
               >
                 {t(item.labelKey)}
               </button>
@@ -458,7 +462,10 @@ export default function PrasadamPage() {
 
         {/* PRODUCT GRID */}
 
-        <section className="grid grid-cols-2 gap-3 px-3 sm:grid-cols-4 sm:gap-4 sm:px-5 md:gap-5 md:px-6 lg:grid-cols-6 lg:gap-4 lg:px-8">
+        <section
+          aria-label="Prasadam products"
+          className="grid grid-cols-2 items-stretch gap-3 px-3 sm:grid-cols-3 sm:gap-4 sm:px-5 md:grid-cols-4 md:gap-4 md:px-6 lg:grid-cols-5 lg:gap-4 lg:px-8 xl:grid-cols-6"
+        >
           {filteredProducts.map((product) => {
             const selectedWeight = getSelectedWeight(product.id);
 
@@ -469,19 +476,18 @@ export default function PrasadamPage() {
             return (
               <article
                 key={product.id}
-                className="group relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-[#e8e8e8] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-200 hover:border-[#d8c5a3] hover:shadow-[0_6px_18px_rgba(0,0,0,0.09)]"
+                className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-[#e8e8e8] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-200 hover:border-[#d8c5a3] hover:shadow-[0_6px_18px_rgba(0,0,0,0.09)]"
               >
-                {/* PRODUCT IMAGE — REDUCED HEIGHT */}
+                {/* PRODUCT IMAGE — FIXED SQUARE CONTAINER */}
 
-                <div className="relative flex h-[110px] items-center justify-center overflow-hidden bg-[#faf8f3] p-2 sm:h-[125px] sm:p-3 lg:h-[115px]">
+                <div className="relative flex  w-full shrink-0 items-center justify-center ">
                   <img
                     src={product.image}
                     alt={t(product.titleKey)}
                     loading="lazy"
-                    className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                    decoding="async"
+                    className="h-full w-full rounded-lg object-cover object-center shadow-sm transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transform-none"
                   />
-
-                  {/* CATEGORY BADGE */}
                 </div>
 
                 {/* DETAILS */}
@@ -498,7 +504,13 @@ export default function PrasadamPage() {
                     </h3>
 
                     <span
-                      className={`shrink-0 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[8px] font-semibold sm:text-[9px] ${product.category === "sweets" ? "bg-pink-50 text-pink-700" : product.category === "gifts" ? "bg-purple-50 text-purple-700" : "bg-amber-50 text-amber-700"}`}
+                      className={`shrink-0 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[8px] font-semibold sm:text-[9px] ${
+                        product.category === "sweets"
+                          ? "bg-pink-50 text-pink-700"
+                          : product.category === "gifts"
+                            ? "bg-purple-50 text-purple-700"
+                            : "bg-amber-50 text-amber-700"
+                      }`}
                     >
                       {getProductCategoryLabel(product.category)}
                     </span>
@@ -549,9 +561,7 @@ export default function PrasadamPage() {
 
                       {selectedWeight !== "500g" && (
                         <span className="text-[10px] text-gray-400">
-                          {selectedWeight === "250g"
-                            ? "250 g pack"
-                            : "1 kg pack"}
+                          {selectedWeight === "250g" ? "250 g pack" : "1 kg pack"}
                         </span>
                       )}
                     </div>
@@ -582,10 +592,7 @@ export default function PrasadamPage() {
 
                         <span
                           aria-live="polite"
-                          className="
-                            flex-1 text-center
-                            text-xs font-bold text-gray-800
-                          "
+                          className="flex-1 text-center text-xs font-bold text-gray-800"
                         >
                           {quantity}
                         </span>

@@ -22,7 +22,7 @@ type CartItemData = {
 type CartItem = Product & CartItemData;
 
 /* =====================================================
-   CONSTANTS
+    CONSTANTS
 ===================================================== */
 
 const CART_STORAGE_KEY = "prasadam-cart";
@@ -308,38 +308,37 @@ export default function CartPage() {
                 return (
                   <article
                     key={`${item.productId}-${item.weight}`}
-                    className={`p-3 sm:p-4 lg:p-5 ${index !== cartItems.length - 1 ? "border-b border-[#eee1cf]" : ""}`}
+                    className={`p-3 sm:p-4 lg:p-5 ${
+                      index !== cartItems.length - 1
+                        ? "border-b border-[#eecfcf]"
+                        : ""
+                    }`}
                   >
                     <div className="flex min-w-0 items-start gap-3 sm:gap-4">
-                      {/* IMAGE */}
-
-                      <div className="relative h-[76px] w-[76px] shrink-0 overflow-hidden rounded-xl border border-[#eee1cf] bg-[#f7eddf] sm:h-[100px] sm:w-[100px] lg:h-[120px] lg:w-[120px]">
+                      {/* IMAGE CONTAINER FIXED */}
+                      <div className="relative flex aspect-square h-[76px] w-[76px] shrink-0 items-center justify-center overflow-hidden rounded-xl   sm:h-[100px] sm:w-[100px] lg:h-[120px] lg:w-[120px]">
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="block h-full w-full object-cover object-center"
+                          className="h-full w-full rounded-lg object-cover object-center"
                         />
                       </div>
 
                       {/* INFO */}
-
                       <div className="min-w-0 flex-1">
                         <div className="flex min-w-0 items-start justify-between gap-2">
                           <div className="min-w-0 flex-1">
                             {/* CATEGORY */}
-
                             <span className="block text-[9px] font-bold uppercase tracking-[1px] text-[#c18b32]">
                               Prasadam
                             </span>
 
                             {/* NAME */}
-
                             <h3 className="mt-1 truncate text-[15px] font-bold text-[#4d1616] sm:text-lg">
                               {item.name}
                             </h3>
 
                             {/* WEIGHT */}
-
                             <span className="mt-1 inline-flex rounded-md border border-[#eadbc5] bg-[#fff8ea] px-2 py-1 text-[9px] font-bold text-[#8a641f] sm:text-[10px]">
                               {getWeightLabel(item.weight)}
                             </span>
@@ -369,11 +368,9 @@ export default function CartPage() {
                         </p>
 
                         {/* QUANTITY */}
-
                         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                           <div className="flex h-9 items-center overflow-hidden rounded-lg border border-[#dfcdb4] bg-white sm:h-10">
                             {/* MINUS */}
-
                             <button
                               type="button"
                               onClick={() =>
@@ -386,11 +383,11 @@ export default function CartPage() {
                             </button>
 
                             {/* QUANTITY */}
-
                             <span className="grid h-full min-w-[38px] place-items-center border-x border-[#eee1cf] px-2 text-xs font-bold">
                               {item.quantity}
                             </span>
 
+                            {/* PLUS */}
                             <button
                               type="button"
                               onClick={() =>
@@ -404,7 +401,6 @@ export default function CartPage() {
                           </div>
 
                           {/* ITEM TOTAL */}
-
                           <strong className="text-sm text-[#4d1616] sm:text-base">
                             ₹{formatPrice(itemTotal)}
                           </strong>
@@ -432,7 +428,6 @@ export default function CartPage() {
           <aside className="block w-full lg:sticky lg:top-[100px]">
             <div className="rounded-[18px] border border-[#eadbc5] bg-[#fffdf8] p-4 shadow-[0_10px_30px_rgba(80,45,15,0.07)] sm:p-5 lg:p-6">
               {/* TITLE */}
-
               <span className="block text-[10px] font-bold uppercase tracking-[1.3px] text-[#c18b32]">
                 Order Details
               </span>
@@ -442,7 +437,6 @@ export default function CartPage() {
               </h2>
 
               {/* SUMMARY */}
-
               <div className="mt-5 space-y-3 border-b border-[#eee1cf] pb-5">
                 <SummaryRow
                   label={`Subtotal (${totalItems} ${
@@ -458,7 +452,6 @@ export default function CartPage() {
               </div>
 
               {/* TOTAL */}
-
               <div className="flex items-center justify-between gap-4 py-5">
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-[#4c4037]">
@@ -484,7 +477,6 @@ export default function CartPage() {
               </button>
 
               {/* SECURE CHECKOUT */}
-
               <p className="mt-4 text-center text-[10px] text-[#8b7d72]">
                 🔒 Secure checkout
               </p>

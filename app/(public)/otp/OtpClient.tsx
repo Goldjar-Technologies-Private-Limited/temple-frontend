@@ -139,7 +139,7 @@ export default function OtpClient() {
         />
 
         {/* TITLE */}
-        <h1 className="font-serif text-[29px] font-bold leading-[1.15] text-[#8c1717] sm:text-[32px] lg:text-[38px] xl:text-[40px]">
+        <h1 className="text-[29px] font-bold leading-[1.15] text-[#8c1717] sm:text-[32px] lg:text-[38px] xl:text-[40px]">
           {t("verifyMobileNumber")}
         </h1>
 
@@ -150,15 +150,15 @@ export default function OtpClient() {
           <strong className="font-bold text-[#332820]">+91 {mobile}</strong>
         </p>
 
-        {/* 6 SEPARATE OTP INPUT BOXES */}
-        <div className="flex justify-between gap-2 w-full" onPaste={handlePaste}>
+        {/* 6 SEPARATE OTP INPUT BOXES - PERFECTLY CENTERED FOR ALL DEVICES */}
+        <div className="mx-auto flex w-full max-w-[320px] items-center justify-center gap-2 sm:max-w-[360px] sm:gap-2.5" onPaste={handlePaste}>
           {otpValues.map((digit, index) => (
             <input
               key={index}
               ref={(el) => {
                 inputRefs.current[index] = el;
               }}
-              className="flex h-[52px] w-full items-center justify-center rounded-[12px] border border-[#d3a653] bg-[#fffdf9] text-center font-bold text-[#8c1717] text-[20px] shadow-[0_4px_14px_rgba(107,61,13,0.05)] outline-none transition-all duration-180 focus:border-[#8c1717] focus:ring-2 focus:ring-[#8c1717]/10 sm:h-[58px] sm:text-[22px] lg:h-[64px] lg:rounded-[14px] lg:text-[25px] xl:h-[66px] xl:text-[26px]"
+              className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[12px] border border-[#d3a653] bg-[#fffdf9] text-center font-bold text-[#8c1717] text-[18px] shadow-[0_4px_14px_rgba(107,61,13,0.05)] outline-none transition-all duration-180 focus:border-[#8c1717] focus:ring-2 focus:ring-[#8c1717]/10 sm:h-[50px] sm:w-[50px] sm:text-[21px] lg:h-[54px] lg:w-[54px] lg:rounded-[14px] lg:text-[23px]"
               type="tel"
               inputMode="numeric"
               autoComplete={index === 0 ? "one-time-code" : "off"}
@@ -197,7 +197,7 @@ export default function OtpClient() {
         <button
           type="button"
           onClick={resendOtp}
-          className="mt-[17px] border-0 bg-transparent p-0 text-[14px] font-semibold text-[#8c1717] lg:mt-[21px] lg:text-[15px] lg:cursor-pointer lg:hover:underline"
+          className="mt-[17px] border-0 bg-transparent p-0 text-[14px] text-[#8c1717] lg:mt-[21px] lg:text-[15px] lg:cursor-pointer lg:hover:underline"
         >
           {t("resendOtp")}
         </button>
@@ -208,7 +208,7 @@ export default function OtpClient() {
           onClick={changeMobileNumber}
           className="mx-auto mt-[20px] block border-0 bg-transparent p-0 text-[13px] text-[#71655b] lg:mt-[24px] lg:text-[14px] lg:cursor-pointer lg:hover:text-[#8c1717]"
         >
-          ← {t("changeMobileNumber")}
+          {t("changeMobileNumber")}
         </button>
       </section>
 
