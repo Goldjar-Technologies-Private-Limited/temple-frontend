@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import CommonHeader from "@/components/layout/CommonHeader";
 
 import { TEMPLE_FACILITIES as facilities } from "@/data/temple";
 
@@ -24,9 +25,7 @@ export default function TempleInformationPage() {
             onClick={() => router.back()}
             aria-label="Go back"
             className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#ead7b8] bg-white text-[#a71919] shadow-sm active:scale-95"
-          >
-            <BackIcon />
-          </button>
+          ></button>
 
           <div className="min-w-0">
             <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#bd8b39]">
@@ -41,7 +40,7 @@ export default function TempleInformationPage() {
       </header>
 
       {/* ===================================================
-          HERO
+          COMPACT HERO - SAME WIDTH AS PAGE CONTENT
       =================================================== */}
 
       <section className="relative overflow-hidden bg-[linear-gradient(145deg,#711313_0%,#941b18_50%,#bd5629_100%)] text-white lg:min-h-[330px]">
@@ -175,138 +174,9 @@ export default function TempleInformationPage() {
               </p>
             </div>
           </section>
-
-          {/* TIMINGS */}
-
-          {/* <section
-            className="
-              rounded-[18px]
-              border
-              border-[#eadfce]
-              bg-[#fffdf9]
-              p-4
-              shadow-[0_6px_24px_rgba(76,42,16,0.045)]
-
-              sm:p-5
-
-              lg:sticky
-              lg:top-6
-              lg:rounded-[20px]
-              lg:p-6
-            "
-          >
-            <div
-              className="
-                flex
-                items-center
-                justify-between
-                gap-3
-              "
-            >
-              <SectionHeading
-                eyebrow="DAILY"
-                title="Darshan Timings"
-                icon="clock"
-              />
-
-              <button
-                type="button"
-                onClick={() =>
-                  router.push("/darshan-timings")
-                }
-                className="
-                  shrink-0
-                  text-[10px]
-                  font-bold
-                  text-[#a71919]
-                  transition
-
-                  hover:text-[#7d1212]
-                "
-              >
-                View All →
-              </button>
-            </div>
-
-            <div className="mt-4">
-              {timings.map(
-                (item, index) => (
-                  <div
-                    key={item.title}
-                    className={`
-                      flex
-                      items-center
-                      gap-3
-                      py-3
-
-                      ${
-                        index !==
-                        timings.length - 1
-                          ? "border-b border-[#f0e5d6]"
-                          : ""
-                      }
-                    `}
-                  >
-                    <div
-                      className="
-                        grid
-                        h-9
-                        w-9
-                        shrink-0
-                        place-items-center
-                        rounded-xl
-                        bg-[#fff1dc]
-                        text-[#a71919]
-                      "
-                    >
-                      <SmallIcon
-                        name={item.icon}
-                      />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className="
-                          truncate
-                          text-[11px]
-                          font-bold
-                          text-[#4d433a]
-
-                          sm:text-xs
-                        "
-                      >
-                        {item.title}
-                      </p>
-
-                      <p
-                        className="
-                          mt-[2px]
-                          text-[9px]
-                          text-[#95877a]
-                        "
-                      >
-                        {item.time}
-                      </p>
-                    </div>
-
-                    <span
-                      className="
-                        text-[18px]
-                        text-[#c0b1a0]
-                      "
-                    >
-                      ›
-                    </span>
-                  </div>
-                )
-              )}
-            </div>
-          </section> */}
         </div>
 
-        {/* =================================================
-            FACILITIES
-        ================================================= */}
+        {/* FACILITIES */}
 
         <section className="mt-6 lg:mt-9">
           <div className="mb-4 flex items-end justify-between gap-4">
@@ -343,9 +213,7 @@ export default function TempleInformationPage() {
           </div>
         </section>
 
-        {/* =================================================
-            IMPORTANT INFORMATION
-        ================================================= */}
+        {/* IMPORTANT INFORMATION */}
 
         <section className="mt-6 rounded-[18px] border border-[#eadfce] bg-[#fffdf9] p-4 sm:p-5 lg:mt-9 lg:p-7">
           <SectionHeading
@@ -393,9 +261,7 @@ export default function TempleInformationPage() {
           </div>
         </section>
 
-        {/* =================================================
-            CONTACT / LOCATION
-        ================================================= */}
+        {/* CONTACT / LOCATION */}
 
         <section className="mt-6 overflow-hidden rounded-[20px] border border-[#e5d2b2] bg-[linear-gradient(135deg,#fff4df_0%,#fffaf1_100%)] lg:mt-9">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_0.8fr]">
@@ -431,7 +297,7 @@ export default function TempleInformationPage() {
               </div>
             </div>
 
-            {/* DECORATIVE SIDE */}
+            {/* DECORATIVE TEMPLE PANEL */}
 
             <div className="relative hidden min-h-[270px] overflow-hidden bg-[linear-gradient(145deg,#7a1514,#ad3c20)] lg:grid lg:place-items-center">
               <div className="absolute -right-14 -top-16 h-52 w-52 rounded-full border border-white/10" />
@@ -451,9 +317,7 @@ export default function TempleInformationPage() {
           </div>
         </section>
 
-        {/* =================================================
-            FOOTER MESSAGE
-        ================================================= */}
+        {/* FOOTER MESSAGE */}
 
         <div className="mt-6 text-center lg:mt-10">
           <div className="flex items-center justify-center gap-2">
@@ -542,7 +406,7 @@ function SectionHeading({
 }
 
 /* =========================================================
-   INFORMATION
+   INFORMATION ITEM
 ========================================================= */
 
 function InformationItem({
@@ -574,7 +438,7 @@ function InformationItem({
 }
 
 /* =========================================================
-   CONTACT
+   CONTACT ROW
 ========================================================= */
 
 function ContactRow({
@@ -606,25 +470,8 @@ function ContactRow({
 }
 
 /* =========================================================
-   ICONS
+   PLAY ICON
 ========================================================= */
-
-function BackIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[18px] w-[18px]"
-      aria-hidden="true"
-    >
-      <path d="m15 18-6-6 6-6" />
-    </svg>
-  );
-}
 
 function PlayIcon() {
   return (
@@ -638,6 +485,10 @@ function PlayIcon() {
     </svg>
   );
 }
+
+/* =========================================================
+   CLOCK ICON
+========================================================= */
 
 function ClockIcon() {
   return (
@@ -670,6 +521,7 @@ function SmallIcon({ name }: { name: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         className={className}
+        aria-hidden="true"
       >
         <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
         <circle cx="12" cy="10" r="2.5" />
@@ -687,6 +539,7 @@ function SmallIcon({ name }: { name: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         className={className}
+        aria-hidden="true"
       >
         <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7A2 2 0 0 1 22 16.9Z" />
       </svg>
@@ -694,20 +547,7 @@ function SmallIcon({ name }: { name: string }) {
   }
 
   if (name === "clock") {
-    return (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={className}
-      >
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 7v5l3 2" />
-      </svg>
-    );
+    return <ClockIcon />;
   }
 
   if (name === "temple") {
@@ -720,6 +560,7 @@ function SmallIcon({ name }: { name: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         className={className}
+        aria-hidden="true"
       >
         <path d="M3 21h18" />
         <path d="M5 21V10h14v11" />
@@ -739,6 +580,7 @@ function SmallIcon({ name }: { name: string }) {
         strokeWidth="1.8"
         strokeLinecap="round"
         className={className}
+        aria-hidden="true"
       >
         <path d="M3 18h18" />
         <path d="M5 14a7 7 0 0 1 14 0" />
@@ -757,6 +599,14 @@ function SmallIcon({ name }: { name: string }) {
     return <span className="text-base">🪔</span>;
   }
 
+  if (name === "seva") {
+    return (
+      <span className="text-base" aria-hidden="true">
+        🙏
+      </span>
+    );
+  }
+
   if (name === "darshan") {
     return (
       <svg
@@ -767,6 +617,7 @@ function SmallIcon({ name }: { name: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         className={className}
+        aria-hidden="true"
       >
         <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
         <circle cx="12" cy="12" r="2.5" />
@@ -792,12 +643,14 @@ function SmallIcon({ name }: { name: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         className={className}
+        aria-hidden="true"
       >
         <path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z" />
       </svg>
     );
   }
 
+  // Default information icon
   return (
     <svg
       viewBox="0 0 24 24"
@@ -807,6 +660,7 @@ function SmallIcon({ name }: { name: string }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      aria-hidden="true"
     >
       <circle cx="12" cy="12" r="9" />
       <path d="M12 11v5" />

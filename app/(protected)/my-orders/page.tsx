@@ -52,7 +52,7 @@ type SavedOrder = {
 type FilterType = "All" | OrderStatus;
 
 /* =========================================================
-   NORMALIZE ORDER
+    NORMALIZE ORDER
 ========================================================= */
 
 const normalizeOrder = (order: any): SavedOrder | null => {
@@ -68,11 +68,8 @@ const normalizeOrder = (order: any): SavedOrder | null => {
 
   const items: OrderItem[] = rawItems.map((item: any, index: number) => {
     const id = Number(item?.id) || Number(item?.productId) || index + 1;
-
     const productId = Number(item?.productId) || Number(item?.id) || index + 1;
-
     const quantity = Number(item?.quantity) > 0 ? Number(item.quantity) : 1;
-
     const price = Number(item?.price) >= 0 ? Number(item.price) : 0;
 
     let weight: Weight | undefined;
@@ -88,22 +85,18 @@ const normalizeOrder = (order: any): SavedOrder | null => {
     return {
       id,
       productId,
-
       name:
         typeof item?.name === "string" && item.name.trim()
           ? item.name
           : typeof item?.title === "string" && item.title.trim()
             ? item.title
             : "Prasadam",
-
       quantity,
       price,
-
       image:
         typeof item?.image === "string" && item.image.trim()
           ? item.image
           : undefined,
-
       weight,
     };
   });
@@ -185,13 +178,12 @@ const normalizeOrder = (order: any): SavedOrder | null => {
 };
 
 /* =========================================================
-   LOAD ORDERS
+    LOAD ORDERS
 ========================================================= */
 
 const loadOrders = (): SavedOrder[] => {
   try {
     const orderMap = new Map<string, SavedOrder>();
-
     const savedOrders = localStorage.getItem(ORDERS_KEY);
 
     if (savedOrders) {
@@ -201,14 +193,12 @@ const loadOrders = (): SavedOrder[] => {
         if (Array.isArray(parsed)) {
           parsed.forEach((order) => {
             const normalized = normalizeOrder(order);
-
             if (normalized) {
               orderMap.set(normalized.id, normalized);
             }
           });
         } else if (parsed && typeof parsed === "object") {
           const normalized = normalizeOrder(parsed);
-
           if (normalized) {
             orderMap.set(normalized.id, normalized);
           }
@@ -223,7 +213,6 @@ const loadOrders = (): SavedOrder[] => {
     if (lastOrder) {
       try {
         const parsedLastOrder = JSON.parse(lastOrder);
-
         const normalized = normalizeOrder(parsedLastOrder);
 
         if (normalized && !orderMap.has(normalized.id)) {
@@ -239,7 +228,6 @@ const loadOrders = (): SavedOrder[] => {
     orders.sort((a, b) => {
       const dateA = new Date(a.createdAt || "").getTime();
       const dateB = new Date(b.createdAt || "").getTime();
-
       return dateB - dateA;
     });
 
@@ -250,13 +238,12 @@ const loadOrders = (): SavedOrder[] => {
     return orders;
   } catch (error) {
     console.error("Failed to load orders:", error);
-
     return [];
   }
 };
 
 /* =========================================================
-   PAGE
+    PAGE
 ========================================================= */
 
 export default function MyOrdersPage() {
@@ -267,13 +254,12 @@ export default function MyOrdersPage() {
   const [loading, setLoading] = useState(true);
 
   /* =========================================================
-     LOAD ORDERS
+      LOAD ORDERS
   ========================================================= */
 
   useEffect(() => {
     const load = () => {
       const loadedOrders = loadOrders();
-
       setOrders(loadedOrders);
       setLoading(false);
     };
@@ -285,7 +271,6 @@ export default function MyOrdersPage() {
     };
 
     window.addEventListener(ORDERS_UPDATED_EVENT, handleUpdate);
-
     window.addEventListener("storage", handleUpdate);
 
     const handleFocus = () => {
@@ -296,37 +281,32 @@ export default function MyOrdersPage() {
 
     return () => {
       window.removeEventListener(ORDERS_UPDATED_EVENT, handleUpdate);
-
       window.removeEventListener("storage", handleUpdate);
-
       window.removeEventListener("focus", handleFocus);
     };
   }, []);
 
   /* =========================================================
-     FILTER
+      FILTER
   ========================================================= */
 
   const filteredOrders = useMemo(() => {
     if (activeFilter === "All") {
       return orders;
     }
-
     return orders.filter((order) => order.status === activeFilter);
   }, [orders, activeFilter]);
 
   /* =========================================================
-     STATUS
+      STATUS
   ========================================================= */
 
   const getStatusClass = (status?: OrderStatus) => {
     switch (status) {
       case "Delivered":
         return "bg-green-50 text-green-700 ring-1 ring-inset ring-green-200";
-
       case "Cancelled":
         return "bg-red-50 text-red-700 ring-1 ring-inset ring-red-200";
-
       case "Processing":
       default:
         return "bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-200";
@@ -334,7 +314,7 @@ export default function MyOrdersPage() {
   };
 
   /* =========================================================
-     DATE
+      DATE
   ========================================================= */
 
   const formatDate = (date?: string) => {
@@ -356,7 +336,7 @@ export default function MyOrdersPage() {
   };
 
   /* =========================================================
-     VIEW DETAILS
+      VIEW DETAILS
   ========================================================= */
 
   const handleViewDetails = (orderId: string) => {
@@ -368,7 +348,7 @@ export default function MyOrdersPage() {
   };
 
   /* =========================================================
-     LOADING
+      LOADING
   ========================================================= */
 
   if (loading) {
@@ -399,16 +379,11 @@ export default function MyOrdersPage() {
   }
 
   /* =========================================================
-     UI
+      UI
   ========================================================= */
 
   return (
     <main className="min-h-screen bg-[#fffaf5] pb-12">
-      {/* =====================================================
-          PAGE HEADER
-      ===================================================== */}
-
-      {/* COMMON HEADER */}
       <CommonHeader
         title="My Orders"
         subtitle="Track and manage your prasadam orders"
@@ -416,10 +391,7 @@ export default function MyOrdersPage() {
       />
 
       <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
-        {/* ===================================================
-            FILTERS
-        =================================================== */}
-
+        {/* FILTERS */}
         <div className="mb-6">
           <div className="overflow-x-auto pb-1">
             <div className="flex min-w-max gap-2">
@@ -454,10 +426,7 @@ export default function MyOrdersPage() {
           </div>
         </div>
 
-        {/* ===================================================
-            ORDER COUNT
-        =================================================== */}
-
+        {/* ORDER COUNT */}
         {filteredOrders.length > 0 && (
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm font-medium text-gray-500">
@@ -471,13 +440,10 @@ export default function MyOrdersPage() {
           </div>
         )}
 
-        {/* ===================================================
-            EMPTY STATE
-        =================================================== */}
-
+        {/* EMPTY STATE */}
         {filteredOrders.length === 0 ? (
           <div className="rounded-2xl border border-[#ead8c8] bg-white px-5 py-14 text-center shadow-sm sm:px-8">
-            <div className="mx-auto mb-5 flex  items-center justify-center  text-5xl">
+            <div className="mx-auto mb-5 flex items-center justify-center text-5xl">
               🛍️
             </div>
 
@@ -498,14 +464,10 @@ export default function MyOrdersPage() {
             </button>
           </div>
         ) : (
-          /* =================================================
-             ORDER LIST
-          ================================================= */
-
+          /* ORDER LIST */
           <div className="space-y-4">
             {filteredOrders.map((order) => {
               const firstItem = order.items?.[0];
-
               const itemCount = order.items?.length || 0;
 
               return (
@@ -517,14 +479,12 @@ export default function MyOrdersPage() {
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
-
                       handleViewDetails(order.id);
                     }
                   }}
                   className="group cursor-pointer overflow-hidden rounded-2xl border border-[#ead8c8] bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#ddc2ae] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#8b1e1e]/20"
                 >
                   {/* ORDER TOP */}
-
                   <div className="border-b border-[#f0e3d8] px-4 py-4 sm:px-5">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
@@ -552,17 +512,15 @@ export default function MyOrdersPage() {
                   </div>
 
                   {/* ORDER PRODUCT */}
-
                   <div className="p-4 sm:p-5">
                     <div className="flex min-w-0 gap-3 sm:gap-4">
-                      {/* IMAGE */}
-
-                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#fff7f0] sm:h-24 sm:w-24">
+                      {/* FIXED IMAGE CONTAINER */}
+                      <div className="relative flex aspect-square h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl    sm:h-24 sm:w-24">
                         {firstItem?.image ? (
                           <img
                             src={firstItem.image}
                             alt={firstItem.name}
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="h-full w-full rounded-xl object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center">
@@ -572,7 +530,6 @@ export default function MyOrdersPage() {
                       </div>
 
                       {/* PRODUCT INFO */}
-
                       <div className="min-w-0 flex-1">
                         <h3 className="line-clamp-2 text-sm font-bold leading-5 text-gray-800 sm:text-base">
                           {firstItem?.name || "Prasadam"}
@@ -599,7 +556,6 @@ export default function MyOrdersPage() {
                       </div>
 
                       {/* PRICE */}
-
                       <div className="flex shrink-0 flex-col items-end justify-between">
                         <div className="text-right">
                           <p className="text-[11px] font-medium text-gray-400">
@@ -627,10 +583,7 @@ export default function MyOrdersPage() {
           </div>
         )}
 
-        {/* ===================================================
-            HELP
-        =================================================== */}
-
+        {/* HELP */}
         <div className="mt-8 overflow-hidden rounded-2xl border border-[#ead8c8] bg-white shadow-sm">
           <div className="p-5 sm:p-6">
             <div className="flex items-start gap-4">

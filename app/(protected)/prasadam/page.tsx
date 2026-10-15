@@ -1,10 +1,12 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import CommonHeader from "@/components/layout/CommonHeader";
 import {
   PRASADAM_CATEGORIES as categories,
+  ProductCategory,
   PRASADAM_PRODUCTS as products,
   type PrasadamCategory as Category,
   type PrasadamWeight as Weight,
@@ -16,6 +18,8 @@ type CartItem = {
   quantity: number;
 };
 
+type LegacyCart = Record<string, unknown>;
+
 /* =====================================================
    CONSTANTS
 ==================================================== */
@@ -23,9 +27,17 @@ type CartItem = {
 const CART_STORAGE_KEY = "prasadam-cart";
 const OLD_WEIGHT_STORAGE_KEY = "prasadam-cart-weights";
 const CART_UPDATED_EVENT = "prasadam-cart-updated";
-const WISHLIST_STORAGE_KEY = "prasadam-wishlist";
 
 const DEFAULT_WEIGHT: Weight = "500g";
+
+const WEIGHT_OPTIONS: {
+  value: Weight;
+  label: string;
+}[] = [
+  { value: "250g", label: "250 g" },
+  { value: "500g", label: "500 g" },
+  { value: "1kg", label: "1 kg" },
+];
 
 /* =====================================================
    WEIGHT HELPERS
@@ -36,79 +48,127 @@ function isValidWeight(value: unknown): value is Weight {
 }
 
 function getWeightPrice(basePrice: number, weight: Weight): number {
-  if (weight === "250g") return basePrice * 0.5;
-  if (weight === "1kg") return basePrice * 2;
-  return basePrice;
+  switch (weight) {
+    case "250g":
+      return basePrice * 0.5;
+    case "1kg":
+      return basePrice * 2;
+    default:
+      return basePrice;
+  }
+}
+
+function getProductCategoryLabel(category: ProductCategory): string {
+  switch (category) {
+    case "sweets":
+      return "Sweets";
+    case "gifts":
+      return "Gift Pack";
+    default:
+      return "Mahaprasad";
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /* =====================================================
-   CART HELPERS
+    CART VALIDATION
 ===================================================== */
 
 function cleanCart(value: unknown): CartItem[] {
   if (!Array.isArray(value)) return [];
 
-  return value
-    .filter((item): item is Record<string, unknown> =>
-      Boolean(item && typeof item === "object" && !Array.isArray(item)),
-    )
-    .map((item) => ({
-      productId: Number(item.productId),
-      weight: item.weight as Weight,
-      quantity: Math.floor(Number(item.quantity)),
-    }))
-    .filter(
-      (item) =>
-        Number.isInteger(item.productId) &&
-        products.some((p) => p.id === item.productId) &&
-        isValidWeight(item.weight) &&
-        Number.isFinite(item.quantity) &&
-        item.quantity > 0,
-    );
-}
+  const normalized = new Map<string, CartItem>();
 
-function migrateOldCart(oldCart: unknown, oldWeights: unknown): CartItem[] {
-  if (!oldCart || typeof oldCart !== "object" || Array.isArray(oldCart)) {
-    return [];
+  for (const rawItem of value) {
+    if (!isRecord(rawItem)) continue;
+
+    const productId = Number(rawItem.productId);
+    const quantity = Number(rawItem.quantity);
+    const weight = rawItem.weight;
+
+    if (
+      !Number.isSafeInteger(productId) ||
+      !isValidWeight(weight) ||
+      !Number.isSafeInteger(quantity) ||
+      quantity <= 0
+    ) {
+      continue;
+    }
+
+    const key = `${productId}:${weight}`;
+    const existing = normalized.get(key);
+
+    if (existing) {
+      const combinedQuantity = existing.quantity + quantity;
+
+      if (Number.isSafeInteger(combinedQuantity)) {
+        existing.quantity = combinedQuantity;
+      }
+    } else {
+      normalized.set(key, {
+        productId,
+        weight,
+        quantity,
+      });
+    }
   }
 
-  const cartObject = oldCart as Record<string, unknown>;
-
-  const weightsObject =
-    oldWeights && typeof oldWeights === "object" && !Array.isArray(oldWeights)
-      ? (oldWeights as Record<string, unknown>)
-      : {};
-
-  return Object.entries(cartObject)
-    .map(([productId, quantity]) => {
-      const id = Number(productId);
-      const count = Math.floor(Number(quantity));
-
-      if (
-        !Number.isInteger(id) ||
-        !products.some((p) => p.id === id) ||
-        !Number.isFinite(count) ||
-        count <= 0
-      ) {
-        return null;
-      }
-
-      const savedWeight = weightsObject[productId];
-
-      return {
-        productId: id,
-        weight: isValidWeight(savedWeight) ? savedWeight : DEFAULT_WEIGHT,
-        quantity: count,
-      };
-    })
-    .filter((item): item is CartItem => item !== null);
+  return Array.from(normalized.values());
 }
+
+/* =====================================================
+    LEGACY CART MIGRATION
+===================================================== */
+
+function migrateOldCart(oldCart: unknown, oldWeights: unknown): CartItem[] {
+  if (!isRecord(oldCart)) return [];
+
+  const weights: LegacyCart = isRecord(oldWeights) ? oldWeights : {};
+
+  const migrated: CartItem[] = [];
+
+  for (const [productId, rawQuantity] of Object.entries(oldCart)) {
+    const id = Number(productId);
+    const quantity = Number(rawQuantity);
+
+    if (
+      !Number.isSafeInteger(id) ||
+      !Number.isSafeInteger(quantity) ||
+      quantity <= 0
+    ) {
+      continue;
+    }
+
+    const savedWeight = weights[productId];
+
+    migrated.push({
+      productId: id,
+      weight: isValidWeight(savedWeight) ? savedWeight : DEFAULT_WEIGHT,
+      quantity,
+    });
+  }
+
+  return cleanCart(migrated);
+}
+
+/* =====================================================
+    CART STORAGE
+===================================================== */
 
 function loadCart(): CartItem[] {
   try {
     const savedCart = localStorage.getItem(CART_STORAGE_KEY);
 
-    if (!savedCart) return [];
+    if (!savedCart) {
+      const oldCart = localStorage.getItem("prasadam-cart");
+
+      if (!oldCart) return [];
+
+      return [];
+    }
 
     const parsedCart: unknown = JSON.parse(savedCart);
 
@@ -130,52 +190,28 @@ function loadCart(): CartItem[] {
 
     return migrateOldCart(parsedCart, oldWeights);
   } catch (error) {
-    console.error("Unable to load cart:", error);
+    console.error("Unable to load prasadam cart:", error);
     return [];
   }
 }
 
-function saveCart(cart: CartItem[]) {
+function saveCart(cart: CartItem[]): boolean {
   try {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+
     localStorage.removeItem(OLD_WEIGHT_STORAGE_KEY);
+
     window.dispatchEvent(new Event(CART_UPDATED_EVENT));
+
+    return true;
   } catch (error) {
-    console.error("Unable to save cart:", error);
+    console.error("Unable to save prasadam cart:", error);
+    return false;
   }
 }
 
 /* =====================================================
-   WISHLIST HELPERS
-===================================================== */
-
-function loadWishlist(): number[] {
-  try {
-    const saved = localStorage.getItem(WISHLIST_STORAGE_KEY);
-
-    if (!saved) return [];
-
-    const parsed: unknown = JSON.parse(saved);
-
-    if (!Array.isArray(parsed)) return [];
-
-    return [
-      ...new Set(
-        parsed.filter(
-          (id): id is number =>
-            typeof id === "number" &&
-            Number.isInteger(id) &&
-            products.some((p) => p.id === id),
-        ),
-      ),
-    ];
-  } catch {
-    return [];
-  }
-}
-
-/* =====================================================
-   MAIN PAGE
+    MAIN PAGE
 ===================================================== */
 
 export default function PrasadamPage() {
@@ -183,6 +219,7 @@ export default function PrasadamPage() {
   const { t } = useLanguage();
 
   const [category, setCategory] = useState<Category>("all");
+
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartLoaded, setCartLoaded] = useState(false);
 
@@ -190,13 +227,10 @@ export default function PrasadamPage() {
     Record<number, Weight>
   >({});
 
-  const [wishlist, setWishlist] = useState<number[]>([]);
-
-  /* LOAD SAVED DATA */
+  /* LOAD CART */
 
   useEffect(() => {
     setCart(loadCart());
-    setWishlist(loadWishlist());
     setCartLoaded(true);
   }, []);
 
@@ -204,18 +238,38 @@ export default function PrasadamPage() {
 
   useEffect(() => {
     if (!cartLoaded) return;
+
     saveCart(cart);
   }, [cart, cartLoaded]);
 
-  /* SAVE WISHLIST */
+  /* SYNC CART CHANGES FROM OTHER TABS */
 
   useEffect(() => {
-    try {
-      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlist));
-    } catch (error) {
-      console.error("Unable to save wishlist:", error);
-    }
-  }, [wishlist]);
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== CART_STORAGE_KEY && event.key !== null) {
+        return;
+      }
+
+      if (event.newValue === null) {
+        setCart([]);
+        return;
+      }
+
+      try {
+        const parsed: unknown = JSON.parse(event.newValue);
+
+        setCart(Array.isArray(parsed) ? cleanCart(parsed) : []);
+      } catch {
+        setCart([]);
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, []);
 
   /* FILTER PRODUCTS */
 
@@ -225,20 +279,34 @@ export default function PrasadamPage() {
     return products.filter((product) => product.category === category);
   }, [category]);
 
+  /* SELECTED CATEGORY HEADING */
+
+  const categoryHeading = useMemo(() => {
+    if (category === "all") {
+      return "Explore Prasadam";
+    }
+
+    const selected = categories.find((item) => item.id === category);
+
+    return selected ? t(selected.labelKey) : "Prasadam";
+  }, [category, t]);
+
   /* SELECTED WEIGHT */
 
-  const getSelectedWeight = (productId: number): Weight =>
-    selectedWeights[productId] ?? DEFAULT_WEIGHT;
+  const getSelectedWeight = useCallback(
+    (productId: number): Weight => selectedWeights[productId] ?? DEFAULT_WEIGHT,
+    [selectedWeights],
+  );
 
   /* CART QUANTITY */
 
-  const getQuantity = (productId: number, weight: Weight): number => {
-    return (
+  const getQuantity = useCallback(
+    (productId: number, weight: Weight): number =>
       cart.find(
         (item) => item.productId === productId && item.weight === weight,
-      )?.quantity ?? 0
-    );
-  };
+      )?.quantity ?? 0,
+    [cart],
+  );
 
   /* CHANGE WEIGHT */
 
@@ -249,58 +317,65 @@ export default function PrasadamPage() {
     }));
   };
 
-  /* ADD ITEM */
+  /* ADD TO CART */
 
   const increase = (productId: number, weight: Weight) => {
-    setCart((previousCart) => {
-      const existing = previousCart.find(
+    setCart((previous) => {
+      const existing = previous.find(
         (item) => item.productId === productId && item.weight === weight,
       );
 
       if (existing) {
-        return previousCart.map((item) =>
+        if (existing.quantity >= Number.MAX_SAFE_INTEGER) {
+          return previous;
+        }
+
+        return previous.map((item) =>
           item.productId === productId && item.weight === weight
-            ? { ...item, quantity: item.quantity + 1 }
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+              }
             : item,
         );
       }
 
-      return [...previousCart, { productId, weight, quantity: 1 }];
+      return [
+        ...previous,
+        {
+          productId,
+          weight,
+          quantity: 1,
+        },
+      ];
     });
   };
 
-  /* REMOVE ITEM */
+  /* DECREASE CART QUANTITY */
 
   const decrease = (productId: number, weight: Weight) => {
-    setCart((previousCart) => {
-      const existing = previousCart.find(
+    setCart((previous) => {
+      const existing = previous.find(
         (item) => item.productId === productId && item.weight === weight,
       );
 
-      if (!existing) return previousCart;
+      if (!existing) return previous;
 
       if (existing.quantity <= 1) {
-        return previousCart.filter(
+        return previous.filter(
           (item) => !(item.productId === productId && item.weight === weight),
         );
       }
 
-      return previousCart.map((item) =>
+      return previous.map((item) =>
         item.productId === productId && item.weight === weight
-          ? { ...item, quantity: item.quantity - 1 }
+          ? {
+              ...item,
+              quantity: item.quantity - 1,
+            }
           : item,
       );
     });
-  };
-
-  /* TOGGLE WISHLIST */
-
-  const toggleWishlist = (productId: number) => {
-    setWishlist((previous) =>
-      previous.includes(productId)
-        ? previous.filter((id) => id !== productId)
-        : [...previous, productId],
-    );
   };
 
   /* CART COUNT */
@@ -376,19 +451,20 @@ export default function PrasadamPage() {
             </p>
           </div>
 
-          <span className="text-[10px] text-gray-500 sm:text-xs">
+          <span className="shrink-0 text-[10px] text-gray-500 sm:text-xs">
             {filteredProducts.length} products
           </span>
         </div>
 
-        {/* COMPACT PRODUCT GRID */}
+        {/* PRODUCT GRID */}
 
         <section className="grid grid-cols-2 gap-3 px-3 sm:grid-cols-4 sm:gap-4 sm:px-5 md:gap-5 md:px-6 lg:grid-cols-6 lg:gap-4 lg:px-8">
           {filteredProducts.map((product) => {
             const selectedWeight = getSelectedWeight(product.id);
+
             const quantity = getQuantity(product.id, selectedWeight);
+
             const currentPrice = getWeightPrice(product.price, selectedWeight);
-            const isWishlisted = wishlist.includes(product.id);
 
             return (
               <article
@@ -405,29 +481,15 @@ export default function PrasadamPage() {
                     className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
                   />
 
-                  {/* WISHLIST BUTTON */}
-
-                  <button
-                    type="button"
-                    onClick={() => toggleWishlist(product.id)}
-                    aria-label={
-                      isWishlisted ? "Remove from wishlist" : "Add to wishlist"
-                    }
-                    aria-pressed={isWishlisted}
-                    className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full border border-gray-200 bg-white/95 text-[#b42323] shadow-sm transition hover:bg-[#fff0f0] sm:right-3 sm:top-3"
-                  >
-                    <HeartIcon filled={isWishlisted} />
-                  </button>
-
                   {/* CATEGORY BADGE */}
                 </div>
 
-                {/* PRODUCT DETAILS — REDUCED PADDING */}
+                {/* DETAILS */}
 
-                <div className="flex flex-1 flex-col p-2 sm:p-2.5">
-                  {/* PRODUCT NAME + CATEGORY */}
+                <div className="flex flex-1 flex-col p-2.5 sm:p-3">
+                  {/* TITLE AND CATEGORY */}
 
-                  <div className="flex items-center justify-between gap-1">
+                  <div className="flex items-start justify-between gap-1">
                     <h3
                       title={t(product.titleKey)}
                       className="min-w-0 flex-1 line-clamp-2 text-xs font-semibold leading-4 text-[#252525] sm:text-sm sm:leading-[18px]"
@@ -438,11 +500,7 @@ export default function PrasadamPage() {
                     <span
                       className={`shrink-0 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[8px] font-semibold sm:text-[9px] ${product.category === "sweets" ? "bg-pink-50 text-pink-700" : product.category === "gifts" ? "bg-purple-50 text-purple-700" : "bg-amber-50 text-amber-700"}`}
                     >
-                      {product.category === "sweets"
-                        ? "Sweets"
-                        : product.category === "gifts"
-                          ? "Gift Pack"
-                          : "Mahaprasad"}
+                      {getProductCategoryLabel(product.category)}
                     </span>
                   </div>
 
@@ -455,9 +513,7 @@ export default function PrasadamPage() {
                     {product.description}
                   </p>
 
-                  {/* KEEP YOUR EXISTING WEIGHT SELECTOR BELOW */}
-
-                  {/* WEIGHT SELECTOR */}
+                  {/* WEIGHT */}
 
                   <div className="mt-2">
                     <label
@@ -475,16 +531,18 @@ export default function PrasadamPage() {
                       }
                       className="h-8 w-full rounded-md border border-gray-200 bg-white px-2 text-[11px] text-gray-700 outline-none focus:border-[#e87519] focus:ring-1 focus:ring-[#e87519] sm:text-xs"
                     >
-                      <option value="250g">250 g</option>
-                      <option value="500g">500 g</option>
-                      <option value="1kg">1 kg</option>
+                      {WEIGHT_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   {/* PRICE */}
 
-                  <div className="mt-2">
-                    <div className="flex flex-wrap items-baseline gap-1">
+                  <div className="mt-3">
+                    <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
                       <span className="text-base font-bold text-[#202020] sm:text-lg">
                         ₹{currentPrice.toLocaleString("en-IN")}
                       </span>
@@ -499,9 +557,9 @@ export default function PrasadamPage() {
                     </div>
                   </div>
 
-                  {/* ADD TO CART / QUANTITY */}
+                  {/* CART CONTROLS */}
 
-                  <div className="mt-auto pt-2">
+                  <div className="mt-auto pt-3">
                     {quantity === 0 ? (
                       <button
                         type="button"
@@ -509,7 +567,7 @@ export default function PrasadamPage() {
                         className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-[#e87519] px-1 text-[11px] font-bold text-white transition hover:bg-[#cf5f0d] active:scale-[0.98] sm:text-xs"
                       >
                         <CartIcon />
-                        Add to Cart
+                        <span>Add to Cart</span>
                       </button>
                     ) : (
                       <div className="flex h-9 w-full items-center justify-between overflow-hidden rounded-lg border border-[#e87519] bg-white">
@@ -522,7 +580,13 @@ export default function PrasadamPage() {
                           −
                         </button>
 
-                        <span className="flex-1 text-center text-xs font-bold text-gray-800">
+                        <span
+                          aria-live="polite"
+                          className="
+                            flex-1 text-center
+                            text-xs font-bold text-gray-800
+                          "
+                        >
                           {quantity}
                         </span>
 
@@ -551,26 +615,29 @@ export default function PrasadamPage() {
             <h3 className="mt-3 text-lg font-semibold text-[#641010]">
               No products found
             </h3>
+
             <p className="mt-1 text-sm text-gray-500">
               Please select another category.
             </p>
           </div>
         )}
 
-        {/* FOOTER DECORATION */}
+        {/* FOOTER */}
 
-        <div className="mt-10 flex items-center justify-center gap-2 px-4 text-[#c99435]">
+        <footer className="mt-10 flex items-center justify-center gap-2 px-4 text-[#c99435]">
           <span className="h-px w-12 bg-gradient-to-r from-transparent to-[#d8b66c] lg:w-24" />
-          <span>❧ ❧ ❧</span>
+
+          <span aria-hidden="true">❧ ❧ ❧</span>
+
           <span className="h-px w-12 bg-gradient-to-l from-transparent to-[#d8b66c] lg:w-24" />
-        </div>
+        </footer>
       </div>
     </main>
   );
 }
 
 /* =====================================================
-   CART ICON
+    CART ICON
 ===================================================== */
 
 function CartIcon() {
@@ -588,27 +655,6 @@ function CartIcon() {
       <circle cx="9" cy="20" r="1" />
       <circle cx="18" cy="20" r="1" />
       <path d="M3 4h2l2.4 10.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 8H6" />
-    </svg>
-  );
-}
-
-/* =====================================================
-   HEART ICON
-===================================================== */
-
-function HeartIcon({ filled }: { filled: boolean }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill={filled ? "currentColor" : "none"}
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[18px] w-[18px]"
-      aria-hidden="true"
-    >
-      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />
     </svg>
   );
 }

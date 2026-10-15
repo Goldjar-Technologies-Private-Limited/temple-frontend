@@ -1,9 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-
-import { useState } from "react";
-
+import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageProvider";
 
 export default function OtpClient() {
@@ -14,11 +12,18 @@ export default function OtpClient() {
 
   const mobile = params.get("mobile") || "";
 
-  const [otp, setOtp] = useState("");
+  const [otpValues, setOtpValues] = useState<string[]>(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const doVerify = async (_validOtp: string) => {
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Focus first input on mount
+  useEffect(() => {
+    inputRefs.current[0]?.focus();
+  }, []);
+
+  const doVerify = async (fullOtp: string) => {
     if (loading) return;
     setLoading(true);
     setError("");
@@ -29,822 +34,188 @@ export default function OtpClient() {
 
   const DEFAULT_TEST_OTP = "000000";
 
-  const verify = () => {
+  const verify = (codeToVerify?: string) => {
+    const finalOtp = codeToVerify || otpValues.join("");
     const env = process.env.NEXT_PUBLIC_ENV || "production";
-    if (!otp) {
-      if (env !== "production") {
+
+    if (!finalOtp || finalOtp.length < 6) {
+      if (env !== "production" && !finalOtp) {
         console.log(`[Auth OTP] Empty OTP in ${env} environment. Using default test OTP: ${DEFAULT_TEST_OTP}`);
-        setOtp(DEFAULT_TEST_OTP);
+        const splitOtp = DEFAULT_TEST_OTP.split("");
+        setOtpValues(splitOtp);
         doVerify(DEFAULT_TEST_OTP);
         return;
       } else {
-        console.warn(`[Auth OTP] Empty OTP rejected in production environment.`);
-        setError("Please enter the OTP");
+        console.warn(`[Auth OTP] Invalid OTP length.`);
+        setError("Please enter a valid 6-digit OTP");
         return;
       }
     }
 
-    if (otp.length === 6) {
+    if (finalOtp.length === 6) {
       console.log(`[Auth OTP] Verifying 6-digit OTP code.`);
-      doVerify(otp);
-    } else {
-      console.warn(`[Auth OTP] Invalid OTP length (${otp.length}/6).`);
-      setError("Please enter a valid 6-digit OTP");
+      doVerify(finalOtp);
     }
   };
 
   const resendOtp = () => {
-    setOtp("");
+    setOtpValues(["", "", "", "", "", ""]);
     setError("");
+    inputRefs.current[0]?.focus();
   };
 
   const changeMobileNumber = () => {
     router.back();
   };
 
-  const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, "");
+  const handleChange = (index: number, value: string) => {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    
+    const newOtpValues = [...otpValues];
+    newOtpValues[index] = digit;
+    setOtpValues(newOtpValues);
+    setError("");
 
-    if (value.length <= 6) {
-      setOtp(value);
-      setError("");
+    // Move to next input if digit is entered
+    if (digit && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
 
-      if (value.length === 6 && !loading) {
-        doVerify(value);
+    // Check if all filled
+    const fullOtp = newOtpValues.join("");
+    if (fullOtp.length === 6 && !loading) {
+      doVerify(fullOtp);
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace") {
+      if (!otpValues[index] && index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      } else {
+        const newOtpValues = [...otpValues];
+        newOtpValues[index] = "";
+        setOtpValues(newOtpValues);
       }
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowRight" && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasteData) return;
+
+    const newOtpValues = ["", "", "", "", "", ""];
+    pasteData.split("").forEach((char, idx) => {
+      if (idx < 6) newOtpValues[idx] = char;
+    });
+
+    setOtpValues(newOtpValues);
+    setError("");
+
+    const focusIndex = Math.min(pasteData.length, 5);
+    inputRefs.current[focusIndex]?.focus();
+
+    if (pasteData.length === 6 && !loading) {
+      doVerify(pasteData);
     }
   };
 
   return (
-    <main className="screen">
-      <section className="content">
+    <main className="relative flex min-h-[100dvh] w-full flex-col overflow-hidden bg-[radial-gradient(circle_at_50%_10%,#ffffff_0,#fffaf0_38%,#f8ecd6_100%)] text-center text-[#332820] lg:grid lg:place-items-center lg:p-[70px_40px] lg:bg-[radial-gradient(circle_at_top_left,rgba(201,148,53,0.12),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(167,25,25,0.08),transparent_30%),#fff9ed]">
+      
+      {/* CONTENT BOX */}
+      <section className="relative z-10 mx-auto min-h-[100dvh] w-[min(calc(100%-48px),410px)] pt-[6vh] sm:w-[min(calc(100%-48px),430px)] sm:pt-[7vh] lg:mx-0 lg:min-h-auto lg:w-[520px] lg:max-w-full lg:rounded-[28px] lg:border lg:border-[#e5d7c4] lg:bg-[rgba(255,253,248,0.97)] lg:p-[44px_46px_42px] lg:shadow-[0_22px_55px_rgba(90,52,16,0.12)] xl:w-[560px] xl:p-[50px_50px_46px]">
+        
         {/* ORNAMENT */}
-
-        <img src="/images/login-ornament.png" alt="" className="ornament" />
-
-        {/* TITLE */}
-
-        <h1>{t("verifyMobileNumber")}</h1>
-
-        {/* OTP INFO */}
-
-        <p className="subtitle">
-          {t("enterSixDigitOtp")}
-
-          <br />
-
-          <strong>+91 {mobile}</strong>
-        </p>
-
-        {/* OTP INPUT */}
-
-        <input
-          className="otpInput"
-          type="tel"
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          placeholder="• • • • • •"
-          value={otp}
-          onChange={handleOtpChange}
-          aria-label="OTP"
+        <img
+          src="/images/login-ornament.png"
+          alt=""
+          className="mx-auto -mb-1 block h-[125px] w-[125px] object-contain opacity-58 sm:h-[140px] sm:w-[140px] lg:h-[150px] lg:w-[150px] xl:h-[165px] xl:w-[165px]"
         />
 
+        {/* TITLE */}
+        <h1 className="font-serif text-[29px] font-bold leading-[1.15] text-[#8c1717] sm:text-[32px] lg:text-[38px] xl:text-[40px]">
+          {t("verifyMobileNumber")}
+        </h1>
+
+        {/* OTP INFO */}
+        <p className="my-[10px] mb-[24px] text-[14px] leading-[1.55] text-[#71655b] sm:my-[10px] sm:mb-[26px] sm:text-[15px] lg:my-[11px] lg:mb-[30px] lg:text-[16px]">
+          {t("enterSixDigitOtp")}
+          <br />
+          <strong className="font-bold text-[#332820]">+91 {mobile}</strong>
+        </p>
+
+        {/* 6 SEPARATE OTP INPUT BOXES */}
+        <div className="flex justify-between gap-2 w-full" onPaste={handlePaste}>
+          {otpValues.map((digit, index) => (
+            <input
+              key={index}
+              ref={(el) => {
+                inputRefs.current[index] = el;
+              }}
+              className="flex h-[52px] w-full items-center justify-center rounded-[12px] border border-[#d3a653] bg-[#fffdf9] text-center font-bold text-[#8c1717] text-[20px] shadow-[0_4px_14px_rgba(107,61,13,0.05)] outline-none transition-all duration-180 focus:border-[#8c1717] focus:ring-2 focus:ring-[#8c1717]/10 sm:h-[58px] sm:text-[22px] lg:h-[64px] lg:rounded-[14px] lg:text-[25px] xl:h-[66px] xl:text-[26px]"
+              type="tel"
+              inputMode="numeric"
+              autoComplete={index === 0 ? "one-time-code" : "off"}
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleChange(index, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(index, e)}
+              aria-label={`Digit ${index + 1}`}
+            />
+          ))}
+        </div>
+
         {error && (
-          <p
-            style={{
-              color: "var(--maroon)",
-              fontSize: "14px",
-              marginTop: "10px",
-              marginBottom: "0",
-            }}
-          >
+          <p className="mt-[10px] mb-0 text-[14px] text-[#8c1717]">
             {error}
           </p>
         )}
 
-        {/* VERIFY */}
-
+        {/* VERIFY BUTTON */}
         <button
           type="button"
-          className="verify"
           disabled={
             loading ||
             (process.env.NEXT_PUBLIC_ENV === "production"
-              ? otp.length !== 6
-              : otp.length > 0 && otp.length !== 6)
+              ? otpValues.join("").length !== 6
+              : otpValues.join("").length > 0 && otpValues.join("").length !== 6)
           }
-          onClick={verify}
+          onClick={() => verify()}
+          className="mt-[20px] inline-flex h-[51px] w-full items-center justify-center gap-2 rounded-[13px] bg-[#8c1717] text-[15px] font-bold text-white shadow-[0_6px_15px_rgba(113,17,17,0.13)] transition-all duration-180 active:scale-[0.985] disabled:bg-[#d28d88] disabled:shadow-none sm:h-[54px] sm:text-[16px] lg:h-[56px] lg:rounded-[14px] lg:hover:bg-[#6c1111] lg:hover:-translate-y-[1px] lg:hover:shadow-[0_9px_22px_rgba(113,17,17,0.18)] xl:h-[58px]"
         >
           {loading ? "..." : t("verifyContinue")}
-
-          {!loading && <span>›</span>}
+          {!loading && <span className="text-[22px] leading-none">›</span>}
         </button>
 
         {/* RESEND */}
-
-        <button type="button" className="resend" onClick={resendOtp}>
+        <button
+          type="button"
+          onClick={resendOtp}
+          className="mt-[17px] border-0 bg-transparent p-0 text-[14px] font-semibold text-[#8c1717] lg:mt-[21px] lg:text-[15px] lg:cursor-pointer lg:hover:underline"
+        >
           {t("resendOtp")}
         </button>
 
         {/* CHANGE MOBILE */}
-
-        <button type="button" className="back" onClick={changeMobileNumber}>
+        <button
+          type="button"
+          onClick={changeMobileNumber}
+          className="mx-auto mt-[20px] block border-0 bg-transparent p-0 text-[13px] text-[#71655b] lg:mt-[24px] lg:text-[14px] lg:cursor-pointer lg:hover:text-[#8c1717]"
+        >
           ← {t("changeMobileNumber")}
         </button>
       </section>
 
-      {/* DECORATION */}
+      {/* DECORATION CORNERS */}
+      <div className="pointer-events-none absolute bottom-[20px] -left-[29px] h-[58px] w-[58px] rounded-full border border-[#d5b66d] opacity-20 sm:left-[-29px] lg:bottom-[35px] lg:left-[30px] lg:h-[120px] lg:w-[120px] lg:opacity-12" />
+      <div className="pointer-events-none absolute bottom-[20px] -right-[29px] h-[58px] w-[58px] rounded-full border border-[#d5b66d] opacity-20 sm:right-[-29px] lg:bottom-[35px] lg:right-[30px] lg:h-[120px] lg:w-[120px] lg:opacity-12" />
 
-      <div className="cornerLeft" />
-      <div className="cornerRight" />
-
-      <style jsx global>{`
-        /* ==========================================
-           PAGE
-        ========================================== */
-
-        .screen {
-          position: relative;
-
-          width: 100%;
-          min-height: 100dvh;
-
-          overflow: hidden;
-
-          display: flex;
-          flex-direction: column;
-
-          background: radial-gradient(
-            circle at 50% 10%,
-            #ffffff 0,
-            #fffaf0 38%,
-            #f8ecd6 100%
-          );
-
-          color: var(--text);
-
-          text-align: center;
-        }
-
-        /* ==========================================
-           CONTENT
-        ========================================== */
-
-        .content {
-          position: relative;
-
-          z-index: 2;
-
-          width: min(calc(100% - 48px), 390px);
-
-          min-height: 100dvh;
-
-          margin: 0 auto;
-
-          padding-top: 6vh;
-        }
-
-        /* ==========================================
-           ORNAMENT
-        ========================================== */
-
-        .ornament {
-          width: 125px;
-          height: 125px;
-
-          display: block;
-
-          margin: 0 auto -4px;
-
-          object-fit: contain;
-
-          opacity: 0.58;
-
-          border: 0;
-
-          border-radius: 0;
-
-          background: transparent;
-
-          box-shadow: none;
-        }
-
-        /* ==========================================
-           TITLE
-        ========================================== */
-
-        .content h1 {
-          margin: 0;
-
-          color: var(--maroon);
-
-          font-family: Georgia, "Times New Roman", serif;
-
-          font-size: 29px;
-
-          line-height: 1.15;
-
-          font-weight: 700;
-        }
-
-        /* ==========================================
-           MESSAGE
-        ========================================== */
-
-        .subtitle {
-          margin: 10px 0 24px;
-
-          color: var(--muted);
-
-          font-size: 14px;
-
-          line-height: 1.55;
-        }
-
-        .subtitle strong {
-          color: var(--text);
-
-          font-weight: 700;
-        }
-
-        /* ==========================================
-           OTP INPUT
-        ========================================== */
-
-        .otpInput {
-          width: 100%;
-
-          height: 58px;
-
-          padding: 0 18px;
-
-          border: 1px solid #d3a653;
-
-          border-radius: 14px;
-
-          outline: none;
-
-          background: #fffdf9;
-
-          color: var(--maroon);
-
-          text-align: center;
-
-          font-size: 22px;
-
-          font-weight: 700;
-
-          letter-spacing: 8px;
-
-          box-shadow: 0 4px 14px rgba(107, 61, 13, 0.05);
-
-          transition:
-            border-color 0.18s ease,
-            box-shadow 0.18s ease;
-        }
-
-        .otpInput::placeholder {
-          color: #c9c0b6;
-
-          letter-spacing: 5px;
-        }
-
-        .otpInput:focus {
-          border-color: var(--maroon);
-
-          box-shadow: 0 0 0 3px rgba(167, 25, 25, 0.08);
-        }
-
-        /* ==========================================
-           VERIFY BUTTON
-        ========================================== */
-
-        .verify {
-          width: 100%;
-
-          height: 51px;
-
-          margin-top: 15px;
-
-          display: inline-flex;
-
-          align-items: center;
-          justify-content: center;
-
-          gap: 8px;
-
-          border: 0;
-
-          border-radius: 13px;
-
-          background: var(--maroon);
-
-          color: #fff;
-
-          font-size: 15px;
-
-          font-weight: 700;
-
-          box-shadow: 0 6px 15px rgba(113, 17, 17, 0.13);
-
-          transition:
-            transform 0.18s ease,
-            background 0.18s ease,
-            box-shadow 0.18s ease;
-        }
-
-        .verify span {
-          font-size: 22px;
-
-          line-height: 1;
-        }
-
-        .verify:disabled {
-          background: #d28d88;
-
-          box-shadow: none;
-        }
-
-        .verify:not(:disabled):active {
-          transform: scale(0.985);
-        }
-
-        /* ==========================================
-           RESEND
-        ========================================== */
-
-        .resend {
-          margin-top: 17px;
-
-          padding: 0;
-
-          border: 0;
-
-          background: transparent;
-
-          color: var(--maroon);
-
-          font-size: 14px;
-
-          font-weight: 600;
-        }
-
-        /* ==========================================
-           CHANGE MOBILE
-        ========================================== */
-
-        .back {
-          display: block;
-
-          margin: 20px auto 0;
-
-          padding: 0;
-
-          border: 0;
-
-          background: transparent;
-
-          color: var(--muted);
-
-          font-size: 13px;
-        }
-
-        /* ==========================================
-           GOLD CORNERS
-        ========================================== */
-
-        .cornerLeft,
-        .cornerRight {
-          position: absolute;
-
-          bottom: 20px;
-
-          width: 58px;
-          height: 58px;
-
-          border: 1px solid #d5b66d;
-
-          border-radius: 50%;
-
-          opacity: 0.2;
-
-          pointer-events: none;
-        }
-
-        .cornerLeft {
-          left: -29px;
-        }
-
-        .cornerRight {
-          right: -29px;
-        }
-
-        /* ==========================================
-           SMALL MOBILE
-        ========================================== */
-
-        @media (max-width: 359px) {
-          .content {
-            width: calc(100% - 28px);
-
-            padding-top: 3vh;
-          }
-
-          .ornament {
-            width: 95px;
-            height: 95px;
-
-            margin-bottom: -2px;
-          }
-
-          .content h1 {
-            font-size: 25px;
-          }
-
-          .subtitle {
-            margin: 7px 0 16px;
-
-            font-size: 12px;
-          }
-
-          .otpInput {
-            height: 50px;
-
-            font-size: 19px;
-
-            letter-spacing: 6px;
-          }
-
-          .verify {
-            height: 47px;
-
-            font-size: 14px;
-          }
-
-          .resend {
-            margin-top: 12px;
-
-            font-size: 13px;
-          }
-
-          .back {
-            margin-top: 14px;
-
-            font-size: 12px;
-          }
-        }
-
-        /* ==========================================
-           SHORT MOBILE HEIGHT
-        ========================================== */
-
-        @media (max-height: 700px) and (max-width: 599px) {
-          .content {
-            padding-top: 2vh;
-          }
-
-          .ornament {
-            width: 92px;
-            height: 92px;
-
-            margin-bottom: -2px;
-          }
-
-          .content h1 {
-            font-size: 25px;
-          }
-
-          .subtitle {
-            margin: 6px 0 15px;
-          }
-
-          .otpInput {
-            height: 49px;
-          }
-
-          .verify {
-            height: 45px;
-
-            margin-top: 12px;
-          }
-
-          .resend {
-            margin-top: 11px;
-          }
-
-          .back {
-            margin-top: 12px;
-          }
-        }
-
-        /* ==========================================
-           LARGE MOBILE
-        ========================================== */
-
-        @media (min-width: 430px) and (max-width: 599px) {
-          .content {
-            width: min(calc(100% - 48px), 420px);
-
-            padding-top: 7vh;
-          }
-
-          .ornament {
-            width: 140px;
-            height: 140px;
-          }
-
-          .content h1 {
-            font-size: 32px;
-          }
-
-          .subtitle {
-            margin: 10px 0 26px;
-
-            font-size: 15px;
-          }
-
-          .otpInput {
-            height: 60px;
-
-            font-size: 23px;
-          }
-
-          .verify {
-            height: 54px;
-
-            font-size: 16px;
-          }
-
-          .resend {
-            font-size: 15px;
-          }
-
-          .back {
-            font-size: 14px;
-          }
-        }
-
-        /* ==========================================
-           TABLET
-        ========================================== */
-
-        @media (min-width: 600px) and (max-width: 1023px) {
-          .screen {
-            min-height: 100vh;
-
-            display: grid;
-
-            place-items: center;
-
-            padding: 50px 24px;
-          }
-
-          .content {
-            width: 480px;
-
-            max-width: 100%;
-
-            min-height: auto;
-
-            margin: 0;
-
-            padding: 38px 38px 36px;
-
-            border: 1px solid var(--border);
-
-            border-radius: 24px;
-
-            background: rgba(255, 253, 248, 0.96);
-
-            box-shadow: 0 18px 45px rgba(83, 48, 14, 0.1);
-          }
-
-          .ornament {
-            width: 145px;
-            height: 145px;
-          }
-
-          .content h1 {
-            font-size: 34px;
-          }
-
-          .subtitle {
-            margin: 11px 0 27px;
-
-            font-size: 15px;
-          }
-
-          .otpInput {
-            height: 62px;
-
-            font-size: 24px;
-          }
-
-          .verify {
-            height: 54px;
-
-            margin-top: 18px;
-
-            font-size: 16px;
-          }
-
-          .resend {
-            margin-top: 19px;
-
-            font-size: 15px;
-          }
-
-          .back {
-            margin-top: 22px;
-
-            font-size: 14px;
-          }
-
-          .cornerLeft,
-          .cornerRight {
-            width: 90px;
-            height: 90px;
-
-            opacity: 0.15;
-          }
-
-          .cornerLeft {
-            left: 25px;
-          }
-
-          .cornerRight {
-            right: 25px;
-          }
-        }
-
-        /* ==========================================
-           DESKTOP WEBSITE
-        ========================================== */
-
-        @media (min-width: 1024px) {
-          .screen {
-            min-height: 100vh;
-
-            display: grid;
-
-            place-items: center;
-
-            padding: 70px 40px;
-
-            background:
-              radial-gradient(
-                circle at top left,
-                rgba(201, 148, 53, 0.12),
-                transparent 34%
-              ),
-              radial-gradient(
-                circle at bottom right,
-                rgba(167, 25, 25, 0.08),
-                transparent 30%
-              ),
-              #fff9ed;
-          }
-
-          .content {
-            width: 520px;
-
-            max-width: 100%;
-
-            min-height: auto;
-
-            margin: 0;
-
-            padding: 44px 46px 42px;
-
-            border: 1px solid var(--border);
-
-            border-radius: 28px;
-
-            background: rgba(255, 253, 248, 0.97);
-
-            box-shadow: 0 22px 55px rgba(90, 52, 16, 0.12);
-          }
-
-          .ornament {
-            width: 150px;
-            height: 150px;
-
-            margin-bottom: -2px;
-          }
-
-          .content h1 {
-            font-size: 38px;
-          }
-
-          .subtitle {
-            margin: 11px 0 30px;
-
-            font-size: 16px;
-          }
-
-          .otpInput {
-            height: 64px;
-
-            border-radius: 15px;
-
-            font-size: 25px;
-
-            letter-spacing: 10px;
-          }
-
-          .verify {
-            height: 56px;
-
-            margin-top: 18px;
-
-            border-radius: 14px;
-
-            font-size: 16px;
-          }
-
-          .verify:not(:disabled):hover {
-            background: var(--dark-maroon);
-
-            transform: translateY(-1px);
-
-            box-shadow: 0 9px 22px rgba(113, 17, 17, 0.18);
-          }
-
-          .resend {
-            margin-top: 21px;
-
-            font-size: 15px;
-
-            cursor: pointer;
-          }
-
-          .resend:hover {
-            text-decoration: underline;
-          }
-
-          .back {
-            margin-top: 24px;
-
-            font-size: 14px;
-
-            cursor: pointer;
-          }
-
-          .back:hover {
-            color: var(--maroon);
-          }
-
-          .cornerLeft,
-          .cornerRight {
-            width: 120px;
-            height: 120px;
-
-            bottom: 35px;
-
-            opacity: 0.12;
-          }
-
-          .cornerLeft {
-            left: 30px;
-          }
-
-          .cornerRight {
-            right: 30px;
-          }
-        }
-
-        /* ==========================================
-           LARGE DESKTOP
-        ========================================== */
-
-        @media (min-width: 1440px) {
-          .content {
-            width: 560px;
-
-            padding: 50px 50px 46px;
-          }
-
-          .ornament {
-            width: 165px;
-            height: 165px;
-          }
-
-          .content h1 {
-            font-size: 40px;
-          }
-
-          .otpInput {
-            height: 66px;
-
-            font-size: 26px;
-          }
-
-          .verify {
-            height: 58px;
-          }
-        }
-      `}</style>
     </main>
   );
 }

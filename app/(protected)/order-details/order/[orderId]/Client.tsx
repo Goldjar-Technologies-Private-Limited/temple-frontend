@@ -423,11 +423,6 @@ export default function OrderDetailsPage() {
         title="Order Details"
         subtitle="Shri Govardhannath Haveli"
         backHref="/my-orders"
-        rightAction={
-          <span className="hidden truncate text-xs font-semibold text-[#8b1e1e] sm:block">
-            #{order.id}
-          </span>
-        }
       />
 
       <div className="mx-auto w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
@@ -514,13 +509,13 @@ export default function OrderDetailsPage() {
                   key={`${item.id}-${index}`}
                   className="flex gap-3 rounded-xl border border-[#f0dfd0] bg-[#fffaf5] p-3 transition hover:border-[#e3cbb8] sm:gap-4 sm:p-4"
                 >
-                  {/* PRODUCT IMAGE */}
-                  <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#f5e9df] sm:h-24 sm:w-24">
+                  {/* PRODUCT IMAGE - FIXED SQUARE CONTAINER */}
+                  <div className="relative flex aspect-square h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl   sm:h-24 sm:w-24">
                     {item.image ? (
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full rounded-lg object-cover"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-[#8b1e1e]">

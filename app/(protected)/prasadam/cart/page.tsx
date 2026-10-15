@@ -10,7 +10,7 @@ import {
 } from "@/data/prasadam";
 
 /* =====================================================
-   TYPES
+    TYPES
 ===================================================== */
 
 type CartItemData = {
@@ -31,7 +31,7 @@ const CART_UPDATED_EVENT = "prasadam-cart-updated";
 const DELIVERY_CHARGE = 50;
 
 /* =====================================================
-   HELPERS
+    HELPERS
 ===================================================== */
 
 function getWeightPrice(price: number, weight: Weight): number {
@@ -89,7 +89,7 @@ function formatPrice(price: number): string {
 }
 
 /* =====================================================
-   LOAD CART
+    LOAD CART
 ===================================================== */
 
 function loadCart(): CartItemData[] {
@@ -102,13 +102,9 @@ function loadCart(): CartItemData[] {
 
     const parsed: unknown = JSON.parse(savedCart);
 
-    /* NEW FORMAT */
-
     if (Array.isArray(parsed)) {
       return parsed.filter(isValidCartItem);
     }
-
-    /* OLD FORMAT */
 
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       return Object.entries(parsed)
@@ -134,15 +130,13 @@ function loadCart(): CartItemData[] {
 }
 
 /* =====================================================
-   SAVE CART
+    SAVE CART
 ===================================================== */
 
 function saveCart(cart: CartItemData[]): void {
   try {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-
     localStorage.removeItem(OLD_WEIGHT_STORAGE_KEY);
-
     window.dispatchEvent(new Event(CART_UPDATED_EVENT));
   } catch (error) {
     console.error("Failed to save cart:", error);
@@ -150,7 +144,7 @@ function saveCart(cart: CartItemData[]): void {
 }
 
 /* =====================================================
-   CART PAGE
+    CART PAGE
 ===================================================== */
 
 export default function CartPage() {
@@ -159,32 +153,18 @@ export default function CartPage() {
   const [cart, setCart] = useState<CartItemData[]>([]);
   const [loaded, setLoaded] = useState(false);
 
-  /* ===================================================
-     LOAD CART ON MOUNT
-  =================================================== */
-
   useEffect(() => {
     const savedCart = loadCart();
-
     setCart(savedCart);
     setLoaded(true);
   }, []);
-
-  /* ===================================================
-     AUTO SAVE CART
-  =================================================== */
 
   useEffect(() => {
     if (!loaded) {
       return;
     }
-
     saveCart(cart);
   }, [cart, loaded]);
-
-  /* ===================================================
-     CART ITEMS
-  =================================================== */
 
   const cartItems = useMemo<CartItem[]>(() => {
     return cart
@@ -205,41 +185,19 @@ export default function CartPage() {
       .filter((item): item is CartItem => item !== null);
   }, [cart]);
 
-  /* ===================================================
-     TOTAL ITEMS
-  =================================================== */
-
   const totalItems = useMemo(() => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   }, [cartItems]);
 
-  /* ===================================================
-     SUBTOTAL
-  =================================================== */
-
   const subtotal = useMemo(() => {
     return cartItems.reduce((total, item) => {
       const price = getWeightPrice(item.price, item.weight);
-
       return total + price * item.quantity;
     }, 0);
   }, [cartItems]);
 
-  /* ===================================================
-     DELIVERY
-  =================================================== */
-
   const deliveryCharge = subtotal > 0 ? DELIVERY_CHARGE : 0;
-
-  /* ===================================================
-     TOTAL
-  =================================================== */
-
   const totalAmount = subtotal + deliveryCharge;
-
-  /* ===================================================
-     INCREASE QUANTITY
-  =================================================== */
 
   const increase = (productId: number, weight: Weight): void => {
     setCart((previousCart) => {
@@ -250,47 +208,26 @@ export default function CartPage() {
       if (exists) {
         return previousCart.map((item) =>
           item.productId === productId && item.weight === weight
-            ? {
-                ...item,
-                quantity: item.quantity + 1,
-              }
+            ? { ...item, quantity: item.quantity + 1 }
             : item,
         );
       }
 
-      return [
-        ...previousCart,
-        {
-          productId,
-          weight,
-          quantity: 1,
-        },
-      ];
+      return [...previousCart, { productId, weight, quantity: 1 }];
     });
   };
-
-  /* ===================================================
-     DECREASE QUANTITY
-  =================================================== */
 
   const decrease = (productId: number, weight: Weight): void => {
     setCart((previousCart) =>
       previousCart
         .map((item) =>
           item.productId === productId && item.weight === weight
-            ? {
-                ...item,
-                quantity: item.quantity - 1,
-              }
+            ? { ...item, quantity: item.quantity - 1 }
             : item,
         )
         .filter((item) => item.quantity > 0),
     );
   };
-
-  /* ===================================================
-     REMOVE ITEM
-  =================================================== */
 
   const removeItem = (productId: number, weight: Weight): void => {
     setCart((previousCart) =>
@@ -300,45 +237,25 @@ export default function CartPage() {
     );
   };
 
-  /* ===================================================
-     PLACE ORDER
-  =================================================== */
-
   const handlePlaceOrder = (): void => {
-    if (!loaded || cartItems.length === 0) {
-      console.error("Cart is empty");
-      return;
-    }
+    if (!loaded || cartItems.length === 0) return;
 
     const checkoutCart = cart.filter(isValidCartItem);
-
-    if (checkoutCart.length === 0) {
-      console.error("Cart has no valid items");
-      return;
-    }
+    if (checkoutCart.length === 0) return;
 
     try {
       saveCart(checkoutCart);
-
       router.push("/prasadam/checkout");
     } catch (error) {
       console.error("Failed to proceed to checkout:", error);
     }
   };
 
-  /* ===================================================
-     LOADING
-  =================================================== */
-
   if (!loaded) {
     return (
       <main className="min-h-[100dvh] bg-[#fffaf3] lg:ml-[92px] lg:w-[calc(100%-92px)]" />
     );
   }
-
-  /* ===================================================
-     EMPTY CART
-  =================================================== */
 
   if (cartItems.length === 0) {
     return (
@@ -372,10 +289,6 @@ export default function CartPage() {
     );
   }
 
-  /* ===================================================
-     MAIN CART
-  =================================================== */
-
   return (
     <main className="min-h-[100dvh] overflow-x-hidden bg-[#fffaf3] pb-10 lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-12">
       <CartHeader totalItems={totalItems} />
@@ -390,7 +303,6 @@ export default function CartPage() {
             <div className="overflow-hidden rounded-[18px] border border-[#eadbc5] bg-[#fffdf8] shadow-[0_8px_25px_rgba(80,45,15,0.05)]">
               {cartItems.map((item, index) => {
                 const itemPrice = getWeightPrice(item.price, item.weight);
-
                 const itemTotal = itemPrice * item.quantity;
 
                 return (
@@ -434,7 +346,6 @@ export default function CartPage() {
                           </div>
 
                           {/* REMOVE */}
-
                           <button
                             type="button"
                             onClick={() =>
@@ -450,7 +361,6 @@ export default function CartPage() {
                         </div>
 
                         {/* PRICE */}
-
                         <p className="mt-2 text-[13px] font-bold text-[#a71919] sm:text-base">
                           ₹{formatPrice(itemPrice)}
                           <span className="ml-1 text-[9px] font-medium text-[#8d8177]">
@@ -481,8 +391,6 @@ export default function CartPage() {
                               {item.quantity}
                             </span>
 
-                            {/* PLUS */}
-
                             <button
                               type="button"
                               onClick={() =>
@@ -507,8 +415,6 @@ export default function CartPage() {
                 );
               })}
             </div>
-
-            {/* ADD MORE */}
 
             <button
               type="button"
@@ -558,7 +464,6 @@ export default function CartPage() {
                   <p className="text-xs font-semibold text-[#4c4037]">
                     Total Amount
                   </p>
-
                   <p className="mt-0.5 text-[9px] text-[#97897d]">
                     Inclusive of all charges
                   </p>
@@ -568,8 +473,6 @@ export default function CartPage() {
                   ₹{formatPrice(totalAmount)}
                 </strong>
               </div>
-
-              {/* PLACE ORDER */}
 
               <button
                 type="button"
@@ -594,7 +497,7 @@ export default function CartPage() {
 }
 
 /* =====================================================
-   HEADER
+    HEADER
 ===================================================== */
 
 function CartHeader({ totalItems }: { totalItems: number }) {
@@ -613,21 +516,20 @@ function CartHeader({ totalItems }: { totalItems: number }) {
 }
 
 /* =====================================================
-   SUMMARY ROW
+    SUMMARY ROW
 ===================================================== */
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4 text-xs">
       <span className="min-w-0 text-[#81756c]">{label}</span>
-
       <strong className="shrink-0 text-[#4b4038]">{value}</strong>
     </div>
   );
 }
 
 /* =====================================================
-   CART ICON
+    CART ICON
 ===================================================== */
 
 function CartIcon() {
@@ -642,16 +544,14 @@ function CartIcon() {
       className="h-10 w-10 text-[#a71919]"
     >
       <circle cx="9" cy="20" r="1" />
-
       <circle cx="18" cy="20" r="1" />
-
       <path d="M3 4h2l2.4 10.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 8H6" />
     </svg>
   );
 }
 
 /* =====================================================
-   TRASH ICON
+    TRASH ICON
 ===================================================== */
 
 function TrashIcon() {
@@ -666,13 +566,9 @@ function TrashIcon() {
       className="h-4 w-4"
     >
       <path d="M3 6h18" />
-
       <path d="M8 6V4h8v2" />
-
       <path d="M19 6l-1 14H6L5 6" />
-
       <path d="M10 11v5" />
-
       <path d="M14 11v5" />
     </svg>
   );
