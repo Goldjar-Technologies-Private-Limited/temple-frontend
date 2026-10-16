@@ -6,7 +6,7 @@ import {
   MdHomeFilled,
   MdLiveTv,
   MdVolunteerActivism,
-  MdOndemandVideo,
+MdOutlineVideocam,
   MdPerson,
 } from "react-icons/md";
 
@@ -30,7 +30,7 @@ const navIconMap = {
   home: <MdHomeFilled />,
   darshan: <MdLiveTv />,
   seva: <MdVolunteerActivism />,
-  reels: <MdOndemandVideo />,
+  reels: <MdOutlineVideocam />,
   profile: <MdPerson />,
 };
 

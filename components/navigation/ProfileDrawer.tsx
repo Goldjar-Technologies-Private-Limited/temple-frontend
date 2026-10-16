@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {  useCallback,useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useLanguage } from "@/contexts/LanguageProvider";
@@ -19,7 +19,28 @@ export default function ProfileDrawer({ onClose }: Props) {
 
   const { t } = useLanguage();
 
+  // Animation state
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Load animation after the drawer mounts
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setIsVisible(true);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
   const [profile, setProfile] = useState<ProfileData>(defaultProfile);
+
+  // CLOSE DRAWER WITH ANIMATION
+const handleClose = useCallback(() => {
+  setIsVisible(false);
+
+  window.setTimeout(() => {
+    onClose();
+  }, 300);
+}, [onClose]);
 
   // =========================================================
   // LOAD PROFILE
@@ -58,7 +79,7 @@ export default function ProfileDrawer({ onClose }: Props) {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        onClose();
+        handleClose();
       }
     };
 
@@ -99,22 +120,27 @@ export default function ProfileDrawer({ onClose }: Props) {
   // EDIT PROFILE
   // =========================================================
 
-  const handleEditProfile = () => {
-    onClose();
+ const handleEditProfile = () => {
+  handleClose();
+
+  window.setTimeout(() => {
     router.push("/profile");
-  };
+  }, 300);
+};
 
   // =========================================================
   // LOGOUT
   // =========================================================
 
-  const handleLogout = () => {
-    localStorage.removeItem("auth-token");
+ const handleLogout = () => {
+  localStorage.removeItem("auth-token");
 
-    onClose();
+  handleClose();
 
+  window.setTimeout(() => {
     router.replace("/login");
-  };
+  }, 300);
+};
 
   // =========================================================
   // UI
@@ -128,8 +154,8 @@ export default function ProfileDrawer({ onClose }: Props) {
 
       <div
         role="presentation"
-        onClick={onClose}
-        className="fixed inset-0 z-[999] flex bg-[#21150f]/45 backdrop-blur-[4px]"
+        onClick={handleClose}
+        className={`fixed inset-0 z-[999] flex bg-[#21150f]/45 backdrop-blur-[4px] transition-opacity duration-300 ease-out ${isVisible ? "opacity-100" : "opacity-0"}`}
       >
         {/* ===================================================
             DRAWER
@@ -140,7 +166,7 @@ export default function ProfileDrawer({ onClose }: Props) {
           aria-modal="true"
           aria-label="Profile menu"
           onClick={(event) => event.stopPropagation()}
-          className="flex h-[100dvh] w-[88%] max-w-[360px] flex-col overflow-hidden border-r border-[#e6d4b7] bg-[#fffaf1] shadow-[18px_0_50px_rgba(54,28,11,0.22)] sm:w-[360px] lg:w-[380px] lg:max-w-[380px]"
+          className={`flex h-[100dvh] w-[88%] max-w-[360px] flex-col overflow-hidden border-r border-[#e6d4b7] bg-[#fffaf1] shadow-[18px_0_50px_rgba(54,28,11,0.22)] transition-transform duration-300 ease-out sm:w-[360px] lg:w-[380px] lg:max-w-[380px] ${isVisible ? "translate-x-0" : "-translate-x-full"}`}
         >
           {/* =================================================
               PROFILE HEADER
@@ -172,7 +198,7 @@ export default function ProfileDrawer({ onClose }: Props) {
 
               <button
                 type="button"
-                onClick={onClose}
+                onClick={handleClose}
                 aria-label="Close profile menu"
                 className="grid h-9 w-9 place-items-center rounded-full border border-white/20 bg-white/10 text-[23px] font-light leading-none text-white transition hover:bg-white/20 active:scale-95"
               >
