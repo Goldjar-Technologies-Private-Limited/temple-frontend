@@ -101,15 +101,6 @@ export default function LiveDarshan() {
               <div className="relative aspect-video w-full overflow-hidden bg-[#111]">
                 {stream.id.startsWith("YOUR_") ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-5 text-center text-white">
-                    <span className="text-[34px] text-[#d51b1b]">▶</span>
-
-                    <strong className="text-sm sm:text-base">
-                      YouTube Live
-                    </strong>
-
-                    <small className="max-w-[260px] text-[9px] leading-relaxed text-[#c9c9c9] sm:text-[10px]">
-                      {t("youtubeLiveSetup")}
-                    </small>
                   </div>
                 ) : (
                   <iframe
@@ -126,13 +117,7 @@ export default function LiveDarshan() {
 
               {/* VIDEO FOOTER */}
 
-              {!stream.id.startsWith("YOUR_") && (
-                <div className="flex items-center justify-end gap-2 border-t border-[#eadbc5] bg-[#fff8e9] px-3 py-2 sm:px-4 lg:px-[17px] lg:py-2.5">
-                  <span className="text-[10px] text-[#8b8178] sm:text-xs">
-                    {t("liveDarshan")}
-                  </span>
-                </div>
-              )}
+             
             </section>
           </div>
 

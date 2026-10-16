@@ -2,7 +2,7 @@ import type { TranslationKey } from "@/utils/i18n";
 
 export type PrasadamCategory = "all" | "sweets" | "mahaprasad" | "gifts";
 export type ProductCategory = "sweets" | "mahaprasad" | "gifts";
-export type PrasadamWeight = "250g" | "500g" | "1kg";
+export type PrasadamWeight = "250gm" | "500gm" | "1kg";
 
 export type PrasadamCategoryItem = {
   id: PrasadamCategory;
@@ -116,14 +116,7 @@ export const PRASADAM_PRODUCTS: PrasadamProduct[] = [
     image: "/images/panchamrit.jpg",
     category: "mahaprasad",
   },
-  {
-    id: 11,
-    titleKey: "panchamrit",
-    description: "A traditional sacred offering prepared with devotional care.",
-    price: 300,
-    image: "/images/panchamrit.jpg",
-    category: "mahaprasad",
-  },
+  
 ];
 
 export const CART_CHECKOUT_PRODUCTS: CartCheckoutProduct[] = [
@@ -151,4 +144,41 @@ export const CART_CHECKOUT_PRODUCTS: CartCheckoutProduct[] = [
     price: 300,
     image: "/images/panchamrit.jpg",
   },
+   {
+    id: 5,
+    name: "Panchamrit",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+  },
+   {
+    id: 6,
+    name: "Panchamrit",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+  },
+  {
+    id: 7,
+    name: "Panchamrit",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+  },
+    {
+    id: 8,
+    name: "Panchamrit",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+  },
+    {
+    id: 9,
+    name: "Panchamrit",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+  },
+    {
+    id: 10,
+    name: "Panchamrit",
+    price: 300,
+    image: "/images/panchamrit.jpg",
+  },
+  
 ];

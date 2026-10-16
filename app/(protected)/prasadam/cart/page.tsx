@@ -36,13 +36,13 @@ const DELIVERY_CHARGE = 50;
 
 function getWeightPrice(price: number, weight: Weight): number {
   switch (weight) {
-    case "250g":
+    case "250gm":
       return price * 0.5;
 
     case "1kg":
       return price * 2;
 
-    case "500g":
+    case "500gm":
     default:
       return price;
   }
@@ -50,15 +50,15 @@ function getWeightPrice(price: number, weight: Weight): number {
 
 function getWeightLabel(weight: Weight): string {
   switch (weight) {
-    case "250g":
-      return "250 Gram";
+    case "250gm":
+      return "250 gm";
 
     case "1kg":
-      return "1 Kg";
+      return "1 kg";
 
-    case "500g":
+    case "500gm":
     default:
-      return "500 Gram";
+      return "500 gm";
   }
 }
 
@@ -339,7 +339,7 @@ export default function CartPage() {
                             </h3>
 
                             {/* WEIGHT */}
-                            <span className="mt-1 inline-flex rounded-md border border-[#eadbc5] bg-[#fff8ea] px-2 py-1 text-[9px] font-bold text-[#8a641f] sm:text-[10px]">
+                            <span className=" mt-1 inline-flex rounded-md border border-[#eadbc5] bg-[#f5e7dc] px-2 py-1 text-[12px] font-bold text-[#a71919] sm:text-[10px]">
                               {getWeightLabel(item.weight)}
                             </span>
                           </div>
@@ -363,7 +363,7 @@ export default function CartPage() {
                         <p className="mt-2 text-[13px] font-bold text-[#a71919] sm:text-base">
                           ₹{formatPrice(itemPrice)}
                           <span className="ml-1 text-[9px] font-medium text-[#8d8177]">
-                            / {getWeightLabel(item.weight)}
+                           
                           </span>
                         </p>
 

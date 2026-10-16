@@ -4,7 +4,18 @@ export type DashboardActionKey = "darshan" | "events" | "prasadam" | "more";
 
 export type DashboardActionItem = {
   key: DashboardActionKey;
-  icon: "headset" | "seva" | "cow" | "gift" | "play" | "food" | "grid";
+  icon:
+    | "headset"
+    | "seva"
+    | "cow"
+    | "gift"
+    | "play"
+    | "food"
+    | "grid"
+    | "darshan"
+    | "event"
+    |"more"
+    |"watch";
   labels: [TranslationKey, TranslationKey?];
   route?: string;
 };
@@ -12,13 +23,13 @@ export type DashboardActionItem = {
 export const ACTION_ITEMS: DashboardActionItem[] = [
   {
     key: "darshan",
-    icon: "gift",
-    labels: ["darshan", "darshanTimings"],
+    icon: "watch",
+    labels: ["darshanTimings"],
     route: "/darshan-timings",
   },
   {
     key: "events",
-    icon: "gift",
+    icon: "event",
     labels: ["events"],
     route: "/events",
   },
@@ -30,7 +41,7 @@ export const ACTION_ITEMS: DashboardActionItem[] = [
   },
   {
     key: "more",
-    icon: "grid",
+    icon: "more",
     labels: ["more"],
   },
 ];

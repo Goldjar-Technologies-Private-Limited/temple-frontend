@@ -10,6 +10,10 @@ import {
   Utensils,
   Grid2X2,
   Video,
+  Heart,
+  Clock,
+  CalendarDays,
+  PanelLeft,
 } from "lucide-react";
 
 import { GiCow } from "react-icons/gi";
@@ -39,6 +43,10 @@ const iconMap = {
   play: Play,
   food: Utensils,
   grid: Grid2X2,
+  darshan: Heart,
+  watch: Clock,
+  more: PanelLeft,
+  event: CalendarDays,
 };
 
 /* =========================================================
