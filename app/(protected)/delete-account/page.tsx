@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import CommonHeader from "@/components/layout/CommonHeader";
 import {
   Check,
   CheckCircle2,
@@ -176,15 +175,6 @@ export default function DeleteAccountPage() {
 
   return (
     <main className="min-h-[100dvh] bg-[#fffaf1] pb-10 text-[#40372f] lg:ml-[92px] lg:w-[calc(100%-92px)]">
-      {/* HEADER */}
-
-      {/* COMMON HEADER */}
-      <CommonHeader
-        title="Delete Account"
-        subtitle="Shri Govardhannath Haveli"
-        backHref="/dashboard"
-      />
-
       {/* CONTENT */}
       <div className="mx-auto w-full max-w-[900px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         {/* HERO */}

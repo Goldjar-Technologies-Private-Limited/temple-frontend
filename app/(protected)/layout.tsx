@@ -1,14 +1,9 @@
-import MainNavigation from "@/components/navigation/MainNavigation";
+import ProtectedLayoutClient from "@/components/layout/ProtectedLayoutClient";
 
 export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <>
-      {children}
-      <MainNavigation />
-    </>
-  );
+  return <ProtectedLayoutClient>{children}</ProtectedLayoutClient>;
 }

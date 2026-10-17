@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import type { TranslationKey } from "@/utils/i18n";
-import CommonHeader from "@/components/layout/CommonHeader";
 import { EVENTS as events, type EventItem, type EventTab } from "@/data/events";
 
 /* =========================================================
@@ -162,13 +161,6 @@ export default function Events() {
 
   return (
     <main className="min-h-dvh w-full overflow-x-hidden bg-[radial-gradient(circle_at_50%_-10%,#fffef9_0,#fffaf0_42%,#f6ead5_100%)] text-[#4b4039] pb-[calc(35px+env(safe-area-inset-bottom))] lg:min-h-screen lg:bg-[radial-gradient(circle_at_top_right,rgba(201,148,53,0.12),transparent_30%),#fff9ed] lg:pb-16">
-      {/* HEADER */}
-      <CommonHeader
-        title={t("events")}
-        subtitle={t("haveliName")}
-        backHref="/dashboard"
-      />
-
       {/* =====================================================
           PAGE CONTAINER
       ===================================================== */}

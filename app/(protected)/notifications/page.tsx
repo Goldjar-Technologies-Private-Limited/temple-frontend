@@ -1,10 +1,7 @@
 "use client";
 
-import CommonHeader from "@/components/layout/CommonHeader";
 import {
-  Heart,
   CalendarDays,
-  Clock,
   Eye,
   CalendarCheck,
   HandCoins,
@@ -98,17 +95,13 @@ function NotificationCard({ notification }: { notification: Notification }) {
 
             {/* DATE AND TIME */}
 
-            <div className="shrink-0 text-right text-[8px] leading-3.5 text-[#9a8679] sm:text-[10px] sm:leading-4">
+            <div className="shrink-0 text-right text-[10px] leading-3.5 text-[#9a8679] sm:text-[12px] sm:leading-4">
               <div className="flex items-center justify-end gap-0.5 sm:gap-1">
                 <CalendarDays size={10} strokeWidth={1.7} />
 
-                <span className="whitespace-nowrap">{notification.date}</span>
-              </div>
-
-              <div className="mt-0.5 flex items-center justify-end gap-0.5 sm:gap-1">
-                <Clock size={10} strokeWidth={1.7} />
-
-                <span className="whitespace-nowrap">{notification.time}</span>
+                <span className="whitespace-nowrap">
+                  {notification.date} {notification.time}
+                </span>
               </div>
             </div>
           </div>
@@ -145,14 +138,6 @@ export default function NotificationsPage() {
 
         <div className="absolute -left-32 top-[45%] h-72 w-72 rounded-full bg-[#a71919]/5 blur-3xl sm:h-96 sm:w-96" />
       </div>
-      {/* HEADER */}
-      {/* COMMON HEADER */}
-      <CommonHeader
-        title="Notifications"
-        subtitle="Stay connected with Haveli updates"
-        backHref="/dashboard"
-      />
-
       {/* MAIN CONTENT */}
       <div className="relative mx-auto w-full max-w-[1400px] px-3 py-5 sm:px-5 sm:py-7 md:px-6 lg:px-8 lg:py-9 xl:px-10">
         {/* NOTIFICATION LIST */}
@@ -165,24 +150,6 @@ export default function NotificationsPage() {
                 notification={notification}
               />
             ))}
-          </div>
-        </section>
-
-        {/* FOOTER */}
-
-        <section className="mt-7 sm:mt-10">
-          <div className="flex flex-col items-center justify-center rounded-xl border border-[#eadcc7] bg-white/70 px-4 py-6 text-center sm:rounded-2xl sm:px-5 sm:py-7">
-            <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-[#fff3df] text-[#a71919] sm:mb-3 sm:h-10 sm:w-10">
-              <Heart size={17} strokeWidth={1.5} />
-            </div>
-
-            <p className="text-sm font-semibold text-[#641010] sm:text-base">
-              Jai Shri Govardhannath Ji
-            </p>
-
-            <p className="mt-1 max-w-md text-[10px] leading-5 text-[#8c7669] sm:text-xs">
-              May your connection with the divine remain blessed and peaceful.
-            </p>
           </div>
         </section>
       </div>

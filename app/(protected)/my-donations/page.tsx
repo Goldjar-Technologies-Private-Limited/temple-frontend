@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import CommonHeader from "@/components/layout/CommonHeader";
 import {
   DONATION_FILTERS as filters,
   DUMMY_DONATIONS as dummyDonations,
@@ -71,23 +70,6 @@ export default function MyDonationsPage() {
 
   return (
     <main className="min-h-[100dvh] bg-[#fffaf1] pb-[110px] text-[#40372f] lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-12">
-      {/* COMMON HEADER */}
-      <CommonHeader
-        title="My Donations"
-        subtitle="Shri Govardhannath Haveli"
-        backHref="/dashboard"
-        rightAction={
-          <button
-            type="button"
-            onClick={() => router.push("/seva-donation")}
-            className="hidden min-h-[42px] items-center justify-center gap-2 rounded-xl bg-[#a71919] px-5 text-[11px] font-bold text-white transition hover:bg-[#841313] active:scale-[0.98] lg:flex"
-          >
-            <HeartIcon />
-            Make a Donation
-          </button>
-        }
-      />
-
       {/* ===================================================
           HERO / SUMMARY
       =================================================== */}

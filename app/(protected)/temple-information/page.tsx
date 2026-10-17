@@ -1,34 +1,7 @@
 "use client";
 
+import { facilities } from "@/data/facilities";
 import { useRouter } from "next/navigation";
-import CommonHeader from "@/components/layout/CommonHeader";
-
-/* =========================================================
-   DATA
-========================================================= */
-
-const facilities = [
-  {
-    icon: "darshan",
-    title: "Darshan",
-    description: "Sacred darshan for devotees",
-  },
-  {
-    icon: "seva",
-    title: "Seva",
-    description: "Participate in temple seva",
-  },
-  {
-    icon: "prasadam",
-    title: "Prasadam",
-    description: "Receive blessed prasadam",
-  },
-  {
-    icon: "donation",
-    title: "Donation",
-    description: "Support temple activities",
-  },
-];
 
 /* =========================================================
    PAGE
@@ -39,13 +12,6 @@ export default function TempleInformationPage() {
 
   return (
     <main className="min-h-[100dvh] overflow-x-hidden bg-[#fffaf1] pb-[105px] text-[#40372f] lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-12">
-      {/* COMMON HEADER - ALL SCREEN SIZES */}
-      <CommonHeader
-        title="Temple Information"
-        subtitle="Shri Govardhannath Haveli"
-        backHref="/dashboard"
-      />
-
       {/* ===================================================
           COMPACT HERO - SAME WIDTH AS PAGE CONTENT
       =================================================== */}
@@ -53,9 +19,15 @@ export default function TempleInformationPage() {
       <div className="mx-auto w-full max-w-[1400px] px-3 pt-4 sm:px-5 sm:pt-5 md:px-6 lg:px-8 lg:pt-6 xl:px-10">
         <section className="relative isolate overflow-hidden rounded-2xl border border-[#8e3025]/20 bg-[linear-gradient(120deg,#641010_0%,#851817_55%,#a83d25_100%)] text-white shadow-[0_8px_24px_rgba(100,16,16,0.10)] sm:rounded-[20px]">
           {/* Decorative background */}
-          <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-12 -z-10 h-36 w-36 rounded-full border border-white/10 bg-white/[0.04] sm:h-48 sm:w-48 lg:h-56 lg:w-56" />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-10 -top-12 -z-10 h-36 w-36 rounded-full border border-white/10 bg-white/[0.04] sm:h-48 sm:w-48 lg:h-56 lg:w-56"
+          />
 
-          <div aria-hidden="true" className="pointer-events-none absolute -bottom-16 left-[35%] -z-10 h-32 w-32 rounded-full bg-[#efc56f]/10 blur-sm sm:h-40 sm:w-40" />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -bottom-16 left-[35%] -z-10 h-32 w-32 rounded-full bg-[#efc56f]/10 blur-sm sm:h-40 sm:w-40"
+          />
 
           {/* Hero content */}
           <div className="relative flex items-center justify-between gap-3 px-4 py-4 sm:gap-5 sm:px-6 sm:py-5 lg:px-8 lg:py-6">
@@ -71,7 +43,8 @@ export default function TempleInformationPage() {
               </h1>
 
               <p className="mt-2 max-w-[590px] text-[11px] leading-5 text-white/80 sm:text-xs sm:leading-6 lg:text-sm">
-                A sacred place of devotion, seva and spiritual connection dedicated to Shri Govardhannathji.
+                A sacred place of devotion, seva and spiritual connection
+                dedicated to Shri Govardhannathji.
               </p>
 
               {/* Hero buttons */}
@@ -141,22 +114,27 @@ export default function TempleInformationPage() {
 
             <div className="mt-4 space-y-3 text-[12px] leading-6 text-[#71665d] sm:text-[13px] lg:text-sm lg:leading-7">
               <p>
-                Shri Govardhannath Haveli is a sacred place where devotees come together for darshan, seva, prayer and spiritual devotion.
+                Shri Govardhannath Haveli is a sacred place where devotees come
+                together for darshan, seva, prayer and spiritual devotion.
               </p>
 
               <p>
-                The Haveli provides devotees with access to darshan information, seva and donation services, prasadam, important temple updates and religious events.
+                The Haveli provides devotees with access to darshan information,
+                seva and donation services, prasadam, important temple updates
+                and religious events.
               </p>
 
               <p>
-                Devotees can use this application to stay connected with temple activities and access important services from one place.
+                Devotees can use this application to stay connected with temple
+                activities and access important services from one place.
               </p>
             </div>
 
             {/* QUOTE */}
             <div className="mt-5 rounded-xl border-l-[3px] border-[#b52a20] bg-[#fff4e3] px-4 py-3">
               <p className="font-serif text-[13px] font-semibold leading-6 text-[#6e321d] sm:text-sm">
-                “Seva, Bhakti and Darshan bring the devotee closer to Shri Govardhannathji.”
+                “Seva, Bhakti and Darshan bring the devotee closer to Shri
+                Govardhannathji.”
               </p>
             </div>
           </section>
@@ -281,9 +259,15 @@ export default function TempleInformationPage() {
 
             {/* DECORATIVE TEMPLE PANEL */}
             <div className="relative hidden min-h-[240px] overflow-hidden bg-[linear-gradient(145deg,#7a1514,#ad3c20)] lg:grid lg:place-items-center">
-              <div aria-hidden="true" className="absolute -right-14 -top-16 h-52 w-52 rounded-full border border-white/10" />
+              <div
+                aria-hidden="true"
+                className="absolute -right-14 -top-16 h-52 w-52 rounded-full border border-white/10"
+              />
 
-              <div aria-hidden="true" className="absolute -bottom-16 -left-10 h-44 w-44 rounded-full border border-[#f0c878]/20" />
+              <div
+                aria-hidden="true"
+                className="absolute -bottom-16 -left-10 h-44 w-44 rounded-full border border-[#f0c878]/20"
+              />
 
               <div className="relative z-10 text-center text-white">
                 <div className="mx-auto grid h-24 w-24 place-items-center rounded-full border border-[#f0c878]/30 bg-white/10 text-5xl">

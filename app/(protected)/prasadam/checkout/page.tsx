@@ -2,7 +2,6 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import CommonHeader from "@/components/layout/CommonHeader";
 import {
   CART_CHECKOUT_PRODUCTS as products,
   type CartCheckoutProduct as Product,
@@ -354,8 +353,6 @@ export default function CheckoutPage() {
   if (cartItems.length === 0) {
     return (
       <main className="min-h-[100dvh] bg-[#fffaf3] lg:ml-[92px] lg:w-[calc(100%-92px)]">
-        <CheckoutHeader />
-
         <div className="flex min-h-[calc(100dvh-100px)] items-center justify-center px-4">
           <div className="max-w-[420px] text-center">
             <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border border-[#eadbc5] bg-white text-3xl">
@@ -389,8 +386,6 @@ export default function CheckoutPage() {
 
   return (
     <main className="min-h-[100dvh] bg-[#fffaf3] pb-[175px] md:pb-12 lg:ml-[92px] lg:w-[calc(100%-92px)]">
-      <CheckoutHeader />
-
       <form
         onSubmit={handlePlaceOrder}
         className="mx-auto grid w-full max-w-[1400px] grid-cols-1 gap-5 px-3 py-4 sm:px-5 sm:py-6 md:px-6 lg:grid-cols-[minmax(0,1fr)_370px] lg:items-start lg:gap-8 lg:px-8 lg:py-8 xl:grid-cols-[minmax(0,1fr)_400px]"
@@ -718,24 +713,6 @@ export default function CheckoutPage() {
    HEADER
 ========================================================= */
 
-function CheckoutHeader() {
-  return (
-    <CommonHeader
-      title="Checkout"
-      subtitle="Shri Govardhannath Haveli"
-      backHref="/prasadam/cart"
-      rightAction={
-        <div className="hidden items-center gap-2 text-xs font-medium text-[#8b7d72] sm:flex">
-          <span>Cart</span>
-          <span>›</span>
-          <span className="font-bold text-[#a71919]">Checkout</span>
-          <span>›</span>
-          <span>Complete</span>
-        </div>
-      }
-    />
-  );
-}
 
 /* =========================================================
    SECTION HEADING

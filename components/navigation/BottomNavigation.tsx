@@ -6,7 +6,7 @@ import {
   MdHomeFilled,
   MdLiveTv,
   MdVolunteerActivism,
-MdOutlineVideocam,
+  MdOutlineVideocam,
   MdPerson,
 } from "react-icons/md";
 
@@ -110,24 +110,26 @@ export default function BottomNavigation({ onProfileClick }: Props) {
           DESKTOP
       ========================== */}
 
-      <nav
-        aria-label="Sidebar navigation"
-        className="fixed inset-y-0 left-0 z-50 hidden w-[92px] flex-col border-r border-[#eadbc5] bg-[#fffdf8] px-2 pb-4 pt-[90px] shadow-[3px_0_18px_rgba(80,40,10,0.07)] lg:flex"
-      >
-        {NAV_ITEMS.map((item) => {
-          const active = isNavItemActive(item, pathname);
+      {pathname !== "/reels" && (
+        <nav
+          aria-label="Sidebar navigation"
+          className="fixed inset-y-0 left-0 z-50 hidden w-[92px] flex-col border-r border-[#eadbc5] bg-[#fffdf8] px-2 pb-4 gap-2 pt-[90px] shadow-[3px_0_18px_rgba(80,40,10,0.07)] lg:flex"
+        >
+          {NAV_ITEMS.map((item) => {
+            const active = isNavItemActive(item, pathname);
 
-          return (
-            <NavButton
-              key={item.key}
-              item={item}
-              active={active}
-              label={t(item.labelKey)}
-              onClick={() => handleNavigation(item)}
-            />
-          );
-        })}
-      </nav>
+            return (
+              <NavButton
+                key={item.key}
+                item={item}
+                active={active}
+                label={t(item.labelKey)}
+                onClick={() => handleNavigation(item)}
+              />
+            );
+          })}
+        </nav>
+      )}
     </>
   );
 }
@@ -167,10 +169,6 @@ function NavButton({
         </span>
 
         <span className="w-full truncate text-center">{label}</span>
-
-        {active && (
-          <span className="absolute bottom-[2px] h-[3px] w-5 rounded-full bg-[#c99435]" />
-        )}
       </button>
     );
   }
@@ -182,7 +180,7 @@ function NavButton({
       title={label}
       aria-label={label}
       aria-current={active ? "page" : undefined}
-      className={`relative flex min-h-[72px] w-full flex-col items-center justify-center gap-2 rounded-xl border-0 px-1 py-2 text-[11px] transition-all duration-200 ${active ? `bg-[#fbead3] font-bold text-[#a71919] before:absolute before:left-0 before:h-9 before:w-[3px] before:rounded-r-md before:bg-[#c99435]` : `bg-transparent text-[#766c63] hover:bg-[#fff2dd] hover:text-[#a71919]`}`}
+      className={`relative flex min-h-[72px] w-full flex-col items-center justify-center gap-2 rounded-xl border-0 px-1 py-2 text-[11px] transition-all duration-200 ${active ? `bg-[#fbead3] font-bold text-[#a71919]` : `bg-transparent text-[#766c63] hover:bg-[#fff2dd] hover:text-[#a71919]`}`}
     >
       <span
         className={`flex items-center justify-center text-[27px] leading-none transition-transform duration-200 ${active ? "scale-110" : ""}`}

@@ -3,10 +3,7 @@
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
-import CommonHeader from "@/components/layout/CommonHeader";
-
 import { useLanguage } from "@/contexts/LanguageProvider";
-import BottomNavigation from "@/components/navigation/BottomNavigation";
 
 import {
   SEVA_DETAILS_DATA as sevaData,
@@ -75,12 +72,6 @@ export default function SevaDetail() {
 
   return (
     <main className="relative box-border min-h-screen min-h-[100dvh] w-full min-w-0 max-w-full overflow-x-clip bg-[#fff9ed] text-[#4b4039] pb-24 sm:pb-28 lg:pb-12 lg:pl-[92px]">
-      <CommonHeader
-        title={t("sevaDetail")}
-        subtitle="Offer your seva with devotion and love"
-        backHref="/seva"
-      />
-
       <section className="mx-auto box-border w-full min-w-0 max-w-[1500px] px-3 py-4 min-[375px]:px-4 sm:px-5 sm:py-6 md:px-6 lg:px-8 lg:py-8 xl:px-10 xl:py-10 2xl:px-12">
         <div className="grid w-full min-w-0 grid-cols-1 items-start gap-4 sm:gap-5 xl:grid-cols-2 xl:gap-7 2xl:gap-10">
           <div className="w-full min-w-0">
@@ -253,8 +244,6 @@ export default function SevaDetail() {
           ❧ ❧ ❧
         </div>
       </section>
-
-      <BottomNavigation />
     </main>
   );
 }

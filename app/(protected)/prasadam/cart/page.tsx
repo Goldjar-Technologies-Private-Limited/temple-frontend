@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import CommonHeader from "@/components/layout/CommonHeader";
 import {
   CART_CHECKOUT_PRODUCTS as products,
   type CartCheckoutProduct as Product,
@@ -260,8 +259,6 @@ export default function CartPage() {
   if (cartItems.length === 0) {
     return (
       <main className="min-h-[100dvh] bg-[#fffaf3] pb-[100px] lg:ml-[92px] lg:w-[calc(100%-92px)]">
-        <CartHeader totalItems={0} />
-
         <section className="flex min-h-[calc(100dvh-170px)] items-center justify-center px-4">
           <div className="w-full max-w-[430px] text-center">
             <div className="mx-auto grid h-[90px] w-[90px] place-items-center rounded-full border border-[#eadbc5] bg-[#fffdf8] shadow-sm">
@@ -291,8 +288,6 @@ export default function CartPage() {
 
   return (
     <main className="min-h-[100dvh] overflow-x-hidden bg-[#fffaf3] pb-10 lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-12">
-      <CartHeader totalItems={totalItems} />
-
       <div className="mx-auto w-full max-w-[1400px] px-3 py-5 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-7 xl:grid-cols-[minmax(0,1fr)_390px]">
           {/* =================================================
@@ -488,24 +483,6 @@ export default function CartPage() {
   );
 }
 
-/* =====================================================
-    HEADER
-===================================================== */
-
-function CartHeader({ totalItems }: { totalItems: number }) {
-  return (
-    <CommonHeader
-      title="My Cart"
-      subtitle="Shri Govardhannath Haveli"
-      backHref="/prasadam"
-      rightAction={
-        <span className="whitespace-nowrap rounded-full border border-[#eadbc5] bg-white px-3 py-1.5 text-xs font-bold text-[#75685e]">
-          {totalItems} {totalItems === 1 ? "Item" : "Items"}
-        </span>
-      }
-    />
-  );
-}
 
 /* =====================================================
     SUMMARY ROW

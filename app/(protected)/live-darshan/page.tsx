@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import { Send, Share2 } from "lucide-react";
-import CommonHeader from "@/components/layout/CommonHeader";
 import {
   liveDarshanStreams as streams,
   initialLiveChats as chats,
@@ -61,13 +60,7 @@ export default function LiveDarshan() {
   };
 
   return (
-    <main className="min-h-[100dvh] w-full overflow-x-hidden bg-[#fffaf0] px-3 pb-[84px] pt-0 text-[#40372f] sm:px-4 md:px-6 md:pb-[90px] lg:ml-[92px] lg:w-[calc(100%-92px)] lg:px-8 lg:pb-12 xl:px-10 2xl:px-12">
-      <CommonHeader
-        title={t("liveDarshan")}
-        subtitle={t("haveliName")}
-        backHref="/dashboard"
-      />
-
+    <main className="min-h-[100dvh] w-full overflow-x-hidden bg-[#fffaf0] px-3 pb-[84px] pt-3 text-[#40372f] sm:px-4 md:px-6 md:pb-[90px] lg:ml-[92px] lg:w-[calc(100%-92px)] lg:px-8 lg:pb-12 xl:px-10 2xl:px-12">
       {/* =====================================================
           MAIN CONTENT
           ===================================================== */}

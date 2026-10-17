@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import CommonHeader from "@/components/layout/CommonHeader";
 import {
   DONATION_FREQUENCIES as frequencies,
   DONATION_AMOUNTS as amounts,
@@ -416,12 +415,6 @@ export default function DonatePage() {
 
   return (
     <main className="min-h-dvh w-full min-w-0 overflow-x-clip bg-[#fff9ed] pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-8 lg:pl-[92px]">
-      <CommonHeader
-        title="Payment"
-        subtitle="Complete your offering with faith and devotion"
-        backHref="/seva"
-      />
-
       <section className="mx-auto grid w-full min-w-0 max-w-[1400px] grid-cols-1 items-start gap-5 px-4 pb-8 pt-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-7 lg:px-10 lg:pt-7 xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className="min-w-0 rounded-xl border border-[#eadbc5] bg-[#fffdf8] p-4 sm:p-5 lg:rounded-[20px] lg:p-7">
           <SectionTitle>Choose Donation Type</SectionTitle>

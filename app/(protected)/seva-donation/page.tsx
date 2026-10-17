@@ -2,10 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import CommonHeader from "@/components/layout/CommonHeader";
-
 import { useLanguage } from "@/contexts/LanguageProvider";
-import BottomNavigation from "@/components/navigation/BottomNavigation";
 
 import {
   SEVA_CATEGORIES as categories,
@@ -25,13 +22,6 @@ export default function SevaDonation() {
 
   return (
     <main className="relative box-border min-h-dvh w-full min-w-0 max-w-full overflow-x-clip bg-[#fffdf8]/95 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-8 lg:pl-[92px]">
-      {/* COMMON HEADER */}
-      <CommonHeader
-        title="Seva & Donation"
-        subtitle="Offer your seva with devotion and love"
-        backHref="/dashboard"
-      />
-
       {/* RESPONSIVE CONTENT */}
       <div className="mx-auto box-border w-full min-w-0 max-w-[1400px] px-3 py-5 sm:px-5 sm:py-7 md:px-6 lg:px-8 lg:py-9 xl:px-10">
         {/* CATEGORY FILTERS */}
@@ -113,9 +103,6 @@ export default function SevaDonation() {
           ❧ ❧ ❧
         </div>
       </div>
-
-      {/* NAVIGATION */}
-      <BottomNavigation />
     </main>
   );
 }

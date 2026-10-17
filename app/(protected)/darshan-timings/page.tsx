@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 
 import { useLanguage } from "@/contexts/LanguageProvider";
-import HomeHeader from "@/components/Header";
 
 import {
   DARSHANS,
@@ -169,14 +168,8 @@ export default function DarshanTimings() {
     : "--:--:--";
 
   return (
-    <main className="min-h-screen bg-[#fffaf0] px-4 pt-0 pb-5 text-[#40372f] sm:px-6 lg:ml-[92px] lg:px-10">
+    <main className="min-h-screen bg-[#fffaf0] px-4 pt-4 pb-5 text-[#40372f] sm:px-6 lg:ml-[92px] lg:px-10">
       <div className="mx-auto max-w-7xl ">
-        {/* ---------------------------------------
-           COMMON HEADER
-        ---------------------------------------- */}
-
-        <HomeHeader />
-
         {/* ---------------------------------------
            RESPONSIVE DARSHAN HEADER
         ---------------------------------------- */}

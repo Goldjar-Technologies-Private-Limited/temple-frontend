@@ -1,10 +1,7 @@
 "use client";
 
-"use client";
-
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
-import CommonHeader from "@/components/layout/CommonHeader";
 import { Settings, Languages, Check, Trash2, ChevronRight } from "lucide-react";
 
 import {
@@ -22,15 +19,6 @@ export default function SettingsPage() {
 
   return (
     <main className="min-h-[100dvh] bg-[#fffaf1] pb-[105px] text-[#40372f] lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-12">
-      {/* HEADER */}
-
-      {/* COMMON HEADER */}
-      <CommonHeader
-        title="Settings"
-        subtitle="Shri Govardhannath Haveli"
-        backHref="/dashboard"
-      />
-
       {/* PAGE CONTENT */}
       <div className="mx-auto w-full max-w-[1100px] px-3 py-5 sm:px-5 sm:py-7 lg:px-8 lg:py-9">
         {/* INTRO */}

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Package, ChevronRight, HelpCircle } from "lucide-react";
-import CommonHeader from "@/components/layout/CommonHeader";
 import type { PrasadamWeight as Weight } from "@/data/prasadam";
 
 const ORDERS_KEY = "prasadam-orders";
@@ -354,12 +353,6 @@ export default function MyOrdersPage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-[#fffaf5]">
-        <CommonHeader
-          title="My Orders"
-          subtitle="Track and manage your prasadam orders"
-          backHref="/dashboard"
-        />
-
         <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
           <div className="animate-pulse">
             <div className="mb-6 flex gap-2 overflow-hidden">
@@ -384,12 +377,6 @@ export default function MyOrdersPage() {
 
   return (
     <main className="min-h-screen bg-[#fffaf5] pb-12">
-      <CommonHeader
-        title="My Orders"
-        subtitle="Track and manage your prasadam orders"
-        backHref="/dashboard"
-      />
-
       <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
         {/* FILTERS */}
         <div className="mb-6">

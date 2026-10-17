@@ -21,35 +21,6 @@ export default function MyBookingsPage() {
 
   return (
     <main className="min-h-[100dvh] bg-[#fffaf1] pb-[105px] lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-12">
-      {/* ================= HEADER ================= */}
-
-      <header className="sticky top-0 z-40 border-b border-[#eadfce] bg-[#fffaf1]/95 backdrop-blur-md">
-        <div className="mx-auto flex min-h-[64px] max-w-[1400px] items-center gap-3 px-4 sm:min-h-[70px] sm:px-6 lg:min-h-[82px] lg:px-8">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label="Go back"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#ead7b8] bg-white text-[#a71919] shadow-sm transition hover:bg-[#fff4e6] active:scale-95 lg:h-11 lg:w-11"
-          >
-            <BackIcon />
-          </button>
-
-          <div className="min-w-0">
-            <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#bd8b39]">
-              Shri Govardhannath
-            </p>
-
-            <h1 className="truncate text-[19px] font-bold text-[#641010] lg:text-[25px]">
-              My Bookings
-            </h1>
-          </div>
-
-          <div className="ml-auto hidden rounded-full border border-[#eadbc5] bg-[#fffdf8] px-4 py-2 text-[11px] font-semibold text-[#76695e] sm:block">
-            {bookings.length} Bookings
-          </div>
-        </div>
-      </header>
-
       {/* ================= HERO ================= */}
 
       <section className="border-b border-[#eadbc5] bg-[linear-gradient(135deg,#fff4df_0%,#fffaf1_65%,#fff7ea_100%)]">
@@ -359,19 +330,6 @@ function EmptyBookings({
    ICONS
 ========================================================= */
 
-function BackIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="h-[18px] w-[18px]"
-    >
-      <path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 function CalendarIcon() {
   return (

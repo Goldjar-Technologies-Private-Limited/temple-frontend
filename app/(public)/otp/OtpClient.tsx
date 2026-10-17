@@ -23,7 +23,7 @@ export default function OtpClient() {
     inputRefs.current[0]?.focus();
   }, []);
 
-  const doVerify = async (fullOtp: string) => {
+  const doVerify = async (_fullOtp: string) => {
     if (loading) return;
     setLoading(true);
     setError("");

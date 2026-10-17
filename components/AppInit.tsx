@@ -126,13 +126,23 @@ export default function AppInit() {
       });
     }
 
-    // 2. Prevent copy, cut, and paste
+    // Helper: Determine if current device/viewport is mobile or tablet (< 1024px or native app)
+    const isMobileOrTablet = () => {
+      if (isNative) return true;
+      if (typeof window === "undefined") return false;
+      return window.matchMedia("(max-width: 1023px)").matches;
+    };
+
+    // 2. Prevent copy, cut, and paste on mobile and tablet only
     const handleCopyPaste = (event: ClipboardEvent) => {
+      if (!isMobileOrTablet()) return;
       event.preventDefault();
     };
 
-    // 3. Block context menus outside editable fields
+    // 3. Block context menus outside editable fields on mobile and tablet only
     const handleContextMenu = (event: MouseEvent) => {
+      if (!isMobileOrTablet()) return;
+
       const target = event.target;
 
       if (!(target instanceof HTMLElement)) {
@@ -149,20 +159,22 @@ export default function AppInit() {
       }
     };
 
-    // 4. Disable text selection globally while preserving form editing.
+    // 4. Disable text selection on mobile/tablet screens (< 1024px) while preserving form editing and desktop selection.
     const style = document.createElement("style");
     style.dataset.appInit = "true";
     style.textContent = `
-      body {
-        -webkit-user-select: none;
-        user-select: none;
-      }
+      @media (max-width: 1023px) {
+        body {
+          -webkit-user-select: none;
+          user-select: none;
+        }
 
-      input,
-      textarea,
-      [contenteditable="true"] {
-        -webkit-user-select: text;
-        user-select: text;
+        input,
+        textarea,
+        [contenteditable="true"] {
+          -webkit-user-select: text;
+          user-select: text;
+        }
       }
     `;
 

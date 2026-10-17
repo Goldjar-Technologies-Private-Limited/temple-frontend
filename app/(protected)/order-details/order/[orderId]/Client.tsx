@@ -11,7 +11,6 @@ import {
   Clock3,
   User,
 } from "lucide-react";
-import CommonHeader from "@/components/layout/CommonHeader";
 
 const ORDERS_KEY = "prasadam-orders";
 const LAST_ORDER_KEY = "last-prasadam-order";
@@ -352,12 +351,6 @@ export default function OrderDetailsPage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-[#fffaf5]">
-        <CommonHeader
-          title="Order Details"
-          subtitle="Shri Govardhannath Haveli"
-          backHref="/my-orders"
-        />
-
         <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
           <div className="rounded-2xl border border-[#ead8c8] bg-white p-8 text-center shadow-sm">
             <div className="mx-auto mb-4 flex h-12 w-12 animate-pulse items-center justify-center rounded-full bg-[#fff1e5] text-[#8b1e1e]">
@@ -377,12 +370,6 @@ export default function OrderDetailsPage() {
   if (!order) {
     return (
       <main className="min-h-screen bg-[#fffaf5]">
-        <CommonHeader
-          title="Order Not Found"
-          subtitle="Shri Govardhannath Haveli"
-          backHref="/my-orders"
-        />
-
         <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
           <div className="rounded-2xl border border-[#ead8c8] bg-white p-10 text-center shadow-sm">
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#fff1e5] text-[#8b1e1e]">
@@ -418,13 +405,6 @@ export default function OrderDetailsPage() {
 
   return (
     <main className="min-h-screen bg-[#fffaf5]">
-      {/* COMMON HEADER */}
-      <CommonHeader
-        title="Order Details"
-        subtitle="Shri Govardhannath Haveli"
-        backHref="/my-orders"
-      />
-
       <div className="mx-auto w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
         {/* ORDER HEADER */}
         <section className="mb-5 overflow-hidden rounded-2xl border border-[#ead8c8] bg-white shadow-sm">

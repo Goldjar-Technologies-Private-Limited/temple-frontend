@@ -9,15 +9,9 @@ export default function MainNavigation() {
 
   return (
     <>
-      <BottomNavigation
-        onProfileClick={() => setDrawerOpen(true)}
-      />
+      <BottomNavigation onProfileClick={() => setDrawerOpen(true)} />
 
-      {drawerOpen && (
-        <ProfileDrawer
-          onClose={() => setDrawerOpen(false)}
-        />
-      )}
+      {drawerOpen && <ProfileDrawer onClose={() => setDrawerOpen(false)} />}
     </>
   );
 }

@@ -3,10 +3,7 @@
 import type { ChangeEvent, FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, Check, UserRound } from "lucide-react";
-import CommonHeader, {
-  HeaderSaveButton,
-} from "@/components/layout/CommonHeader";
+import { Camera, Check, Save, UserRound } from "lucide-react";
 import { defaultProfile, type ProfileData } from "@/data/profile";
 
 const PROFILE_STORAGE_KEY = "profile-data";
@@ -158,19 +155,6 @@ export default function EditProfilePage() {
 
   return (
     <main className="min-h-dvh w-full min-w-0 overflow-x-clip bg-[#fffaf1] pb-20 lg:pb-6 lg:pl-[92px]">
-      <CommonHeader
-        title="Profile"
-        subtitle="Manage your personal details"
-        backHref="/dashboard"
-        rightAction={
-          <HeaderSaveButton
-            formId="edit-profile-form"
-            disabled={!isLoaded || !hasChanges || isSaving}
-            isSaving={isSaving}
-          />
-        }
-      />
-
       {/* PAGE CONTENT */}
       <section className="mx-auto w-full max-w-3xl px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
         {/* INTRODUCTION */}
@@ -326,6 +310,18 @@ export default function EditProfilePage() {
                 Profile updated successfully.
               </div>
             )}
+
+            {/* SAVE BUTTON */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={!isLoaded || !hasChanges || isSaving}
+                className="inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#a71919] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#8f1414] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a71919] focus-visible:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500 disabled:shadow-none sm:w-auto"
+              >
+                <Save size={16} />
+                <span>{isSaving ? "Saving..." : "Save Changes"}</span>
+              </button>
+            </div>
           </form>
         </div>
 

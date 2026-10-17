@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
-import CommonHeader from "@/components/layout/CommonHeader";
 
 import {
   EVENTS_WITH_POSITIONS as events,
@@ -65,15 +64,6 @@ export default function EventDetailsPage() {
 
   return (
     <main className="min-h-dvh overflow-x-hidden bg-[#fffaf0] text-[#4b4039] pb-[110px] lg:pb-10">
-      {/* =========================================================
-          HEADER
-      ========================================================= */}
-      <CommonHeader
-        title={t(event.titleKey)}
-        subtitle={t("haveliName")}
-        backHref="/events"
-      />
-
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* =======================================================
             BREADCRUMB

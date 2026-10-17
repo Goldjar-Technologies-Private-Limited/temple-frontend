@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import CommonHeader from "@/components/layout/CommonHeader";
 import { FAQS_DATA as faqs } from "@/data/help";
 
 export default function HelpSupportPage() {
@@ -13,15 +12,6 @@ export default function HelpSupportPage() {
 
   return (
     <main className="min-h-[100dvh] overflow-x-hidden bg-[#fffaf1] pb-[80px] text-[#40372f] md:pb-[90px] lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-10">
-      {/* =====================================================
-          HEADER
-      ====================================================== */}
-
-      <CommonHeader
-        title="Help & Support"
-        subtitle="Shri Govardhannath Haveli"
-        backHref="/dashboard"
-      />
       {/* =====================================================
           CONTENT
       ====================================================== */}

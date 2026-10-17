@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import BottomNavigation from "@/components/navigation/BottomNavigation";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { REELS_DATA as reels } from "@/data/reels";
 
 export default function Reels() {
+  const router = useRouter();
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const touchStartY = useRef(0);
   const isWheeling = useRef(false);
@@ -13,7 +15,6 @@ export default function Reels() {
   const [current, setCurrent] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [isMuted, setIsMuted] = useState(false); // Changed to false so it starts unmuted
   const [playing, setPlaying] = useState<boolean[]>(reels.map(() => true));
   const [liked, setLiked] = useState<number[]>([]);
   const [showPlayIcon, setShowPlayIcon] = useState<number | null>(null);
@@ -22,15 +23,23 @@ export default function Reels() {
     videoRefs.current.forEach((video, index) => {
       if (!video) return;
 
-      video.muted = isMuted;
+      video.muted = false;
 
       if (index === current && playing[index]) {
-        video.play().catch(() => {});
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // If browser autoplay policy blocks unmuted autoplay before interaction,
+            // retry muted as fallback, and unmute on first user click
+            video.muted = true;
+            video.play().catch(() => {});
+          });
+        }
       } else {
         video.pause();
       }
     });
-  }, [current, playing, isMuted]);
+  }, [current, playing]);
 
   useEffect(() => {
     return () => {
@@ -47,6 +56,7 @@ export default function Reels() {
     const shouldPlay = video.paused;
 
     if (shouldPlay) {
+      video.muted = false;
       video.play().catch(() => {});
     } else {
       video.pause();
@@ -67,18 +77,6 @@ export default function Reels() {
     playIconTimer.current = setTimeout(() => {
       setShowPlayIcon(null);
     }, 700);
-  };
-
-  const toggleSound = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    const muted = !isMuted;
-    setIsMuted(muted);
-
-    videoRefs.current.forEach((video) => {
-      if (video) {
-        video.muted = muted;
-      }
-    });
   };
 
   const handleLike = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
@@ -167,16 +165,37 @@ export default function Reels() {
   };
 
   return (
-    <main className="fixed inset-0 overflow-hidden bg-[#080605] text-white">
+    <main className="fixed inset-x-0 bottom-16 top-0 overflow-hidden bg-[#080605] text-white lg:bottom-0 lg:left-0">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,#3a281c_0%,#17100c_40%,#080605_100%)]" />
 
       <div
-        className="relative mx-auto h-[calc(100dvh-64px)] w-full overflow-hidden bg-black touch-none select-none md:h-full md:max-w-[500px] lg:max-w-[540px] lg:border-x lg:border-white/10 lg:shadow-[0_0_80px_rgba(0,0,0,0.7)]"
+        className="relative mx-auto h-full w-full overflow-hidden bg-black touch-none select-none md:max-w-[500px] lg:max-w-[540px] lg:border-x lg:border-white/10 lg:shadow-[0_0_80px_rgba(0,0,0,0.7)]"
         onWheel={handleWheel}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Floating Back Button */}
+        <button
+          type="button"
+          onClick={() => {
+            if (window.history.length > 1) {
+              router.back();
+            } else {
+              router.push("/dashboard");
+            }
+          }}
+          aria-label="Go back"
+          title="Go back"
+          className="group absolute left-4 top-4 z-50 grid size-10 place-items-center rounded-full border border-white/20 bg-black/40 text-white shadow-xl backdrop-blur-xl transition-all duration-200 hover:scale-105 hover:bg-black/60 active:scale-95"
+        >
+          <ArrowLeft
+            size={20}
+            strokeWidth={2}
+            className="transition-transform duration-200 group-hover:-translate-x-0.5"
+          />
+        </button>
+
         <div
           className={`flex h-full w-full flex-col ${isDragging ? "" : "transition-transform duration-300 ease-out"}`}
           style={{
@@ -199,7 +218,6 @@ export default function Reels() {
                   src={reel.video}
                   className="absolute inset-0 h-full w-full object-cover"
                   autoPlay={index === 0}
-                  muted={isMuted}
                   loop
                   playsInline
                   preload="metadata"
@@ -208,27 +226,6 @@ export default function Reels() {
 
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-52 bg-gradient-to-b from-black/80 via-black/30 to-transparent" />
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[420px] bg-gradient-to-t from-black via-black/70 to-transparent" />
-
-                <button
-                  type="button"
-                  onClick={toggleSound}
-                  aria-label={isMuted ? "Turn sound on" : "Turn sound off"}
-                  className="group absolute right-4 top-[70px] z-40 grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-black/40 text-white shadow-xl backdrop-blur-xl transition-all duration-200 hover:scale-105 hover:bg-black/60 active:scale-90"
-                >
-                  {isMuted ? (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                      <line x1="23" y1="9" x2="17" y2="15" />
-                      <line x1="17" y1="9" x2="23" y2="15" />
-                    </svg>
-                  ) : (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                      <path d="M15.5 8.5a5 5 0 0 1 0 7" />
-                      <path d="M19 5a10 10 0 0 1 0 14" />
-                    </svg>
-                  )}
-                </button>
 
                 {showPlayIcon === index && (
                   <div className="pointer-events-none absolute inset-0 z-40 grid place-items-center">
@@ -323,8 +320,6 @@ export default function Reels() {
           })}
         </div>
       </div>
-
-      <BottomNavigation />
     </main>
   );
 }

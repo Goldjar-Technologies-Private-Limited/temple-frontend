@@ -1,9 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
-import CommonHeader from "@/components/layout/CommonHeader";
 import {
   PRASADAM_CATEGORIES as categories,
   ProductCategory,
@@ -215,7 +213,6 @@ function saveCart(cart: CartItem[]): boolean {
 ===================================================== */
 
 export default function PrasadamPage() {
-  const router = useRouter();
   const { t } = useLanguage();
 
   const [category, setCategory] = useState<Category>("all");
@@ -378,44 +375,12 @@ export default function PrasadamPage() {
     });
   };
 
-  /* CART COUNT */
-
-  const cartCount = useMemo(
-    () => cart.reduce((total, item) => total + item.quantity, 0),
-    [cart],
-  );
-
   /* RENDER */
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#fffaf1] pb-12 text-[#332820] lg:ml-[92px] lg:w-[calc(100%-92px)]">
-      {/* HEADER WITH CART */}
-      <CommonHeader
-        title={t("prasadam")}
-        subtitle="Shri Govardhannath Haveli"
-        backHref="/dashboard"
-        rightAction={
-          <button
-            type="button"
-            onClick={() => router.push("/prasadam/cart")}
-            aria-label={`Open shopping cart, ${cartCount} items`}
-            title="Open shopping cart"
-            className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#eadbc5] bg-white text-[#8c1717] shadow-sm transition hover:border-[#b8893b] hover:bg-[#fff4e4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a71919]"
-          >
-            <CartIcon />
-
-            {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 grid h-[19px] min-w-[19px] place-items-center rounded-full bg-[#e87519] px-1 text-[10px] font-bold text-white">
-                {cartCount > 99 ? "99+" : cartCount}
-              </span>
-            )}
-          </button>
-        }
-      />
-
       <div className="mx-auto w-full max-w-[1500px]">
         {/* CATEGORY FILTERS */}
-
         <div className="flex gap-2 overflow-x-auto px-3 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-5 md:justify-center lg:justify-start lg:px-8">
           {categories.map((item) => {
             const active = category === item.id;
@@ -443,11 +408,7 @@ export default function PrasadamPage() {
         <div className="mb-4 flex items-end justify-between px-3 sm:px-5 lg:px-8">
           <div>
             <h2 className="text-lg font-bold text-[#641010] sm:text-xl">
-              {category === "all"
-                ? "Explore Prasadam"
-                : categories.find((item) => item.id === category)?.labelKey
-                  ? t(categories.find((item) => item.id === category)!.labelKey)
-                  : "Prasadam"}
+              {categoryHeading}
             </h2>
 
             <p className="mt-1 text-[11px] text-gray-500 sm:text-xs">
@@ -642,10 +603,6 @@ export default function PrasadamPage() {
     </main>
   );
 }
-
-/* =====================================================
-    CART ICON
-===================================================== */
 
 function CartIcon() {
   return (
