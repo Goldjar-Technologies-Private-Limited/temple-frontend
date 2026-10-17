@@ -30,10 +30,10 @@ function isValidWeight(weight: unknown): weight is Weight {
 
 function getWeightPrice(basePrice: number, weight: Weight) {
   switch (weight) {
-    case "250g":
+    case "250gm":
       return basePrice * 0.5;
 
-    case "500g":
+    case "500gm":
       return basePrice;
 
     case "1kg":
@@ -145,7 +145,7 @@ export default function CheckoutPage() {
           ) {
             oldCart.push({
               productId: id,
-              weight: "500g",
+              weight: "500gm",
               quantity: qty,
             });
           }

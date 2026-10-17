@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -11,7 +12,11 @@ import { EVENTS as events, type EventItem, type EventTab } from "@/data/events";
 ========================================================= */
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-[#641010]">{children}</h2>;
+  return (
+    <h2 className="min-w-0 break-words text-[#641010]">
+      {children}
+    </h2>
+  );
 }
 
 /* =========================================================
@@ -31,67 +36,135 @@ function EventCard({
     <button
       type="button"
       onClick={onClick}
-      className="group relative flex w-full overflow-hidden rounded-2xl border border-[#eadbc5] bg-[#fffdf8] text-left text-[#4b4039] shadow-[0_5px_20px_rgba(79,43,14,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-[#d7b97f] hover:shadow-[0_14px_35px_rgba(79,43,14,0.11)] focus:outline-none focus:ring-2 focus:ring-[#a71919]/30 active:scale-[0.99] flex-row min-h-[115px] sm:min-h-[130px] md:min-h-[145px] lg:min-h-[300px] lg:flex-col xl:min-h-[320px] 2xl:min-h-[340px]"
+      aria-label={`${t(event.titleKey)} — View Details`}
+      className="
+        group flex min-w-0 w-full flex-col overflow-hidden
+        rounded-2xl border border-[#eadbc5] bg-[#fffdf8]
+        text-left text-[#4b4039]
+        shadow-[0_5px_20px_rgba(79,43,14,0.05)]
+        transition-[border-color,box-shadow,transform]
+        duration-300
+        hover:-translate-y-1 hover:border-[#d7b97f]
+        hover:shadow-[0_14px_35px_rgba(79,43,14,0.11)]
+        focus-visible:outline-none focus-visible:ring-2
+        focus-visible:ring-[#a71919]/40
+        active:scale-[0.99]
+      "
     >
-      {/* =====================================================
-          IMAGE
-      ===================================================== */}
+      {/* IMAGE */}
 
-      <div className="relative shrink-0 overflow-hidden bg-[#f4e5c8] h-auto w-[38%] sm:w-[40%] md:w-[38%] lg:h-[185px] lg:w-full xl:h-[195px] 2xl:h-[205px]">
+      <div
+        className="
+          relative aspect-[16/9] w-full shrink-0
+          overflow-hidden bg-[#f4e5c8]
+          sm:aspect-[16/9]
+          lg:aspect-[5/3]
+          2xl:aspect-[16/9]
+        "
+      >
         <img
           src={event.image}
           alt={t(event.titleKey)}
-          className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+          className="
+            block h-full w-full object-cover
+            transition-transform duration-500
+            group-hover:scale-105
+          "
         />
 
-        {/* IMAGE OVERLAY */}
-
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-70" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
 
         {/* UTSAV BADGE */}
 
-        <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-1 text-[8px] font-bold uppercase tracking-[1px] text-[#a71919] shadow-sm backdrop-blur-sm sm:left-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-[9px] lg:text-[10px]">
+        <span
+          className="
+            absolute left-3 top-3 rounded-full
+            bg-white/95 px-2.5 py-1
+            text-[9px] font-bold uppercase tracking-[1px]
+            text-[#a71919] shadow-sm backdrop-blur-sm
+            sm:text-[10px]
+          "
+        >
           Utsav
         </span>
       </div>
 
-      {/* =====================================================
-          CONTENT
-      ===================================================== */}
+      {/* CARD CONTENT */}
 
-      <div className="flex min-w-0 flex-1 flex-col justify-between p-3 sm:p-3.5 md:p-4 lg:p-5 xl:p-5 2xl:p-5">
-        <div>
-          {/* LABEL */}
-
-          <span className="mb-1.5 block text-[8px] font-bold uppercase tracking-[1.1px] text-[#c99435] sm:text-[9px] md:text-[10px]">
+      <div
+        className="
+          flex min-w-0 flex-1 flex-col
+          p-3.5 sm:p-4 md:p-5
+          lg:p-4 xl:p-5
+        "
+      >
+        <div className="min-w-0">
+          <span
+            className="
+              mb-2 block text-[9px] font-bold uppercase
+              tracking-[1.2px] text-[#c99435]
+              sm:text-[10px]
+            "
+          >
             Upcoming Event
           </span>
 
-          {/* TITLE */}
-
           <SectionTitle>
-            <span className="block text-[14px] font-semibold leading-[1.3] sm:text-[16px] md:text-[18px] lg:text-[20px] xl:text-[21px] 2xl:text-[22px]">
+            <span
+              className="
+                block text-base font-semibold leading-snug
+                sm:text-lg
+                lg:text-base
+                xl:text-lg
+                2xl:text-xl
+              "
+            >
               {t(event.titleKey)}
             </span>
           </SectionTitle>
 
           {/* DATE */}
 
-          <div className="mt-2 flex items-center gap-1.5 text-[9px] text-[#8a8077] sm:text-[10px] md:text-[11px] lg:mt-2.5 lg:text-[12px]">
-            <span className="text-[11px] text-[#a71919] md:text-xs">◷</span>
+          <div
+            className="
+              mt-3 flex min-w-0 items-start gap-2
+              text-xs leading-relaxed text-[#8a8077]
+              sm:text-sm
+            "
+          >
+            <span
+              aria-hidden="true"
+              className="shrink-0 text-sm text-[#a71919]"
+            >
+              ◷
+            </span>
 
-            <span className="truncate">{t(event.dateKey)}</span>
+            <span className="min-w-0 break-words">
+              {t(event.dateKey)}
+            </span>
           </div>
         </div>
 
-        {/* ===================================================
-            VIEW DETAILS
-        =================================================== */}
+        {/* VIEW DETAILS */}
 
-        <div className="mt-3 flex items-center text-[9px] font-bold text-[#a71919] sm:text-[10px] md:text-[11px] lg:text-xs">
+        <div
+          className="
+            mt-5 flex items-center justify-between
+            border-t border-[#f0e5d4] pt-3
+            text-xs font-bold text-[#a71919]
+            sm:text-sm
+          "
+        >
           <span>View Details</span>
 
-          <span className="ml-1 transition-transform duration-300 group-hover:translate-x-1">
+          <span
+            aria-hidden="true"
+            className="
+              ml-2 text-base transition-transform duration-300
+              group-hover:translate-x-1
+            "
+          >
             →
           </span>
         </div>
@@ -104,22 +177,40 @@ function EventCard({
    EMPTY EVENTS
 ========================================================= */
 
-function EmptyEvents({ t }: { t: (key: TranslationKey) => string }) {
+function EmptyEvents({
+  t,
+}: {
+  t: (key: TranslationKey) => string;
+}) {
   return (
-    <div className="col-span-full flex min-h-[280px] flex-col items-center justify-center rounded-2xl border border-[#eadbc5] bg-[#fffdf8] px-6 py-12 text-center shadow-[0_5px_20px_rgba(79,43,14,0.04)] sm:min-h-[300px] lg:min-h-[340px]">
-      {/* ICON */}
-
-      <div className="mb-4 grid h-[68px] w-[68px] place-items-center rounded-full border border-[#e5cfaa] bg-[#fff7e9] text-3xl shadow-sm sm:h-[72px] sm:w-[72px] sm:text-4xl">
+    <div
+      className="
+        col-span-full flex min-h-[260px] flex-col
+        items-center justify-center rounded-2xl
+        border border-[#eadbc5] bg-[#fffdf8]
+        px-5 py-10 text-center
+        shadow-[0_5px_20px_rgba(79,43,14,0.04)]
+        sm:min-h-[300px] sm:px-8
+        lg:min-h-[340px]
+      "
+    >
+      <div
+        className="
+          mb-4 grid h-16 w-16 shrink-0 place-items-center
+          rounded-full border border-[#e5cfaa]
+          bg-[#fff7e9] text-3xl shadow-sm
+          sm:h-[72px] sm:w-[72px] sm:text-4xl
+        "
+        aria-hidden="true"
+      >
         🛕
       </div>
 
-      {/* TITLE */}
+      <h2 className="text-xl font-semibold text-[#641010] sm:text-2xl">
+        {t("past")}
+      </h2>
 
-      <h2 className="text-xl text-[#641010] md:text-2xl">{t("past")}</h2>
-
-      {/* DESCRIPTION */}
-
-      <p className="mt-2 max-w-sm text-xs leading-relaxed text-[#8a8077] md:text-sm">
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-[#8a8077]">
         {t("noPastEvents")}
       </p>
     </div>
@@ -132,18 +223,22 @@ function EmptyEvents({ t }: { t: (key: TranslationKey) => string }) {
 
 function Decoration() {
   return (
-    <div className="mx-auto mt-8 flex max-w-[520px] items-center justify-center gap-2 px-6 text-[#c99435] md:mt-10">
-      {/* LEFT LINE */}
+    <div
+      aria-hidden="true"
+      className="
+        mx-auto mt-8 flex w-full max-w-[520px]
+        items-center justify-center gap-3
+        px-4 text-[#c99435]
+        sm:mt-10 md:mt-12
+      "
+    >
+      <span className="h-px min-w-0 flex-1 bg-gradient-to-r from-transparent to-[#d8b66c]" />
 
-      <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#d8b66c]" />
+      <span className="shrink-0 whitespace-nowrap text-xs tracking-[2px]">
+        ❧ ❧ ❧
+      </span>
 
-      {/* CENTER */}
-
-      <span className="whitespace-nowrap text-xs tracking-[2px]">❧ ❧ ❧</span>
-
-      {/* RIGHT LINE */}
-
-      <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#d8b66c]" />
+      <span className="h-px min-w-0 flex-1 bg-gradient-to-l from-transparent to-[#d8b66c]" />
     </div>
   );
 }
@@ -154,27 +249,77 @@ function Decoration() {
 
 export default function Events() {
   const router = useRouter();
-
   const { t } = useLanguage();
 
   const [tab, setTab] = useState<EventTab>("upcoming");
 
+  const visibleEvents = tab === "upcoming" ? events : [];
+
   return (
-    <main className="min-h-dvh w-full overflow-x-hidden bg-[radial-gradient(circle_at_50%_-10%,#fffef9_0,#fffaf0_42%,#f6ead5_100%)] text-[#4b4039] pb-[calc(35px+env(safe-area-inset-bottom))] lg:min-h-screen lg:bg-[radial-gradient(circle_at_top_right,rgba(201,148,53,0.12),transparent_30%),#fff9ed] lg:pb-16">
-      {/* =====================================================
-          PAGE CONTAINER
-      ===================================================== */}
+    <main
+      className="
+        relative min-h-dvh w-full min-w-0
+        overflow-x-clip
+        bg-[radial-gradient(circle_at_50%_-10%,#fffef9_0,#fffaf0_42%,#f6ead5_100%)]
+        text-[#4b4039]
+        pb-[calc(88px+env(safe-area-inset-bottom))]
+        sm:pb-[calc(92px+env(safe-area-inset-bottom))]
+        lg:min-h-screen
+        lg:bg-[radial-gradient(circle_at_top_right,rgba(201,148,53,0.12),transparent_30%),#fff9ed]
+        lg:pb-12
+      "
+    >
+      {/* PAGE CONTAINER
+          Mobile: full width
+          Tablet: comfortable horizontal padding
+          Desktop: leaves room for a fixed 92px sidebar
+      */}
 
-      <div className="mx-auto w-full max-w-[1420px] px-4 sm:px-6 md:px-8 lg:px-10">
-        {/* ===================================================
-            HERO
-        =================================================== */}
+      <div
+        className="
+          mx-auto w-full min-w-0
+          max-w-[1800px]
+          px-3
+          sm:px-5
+          md:px-7
+          lg:ml-[92px]
+          lg:w-[calc(100%-92px)]
+          lg:px-7
+          xl:px-9
+          2xl:px-12
+        "
+      >
+        {/* PAGE INTRO */}
 
-        {/* ===================================================
-            TABS
-        =================================================== */}
+        <header className="mx-auto w-full max-w-[1000px] pt-5 sm:pt-7 lg:pt-8">
+          <div className="text-center">
+            <span className="text-[10px] font-bold uppercase tracking-[2px] text-[#c99435] sm:text-xs">
+              Temple celebrations
+            </span>
 
-        <div className="mx-auto mt-5 grid w-full max-w-[520px] grid-cols-2 gap-1 rounded-xl border border-[#eadbc5] bg-[#fffdf8] p-1 shadow-[0_4px_15px_rgba(82,48,18,0.04)] md:mt-7">
+            <h1 className="mt-2 text-2xl font-bold leading-tight text-[#641010] sm:text-3xl md:text-4xl">
+              {t("upcoming")}
+            </h1>
+
+            <p className="mx-auto mt-2 max-w-xl text-xs leading-relaxed text-[#8a8077] sm:text-sm">
+              Discover upcoming celebrations and revisit past events.
+            </p>
+          </div>
+        </header>
+
+        {/* TABS */}
+
+        <div
+          role="group"
+          aria-label="Filter events"
+          className="
+            mx-auto mt-5 grid w-full max-w-[520px]
+            grid-cols-2 gap-1 rounded-xl
+            border border-[#eadbc5] bg-[#fffdf8] p-1
+            shadow-[0_4px_15px_rgba(82,48,18,0.04)]
+            sm:mt-7
+          "
+        >
           {(["upcoming", "past"] as EventTab[]).map((item) => {
             const active = tab === item;
 
@@ -184,7 +329,20 @@ export default function Events() {
                 type="button"
                 onClick={() => setTab(item)}
                 aria-pressed={active}
-                className={`h-10 rounded-lg text-xs font-bold transition-all duration-200 sm:h-11 sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#a71919]/20 ${active ? "bg-[#a71919] text-white shadow-[0_4px_12px_rgba(167,25,25,0.18)]" : "text-[#776d65] hover:bg-[#fff1e7] hover:text-[#a71919]"}`}
+                className={`
+                  min-w-0 rounded-lg px-2
+                  h-10 sm:h-11
+                  text-xs font-bold capitalize
+                  transition-colors duration-200 sm:text-sm
+                  focus-visible:outline-none
+                  focus-visible:ring-2
+                  focus-visible:ring-[#a71919]/30
+                  ${
+                    active
+                      ? "bg-[#a71919] text-white shadow-[0_4px_12px_rgba(167,25,25,0.18)]"
+                      : "text-[#776d65] hover:bg-[#fff1e7] hover:text-[#a71919]"
+                  }
+                `}
               >
                 {t(item)}
               </button>
@@ -192,33 +350,43 @@ export default function Events() {
           })}
         </div>
 
-        {/* ===================================================
-            EVENTS GRID
+        {/* EVENTS GRID
+            Small phones: 1 column
+            Large phones / tablets: 2 columns
+            Desktop: 3 columns
+            Wide desktop: 4 columns
+        */}
 
-            MOBILE      = 1 COLUMN
-            TABLET      = 2 COLUMNS
-            LAPTOP      = 3 COLUMNS
-            SMART/2XL   = 4 COLUMNS
-        =================================================== */}
-
-        <section className="mt-5 grid grid-cols-1 gap-4 sm:mt-6 sm:grid-cols-2 sm:gap-5 lg:mt-7 lg:grid-cols-2 lg:gap-6 xl:grid-cols-3 xl:gap-6 2xl:grid-cols-4 2xl:gap-7">
+        <section
+          aria-label={tab === "upcoming" ? "Upcoming events" : "Past events"}
+          className="
+            mt-4 grid min-w-0 grid-cols-1
+            items-stretch gap-4
+            sm:mt-5 sm:grid-cols-2 sm:gap-5
+            lg:mt-7 lg:gap-6
+            xl:grid-cols-3
+            2xl:grid-cols-4 2xl:gap-7
+          "
+        >
           {tab === "upcoming" ? (
-            events.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                t={t}
-                onClick={() => router.push(`/events/${event.id}`)}
-              />
-            ))
+            visibleEvents.length > 0 ? (
+              visibleEvents.map((event: EventItem) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  t={t}
+                  onClick={() => router.push(`/events/${event.id}`)}
+                />
+              ))
+            ) : (
+              <EmptyEvents t={t} />
+            )
           ) : (
             <EmptyEvents t={t} />
           )}
         </section>
 
-        {/* ===================================================
-            BOTTOM DECORATION
-        =================================================== */}
+        {/* BOTTOM DECORATION */}
 
         <Decoration />
       </div>

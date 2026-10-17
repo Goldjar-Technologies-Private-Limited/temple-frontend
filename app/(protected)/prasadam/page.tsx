@@ -10,6 +10,7 @@ import {
   type PrasadamWeight as Weight,
 } from "@/data/prasadam";
 
+
 type CartItem = {
   productId: number;
   weight: Weight;
@@ -26,14 +27,14 @@ const CART_STORAGE_KEY = "prasadam-cart";
 const OLD_WEIGHT_STORAGE_KEY = "prasadam-cart-weights";
 const CART_UPDATED_EVENT = "prasadam-cart-updated";
 
-const DEFAULT_WEIGHT: Weight = "500g";
+const DEFAULT_WEIGHT: Weight = "500gm";
 
 const WEIGHT_OPTIONS: {
   value: Weight;
   label: string;
 }[] = [
-  { value: "250g", label: "250 g" },
-  { value: "500g", label: "500 g" },
+  { value: "250gm", label: "250 gm" },
+  { value: "500gm", label: "500 gm" },
   { value: "1kg", label: "1 kg" },
 ];
 
@@ -47,7 +48,7 @@ function isValidWeight(value: unknown): value is Weight {
 
 function getWeightPrice(basePrice: number, weight: Weight): number {
   switch (weight) {
-    case "250g":
+    case "250gm":
       return basePrice * 0.5;
     case "1kg":
       return basePrice * 2;
@@ -520,9 +521,9 @@ export default function PrasadamPage() {
                         ₹{currentPrice.toLocaleString("en-IN")}
                       </span>
 
-                      {selectedWeight !== "500g" && (
+                      {selectedWeight !== "500gm" && (
                         <span className="text-[10px] text-gray-400">
-                          {selectedWeight === "250g" ? "250 g pack" : "1 kg pack"}
+                          {selectedWeight === "250gm" ? "250 gm" : "1 kg pack"}
                         </span>
                       )}
                     </div>
@@ -537,7 +538,7 @@ export default function PrasadamPage() {
                         onClick={() => increase(product.id, selectedWeight)}
                         className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-[#e87519] px-1 text-[11px] font-bold text-white transition hover:bg-[#cf5f0d] active:scale-[0.98] sm:text-xs"
                       >
-                        <CartIcon />
+                        
                         <span>Add to Cart</span>
                       </button>
                     ) : (
@@ -604,21 +605,4 @@ export default function PrasadamPage() {
   );
 }
 
-function CartIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-[18px] w-[18px] shrink-0"
-      aria-hidden="true"
-    >
-      <circle cx="9" cy="20" r="1" />
-      <circle cx="18" cy="20" r="1" />
-      <path d="M3 4h2l2.4 10.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 8H6" />
-    </svg>
-  );
-}
+
