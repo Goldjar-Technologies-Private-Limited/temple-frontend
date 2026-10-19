@@ -216,7 +216,7 @@ export default function Dashboard() {
             </div>
 
             <div className="min-w-0">
-              <h2 className="mb-1.5 text-base font-bold text-[#40372f] sm:text-lg lg:text-[22px]">
+              <h2 className="mb-1.5 text-base font-bold text-[#641010] sm:text-lg lg:text-[22px]">
                 {t("nextDarshan")}
               </h2>
 

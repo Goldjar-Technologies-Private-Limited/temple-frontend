@@ -1,9 +1,8 @@
-
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { ArrowLeft, Save, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Bell, Save, ShoppingCart } from "lucide-react";
 import { getPageInfo } from "@/data/commonHeader";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import type { PrasadamWeight as Weight } from "@/data/prasadam";
@@ -57,26 +56,17 @@ export default function CommonHeader({
           return;
         }
 
-        const totalItems = (parsedCart as CartItem[]).reduce(
-          (total, item) => {
-            const quantity = Number(item?.quantity ?? 0);
+        const totalItems = (parsedCart as CartItem[]).reduce((total, item) => {
+          const quantity = Number(item?.quantity ?? 0);
 
-            return (
-              total +
-              (Number.isFinite(quantity) && quantity > 0
-                ? quantity
-                : 0)
-            );
-          },
-          0
-        );
+          return (
+            total + (Number.isFinite(quantity) && quantity > 0 ? quantity : 0)
+          );
+        }, 0);
 
         setCartCount(totalItems);
       } catch (error) {
-        console.error(
-          "Failed to load cart count in CommonHeader:",
-          error
-        );
+        console.error("Failed to load cart count in CommonHeader:", error);
         setCartCount(0);
       }
     };
@@ -109,26 +99,23 @@ export default function CommonHeader({
   const actionButtonClass =
     "relative flex size-8 min-[375px]:size-9 shrink-0 " +
     "items-center justify-center rounded-full border border-[#ead7b8] " +
-    "bg-white text-[#641010] shadow-sm transition-all duration-200 " +
+    "bg-white text-[#a71919] shadow-sm transition-all duration-200 " +
     "hover:border-[#b8893b] hover:bg-[#fff4e4] " +
     "focus-visible:outline-none focus-visible:ring-2 " +
     "focus-visible:ring-[#a71919] focus-visible:ring-offset-2 " +
     "active:scale-95 sm:size-10 lg:size-11";
 
   return (
-  
-<header
-  className="
+    <header
+      className="
     sticky top-0 z-40
     w-full min-w-0
     lg:ml-[92px] lg:w-[calc(100%-92px)]
-    border-b border-[#eadbc5]
     bg-[#fffdf8]/95
     shadow-[0_2px_12px_rgba(80,40,10,0.035)]
     backdrop-blur-xl
   "
->
-
+    >
       <div
         className="
           mx-auto flex w-full min-w-0 max-w-[1500px]
@@ -153,8 +140,8 @@ export default function CommonHeader({
             className="
               group flex size-9 shrink-0
               items-center justify-center
-              rounded-full border border-[#ead7b8]
-              bg-white text-[#641010] shadow-sm
+              rounded-full border border-[#a71919]
+              bg-white text-[#a71919] shadow-sm
               transition-all duration-200
               hover:border-[#b8893b] hover:bg-[#fff4e4]
               focus-visible:outline-none
@@ -182,7 +169,7 @@ export default function CommonHeader({
           <h1
             className="
               truncate text-[15px] font-bold uppercase leading-tight
-              tracking-wide text-[#641010]
+              tracking-wide text-[#a71919]
               min-[375px]:text-[17px]
               sm:text-[21px]
               lg:text-[25px]
@@ -217,9 +204,7 @@ export default function CommonHeader({
         >
           {/* Optional Custom Action */}
           {rightAction && (
-            <div className="flex shrink-0 items-center">
-              {rightAction}
-            </div>
+            <div className="flex shrink-0 items-center">{rightAction}</div>
           )}
 
           {showNotificationAndCart && (
@@ -232,34 +217,8 @@ export default function CommonHeader({
                 title={t("notifications")}
                 className={actionButtonClass}
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="
-                    size-4
-                    min-[375px]:size-[17px]
-                    sm:size-[18px]
-                    lg:size-5
-                  "
-                  aria-hidden="true"
-                >
-                  <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-                  <path d="M10 21h4" />
-                </svg>
-
+               <Bell strokeWidth={2} className="shrink-0" />
                 {/* Notification Indicator */}
-                <span
-                  className="
-                    absolute right-0.5 top-0.5
-                    size-1.5 rounded-full
-                    border border-white bg-[#d4871f]
-                    sm:size-2
-                  "
-                />
               </button>
 
               {/* Cart Button */}
@@ -267,9 +226,7 @@ export default function CommonHeader({
                 type="button"
                 onClick={() => router.push("/prasadam/cart")}
                 aria-label={
-                  cartCount > 0
-                    ? `Open cart, ${cartCount} items`
-                    : "Open Cart"
+                  cartCount > 0 ? `Open cart, ${cartCount} items` : "Open Cart"
                 }
                 title="Open Cart"
                 className={actionButtonClass}

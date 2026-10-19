@@ -43,7 +43,7 @@ const WEIGHT_OPTIONS: {
 ===================================================== */
 
 function isValidWeight(value: unknown): value is Weight {
-  return value === "250g" || value === "500g" || value === "1kg";
+  return value === "250gm" || value === "500gm" || value === "1kg";
 }
 
 function getWeightPrice(basePrice: number, weight: Weight): number {

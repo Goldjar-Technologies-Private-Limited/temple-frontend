@@ -24,8 +24,9 @@ type PaymentMethod = "upi" | "card" | "cod";
    HELPERS
 ========================================================= */
 
+
 function isValidWeight(weight: unknown): weight is Weight {
-  return weight === "250g" || weight === "500g" || weight === "1kg";
+  return weight === "250gm" || weight === "500gm" || weight === "1kg";
 }
 
 function getWeightPrice(basePrice: number, weight: Weight) {
@@ -126,7 +127,7 @@ export default function CheckoutPage() {
         }
 
         Old cart had no weight information,
-        so we assume 500g.
+        so we assume 500gm.
       */
 
       if (parsedCart && typeof parsedCart === "object") {

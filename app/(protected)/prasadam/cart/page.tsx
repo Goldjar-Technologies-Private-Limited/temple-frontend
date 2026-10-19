@@ -62,7 +62,7 @@ function getWeightLabel(weight: Weight): string {
 }
 
 function isValidWeight(value: unknown): value is Weight {
-  return value === "250g" || value === "500g" || value === "1kg";
+  return value === "250gm" || value === "500gm" || value === "1kg";
 }
 
 function isValidCartItem(item: unknown): item is CartItemData {
@@ -109,7 +109,7 @@ function loadCart(): CartItemData[] {
       return Object.entries(parsed)
         .map(([productId, quantity]) => ({
           productId: Number(productId),
-          weight: "500g" as Weight,
+          weight: "500gm" as Weight,
           quantity: Number(quantity),
         }))
         .filter(

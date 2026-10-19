@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/LanguageProvider";
 import ProfileDrawer from "@/components/navigation/ProfileDrawer";
 import type { ProfileData } from "@/data/profile";
 import type { PrasadamWeight as Weight } from "@/data/prasadam";
-import { ShoppingCart } from "lucide-react";
+import { Bell, ShoppingCart } from "lucide-react";
 
 type CartItem = {
   productId: number;
@@ -158,7 +158,7 @@ export default function HomeHeader() {
                   router.push("/profile");
                 }
               }}
-              className="mt-0.5 truncate text-[14px] font-bold leading-tight text-[#302923] cursor-pointer sm:text-[15px] md:text-[17px] lg:text-[19px]"
+              className="mt-0.5 truncate text-[14px] font-bold leading-tight text-[#a71919] cursor-pointer sm:text-[15px] md:text-[17px] lg:text-[19px]"
             >
               {profileName || "Radha"}
             </h1>
@@ -173,21 +173,7 @@ export default function HomeHeader() {
             title={t("notifications")}
             className={actionButtonClass}
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-[17px] w-[17px] sm:h-[18px] sm:w-[18px] md:h-[19px] md:w-[19px] lg:h-[20px] lg:w-[20px]"
-              aria-hidden="true"
-            >
-              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-              <path d="M10 21h4" />
-            </svg>
-
-            <span className="absolute right-[4px] top-[4px] h-[6px] w-[6px] rounded-full border border-[#fffdf8] bg-[#d4871f] sm:h-[7px] sm:w-[7px]" />
+            <Bell strokeWidth={2} className="shrink-0" />
           </button>
 
           <button
