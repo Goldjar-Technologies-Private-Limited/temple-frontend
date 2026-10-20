@@ -1,4 +1,4 @@
-import SevaDetailClient from "./SevaDetailClient";
+import SevaDetailClient from "../_components/SevaDetailClient";
 
 export function generateStaticParams() {
   return [

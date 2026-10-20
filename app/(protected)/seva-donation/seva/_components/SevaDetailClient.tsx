@@ -64,7 +64,7 @@ export default function SevaDetail() {
     try {
       sessionStorage.setItem("donationAmount", String(amount));
       sessionStorage.setItem("donationSevaId", id);
-      router.push(`/donate?seva=${encodeURIComponent(id)}`);
+      router.push(`/payment?seva=${encodeURIComponent(id)}`);
     } catch {
       setAmountError("Unable to continue. Please try again.");
     }

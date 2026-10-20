@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import DonationSuccessClient from "./DonationSuccessClient";
+import DonationSuccessClient from "./_components/DonationSuccessClient";
 
 export default function Page() {
   return (

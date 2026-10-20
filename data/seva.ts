@@ -42,7 +42,7 @@ export const SEVA_LIST: SevaListItem[] = [
     subtitleKey: "careForGauMata",
     image: "/images/go-seva.jpg",
     category: "goSeva",
-    route: "/seva/go-seva",
+    route: "/seva-donation/seva/go-seva",
   },
   {
     id: "nitya-bhog",
@@ -50,7 +50,7 @@ export const SEVA_LIST: SevaListItem[] = [
     subtitleKey: "dailyFoodOffering",
     image: "/images/nitya-bhog.jpg",
     category: "popular",
-    route: "/seva/nitya-bhog",
+    route: "/seva-donation/seva/nitya-bhog",
   },
   {
     id: "flower",
@@ -58,7 +58,7 @@ export const SEVA_LIST: SevaListItem[] = [
     subtitleKey: "templeDecoration",
     image: "/images/flower-seva.jpg",
     category: "popular",
-    route: "/seva/flower",
+    route: "/seva-donation/seva/flower",
   },
   {
     id: "annakut",
@@ -66,7 +66,7 @@ export const SEVA_LIST: SevaListItem[] = [
     subtitleKey: "specialUtsavSeva",
     image: "/images/annakut.jpg",
     category: "utsav",
-    route: "/seva/annakut",
+    route: "/seva-donation/seva/annakut",
   },
   {
     id: "temple-maintenance",
@@ -74,7 +74,7 @@ export const SEVA_LIST: SevaListItem[] = [
     subtitleKey: "supportTempleServices",
     image: "/images/temple-maintenance.jpg",
     category: "all",
-    route: "/seva/temple-maintenance",
+    route: "/seva-donation/seva/temple-maintenance",
   },
 ];
 

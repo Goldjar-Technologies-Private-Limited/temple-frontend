@@ -140,7 +140,7 @@ export default function CommonHeader({
             className="
               group flex size-9 shrink-0
               items-center justify-center
-              rounded-full border border-[#a71919]
+              rounded-full border border-[#ead7b8]
               bg-white text-[#a71919] shadow-sm
               transition-all duration-200
               hover:border-[#b8893b] hover:bg-[#fff4e4]

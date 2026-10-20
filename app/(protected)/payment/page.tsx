@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import DonateClient from "./DonateClient";
+import PymentClient from "./PaymentClient";
 
 export default function Page() {
   return (
     <Suspense fallback={null}>
-      <DonateClient />
+      <PymentClient />
     </Suspense>
   );
 }

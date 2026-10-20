@@ -19,9 +19,15 @@ export default function OtpClient() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Focus first input on mount
+
+  
   useEffect(() => {
     inputRefs.current[0]?.focus();
+
+    // Remove query parameters from browser URL
+    window.history.replaceState(null, "", "/otp");
   }, []);
+
 
   const doVerify = async (_fullOtp: string) => {
     if (loading) return;
