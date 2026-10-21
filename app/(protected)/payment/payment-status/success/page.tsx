@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import DonationSuccessClient from "./_components/DonationSuccessClient";
+import PaymentSuccessClient from "./_components/PaymentSuccessClient";
 
 export default function Page() {
   return (
-    <Suspense fallback={null}>
-      <DonationSuccessClient />
+    <Suspense fallback={<div>Loading...</div>}>
+      <PaymentSuccessClient />
     </Suspense>
   );
 }

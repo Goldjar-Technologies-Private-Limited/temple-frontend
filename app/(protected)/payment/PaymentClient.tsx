@@ -297,7 +297,7 @@ export default function DonatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const sevaId = searchParams.get("seva") || "go-seva";
+  const requestedSevaId = searchParams.get("seva") || "go-seva";
 
   const sevaNames: Record<string, string> = {
     "go-seva": "Go Seva",
@@ -307,9 +307,16 @@ export default function DonatePage() {
     "temple-maintenance": "Temple Maintenance",
   };
 
-  const seva = sevaNames[sevaId] || "Go Seva";
+  const sevaId = Object.prototype.hasOwnProperty.call(
+    sevaNames,
+    requestedSevaId,
+  )
+    ? requestedSevaId
+    : "go-seva";
 
-  const [amount, setAmount] = useState("1001");
+  const seva = sevaNames[sevaId];
+
+  const [amount, setAmount] = useState("501");
   const [type, setType] = useState<DonationType>("one-time");
   const [frequency, setFrequency] = useState("monthly");
   const [customAmount, setCustomAmount] = useState("");
@@ -410,7 +417,7 @@ export default function DonatePage() {
 
     // This is navigation only, not a real payment.
     // Connect a payment gateway and verify the payment on your backend.
-    router.push("/donation-status/success");
+    router.push("/payment/payment-status/success");
   };
 
   return (

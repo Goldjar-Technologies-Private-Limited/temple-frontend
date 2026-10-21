@@ -3,6 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+type PendingDonation = {
+  sevaId: string;
+  seva: string;
+  amount: string;
+  type: "one-time" | "auto";
+  frequency: string;
+  method: "upi" | "card" | "netbanking";
+};
+
 export default function DonationSuccess() {
   const router = useRouter();
   const params = useSearchParams();
