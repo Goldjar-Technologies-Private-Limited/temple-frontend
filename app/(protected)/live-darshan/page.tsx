@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import { Send, Share2 } from "lucide-react";
 import {
@@ -13,8 +13,6 @@ export default function LiveDarshan() {
 
   const selected = 0;
   const stream = streams[selected];
-
-  const playerRef = useRef<HTMLIFrameElement>(null);
 
   const [message, setMessage] = useState("");
   const [chatMessages, setChatMessages] = useState(chats);
@@ -91,26 +89,18 @@ export default function LiveDarshan() {
 
               {/* YOUTUBE PLAYER */}
 
-              <div className="relative aspect-video w-full overflow-hidden bg-[#111]">
-                {stream.id.startsWith("YOUR_") ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-5 text-center text-white">
+              <div
+                id="persistent-live-player-slot"
+                className="relative aspect-video w-full overflow-hidden bg-[#111]"
+              >
+                {stream.id.startsWith("YOUR_") && (
+                  <div className="absolute inset-0 flex items-center justify-center px-5 text-center text-white">
+                    Live Darshan stream is not configured.
                   </div>
-                ) : (
-                  <iframe
-                    ref={playerRef}
-                    key={stream.id}
-                    src={`https://www.youtube.com/embed/${stream.id}?playsinline=1&rel=0&controls=1`}
-                    title={t("liveDarshan")}
-                    className="block h-full w-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                  />
                 )}
               </div>
 
               {/* VIDEO FOOTER */}
-
-             
             </section>
           </div>
 
