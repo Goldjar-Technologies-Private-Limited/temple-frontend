@@ -43,6 +43,7 @@ export default function SevaDetail() {
   };
 
   // Save the amount in sessionStorage, never in the URL.
+
   const handleDonate = () => {
     const rawAmount =
       selectedAmount !== null ? String(selectedAmount) : customAmount.trim();
@@ -64,6 +65,10 @@ export default function SevaDetail() {
     try {
       sessionStorage.setItem("donationAmount", String(amount));
       sessionStorage.setItem("donationSevaId", id);
+
+      // NEW: Save the seva's translated name.
+      sessionStorage.setItem("donationSevaName", t(seva.titleKey));
+
       router.push(`/payment?seva=${encodeURIComponent(id)}`);
     } catch {
       setAmountError("Unable to continue. Please try again.");

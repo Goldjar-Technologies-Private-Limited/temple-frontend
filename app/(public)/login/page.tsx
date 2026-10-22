@@ -20,7 +20,8 @@ export default function Login() {
     setError("");
 
     await new Promise((resolve) => setTimeout(resolve, 600));
-    router.push(`/otp?mobile=${validNumber}`);
+    sessionStorage.setItem("otpMobile", validNumber);
+    router.push("/otp");
   };
 
   const DEFAULT_TEST_MOBILE = "7498473263";

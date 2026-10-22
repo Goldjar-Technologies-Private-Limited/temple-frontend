@@ -1,16 +1,14 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageProvider";
 
 export default function OtpClient() {
   const router = useRouter();
-  const params = useSearchParams();
-
   const { t } = useLanguage();
 
-  const mobile = params.get("mobile") || "";
+
 
   const [otpValues, setOtpValues] = useState<string[]>(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
@@ -21,12 +19,12 @@ export default function OtpClient() {
   // Focus first input on mount
 
   
-  useEffect(() => {
-    inputRefs.current[0]?.focus();
+const [mobile, setMobile] = useState("");
 
-    // Remove query parameters from browser URL
-    window.history.replaceState(null, "", "/otp");
-  }, []);
+useEffect(() => {
+  setMobile(sessionStorage.getItem("otpMobile") || "");
+  inputRefs.current[0]?.focus();
+}, []);
 
 
   const doVerify = async (_fullOtp: string) => {

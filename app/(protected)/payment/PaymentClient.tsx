@@ -314,7 +314,28 @@ export default function DonatePage() {
     ? requestedSevaId
     : "go-seva";
 
-  const seva = sevaNames[sevaId];
+  const [seva, setSeva] = useState(sevaNames[sevaId] || "Go Seva");
+
+  useEffect(() => {
+    try {
+      const savedSevaId = sessionStorage.getItem("donationSevaId");
+      const savedSevaName = sessionStorage.getItem("donationSevaName");
+
+      const validSavedId =
+        savedSevaId &&
+        Object.prototype.hasOwnProperty.call(sevaNames, savedSevaId);
+
+      const currentId = validSavedId ? savedSevaId : sevaId;
+
+      if (savedSevaName && validSavedId && currentId === sevaId) {
+        setSeva(savedSevaName);
+      } else {
+        setSeva(sevaNames[currentId] || "Go Seva");
+      }
+    } catch {
+      setSeva(sevaNames[sevaId] || "Go Seva");
+    }
+  }, [sevaId]);
 
   const [amount, setAmount] = useState("501");
   const [type, setType] = useState<DonationType>("one-time");
@@ -325,16 +346,12 @@ export default function DonatePage() {
   const [error, setError] = useState("");
 
   // Load the selected amount without putting it in the URL.
+
   useEffect(() => {
     try {
       const storedAmount = sessionStorage.getItem("donationAmount");
 
-      if (!storedAmount) return;
-
-      if (!/^\d+$/.test(storedAmount)) {
-        sessionStorage.removeItem("donationAmount");
-        return;
-      }
+      if (!storedAmount || !/^\d+$/.test(storedAmount)) return;
 
       const parsedAmount = Number(storedAmount);
 
@@ -343,21 +360,18 @@ export default function DonatePage() {
         parsedAmount <= 0 ||
         parsedAmount > 10000000
       ) {
-        sessionStorage.removeItem("donationAmount");
         return;
       }
 
-      if (amounts.includes(storedAmount)) {
+      if (amounts.map(String).includes(storedAmount)) {
         setAmount(storedAmount);
         setCustomAmount("");
       } else {
         setAmount("custom");
         setCustomAmount(storedAmount);
       }
-
-      sessionStorage.removeItem("donationAmount");
     } catch {
-      // Keep the default amount if session storage is unavailable.
+      // Keep the default amount if sessionStorage is unavailable.
     }
   }, []);
 
@@ -374,7 +388,7 @@ export default function DonatePage() {
     setError("");
   };
 
-  const handlePayment = () => {
+  const handlePayment = (outcome: "success" | "failed" = "success") => {
     if (
       !finalAmount.trim() ||
       !Number.isSafeInteger(numericAmount) ||
@@ -399,16 +413,61 @@ export default function DonatePage() {
     // Keep details out of the URL.
     // The status page can read these details from sessionStorage if needed.
     try {
+      const savedSevaName = sessionStorage.getItem("donationSevaName") || seva;
+
       sessionStorage.setItem(
         "pendingDonation",
         JSON.stringify({
           sevaId,
-          seva,
-          amount: String(numericAmount),
+          seva: savedSevaName,
+          sevaName: savedSevaName,
+          amount: numericAmount,
           type,
-          frequency: type === "auto" ? frequency : "",
+          donationType: type,
+          frequency: type === "auto" ? frequency : "One-Time",
           method: paymentMethod,
+          paymentMethod,
+          outcome,
+          receiptId: `DEMO-${Date.now().toString().slice(-8)}`,
+          transactionId: `TEST-${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
+          createdAt: new Date().toISOString(),
+          isDemo: true,
         }),
+      );
+
+      const paymentHistoryKey = "myDonations";
+
+      const previousDonations = JSON.parse(
+        localStorage.getItem(paymentHistoryKey) || "[]",
+      );
+
+      const paymentMethodName =
+        paymentMethod === "upi"
+          ? "UPI"
+          : paymentMethod === "card"
+            ? "Credit / Debit Card"
+            : "Net Banking";
+
+      const receiptId = `DEMO-${Date.now().toString().slice(-8)}`;
+      const transactionId = `TEST-${Math.random()
+        .toString(36)
+        .slice(2, 10)
+        .toUpperCase()}`;
+
+      const newDonation = {
+        id: receiptId,
+        title: savedSevaName,
+        amount: numericAmount,
+        status: outcome === "success" ? "successful" : "failed",
+        transactionId,
+        paymentMethod: paymentMethodName,
+        donorName: "Demo Donor",
+        date: new Date().toLocaleDateString("en-IN"),
+      };
+
+      localStorage.setItem(
+        paymentHistoryKey,
+        JSON.stringify([newDonation, ...previousDonations]),
       );
     } catch {
       setError("Unable to continue. Please try again.");
@@ -417,7 +476,11 @@ export default function DonatePage() {
 
     // This is navigation only, not a real payment.
     // Connect a payment gateway and verify the payment on your backend.
-    router.push("/payment/payment-status/success");
+    router.push(
+      outcome === "success"
+        ? "/payment/payment-status/success"
+        : "/payment/payment-status/failed",
+    );
   };
 
   return (
@@ -543,6 +606,42 @@ export default function DonatePage() {
               {error}
             </p>
           )}
+
+          {/* YAHAN DEMO BUTTONS ADD KARO */}
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => handlePayment("success")}
+              className="rounded-xl bg-green-700 px-4 py-3 font-bold text-white"
+            >
+              Simulate Success
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handlePayment("failed")}
+              className="rounded-xl border border-red-600 px-4 py-3 font-bold text-red-700"
+            >
+              Simulate Failure
+            </button>
+          </div>
+
+          {/* Iske baad aapka existing Summary code rahega */}
+          <div className="mt-6 lg:hidden">
+            <Summary
+              seva={seva}
+              type={type}
+              frequency={frequency}
+              paymentMethod={paymentMethod}
+              formattedAmount={formattedAmount}
+              mandateAccepted={mandateAccepted}
+              onMandateChange={(checked) => {
+                setMandateAccepted(checked);
+                setError("");
+              }}
+              handlePayment={handlePayment}
+            />
+          </div>
 
           <div className="mt-6 lg:hidden">
             <Summary

@@ -70,6 +70,12 @@ export const DARSHAN_SCHEDULE: DarshanScheduleItem[] = [
     minute: 0,
     image: "/images/mangala.jpg",
   },
+   {
+    nameKey: "mangala",
+    hour: 5,
+    minute: 30,
+    image: "/images/mangala.jpg",
+  },
 ];
 
 export const DARSHANS: DarshanTimingItem[] = [
@@ -129,6 +135,7 @@ export const DARSHANS: DarshanTimingItem[] = [
     minute: 0,
     image: "/images/mangala.jpg",
   },
+  
 ];
 
 export const liveDarshanStreams: LiveStream[] = [
