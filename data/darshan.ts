@@ -154,8 +154,8 @@ export const liveDarshanStreams: LiveStream[] = [
 ];
 
 export const initialLiveChats: [string, string, string][] = [
-  ["🙏", "Jai Shree Krishna", "Ramesh Patel"],
-  ["🌸", "Radhe Radhe", "Meena Shah"],
-  ["🙏", "Jai Shrinathji", "Aarti Doshi"],
-  ["🌺", "Beautiful Darshan", "Pooja Mehta"],
+  // ["🙏", "Jai Shree Krishna", "Ramesh Patel"],
+  // ["🌸", "Radhe Radhe", "Meena Shah"],
+  // ["🙏", "Jai Shrinathji", "Aarti Doshi"],
+  // ["🌺", "Beautiful Darshan", "Pooja Mehta"],
 ];

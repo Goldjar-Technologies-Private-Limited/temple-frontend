@@ -108,7 +108,7 @@ export default function CommonHeader({
   return (
     <header
       className="
-    sticky top-0 z-40
+    sticky top-0 z-50
     w-full min-w-0
     lg:ml-[92px] lg:w-[calc(100%-92px)]
     bg-[#fffdf8]/95

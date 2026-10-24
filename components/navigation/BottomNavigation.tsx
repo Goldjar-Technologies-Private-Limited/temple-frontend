@@ -49,7 +49,7 @@ const isNavItemActive = (item: NavItem, pathname: string) => {
       return pathname === "/dashboard";
 
     case "/live-darshan":
-      return pathname === "/live-darshan" || pathname === "/darshan-timings";
+      return pathname === "/live-darshan";
 
     case "/seva-donation":
       return (
