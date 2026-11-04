@@ -59,12 +59,12 @@ export default function SevaDonation() {
               className="group flex min-h-[84px] w-full min-w-0 items-center overflow-hidden rounded-[13px] border border-[#eadfd2] bg-[#fffdf9] p-2 text-left shadow-[0_3px_12px_rgba(97,45,25,0.045)] transition duration-300 hover:-translate-y-0.5 hover:border-[#dfc9ad] hover:shadow-[0_12px_35px_rgba(97,45,25,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a71919] focus-visible:ring-offset-2 active:scale-[0.99] sm:min-h-[100px] sm:rounded-[16px] sm:p-3 lg:min-h-[106px] xl:min-h-[112px] xl:p-3.5"
             >
               {/* IMAGE */}
-              <div className="relative h-[56px] w-[58px] shrink-0 overflow-hidden rounded-lg bg-[#eadbc5] min-[375px]:h-[62px] min-[375px]:w-[66px] sm:h-[72px] sm:w-[78px] md:h-[68px] md:w-[72px] lg:h-[76px] lg:w-[84px] xl:h-[84px] xl:w-[96px]">
+              <div className="relative flex aspect-square  h-[76px] w-[76px] shrink-0 items-center justify-center overflow-hidden rounded-xl   sm:h-[100px] sm:w-[100px] lg:h-[120px] lg:w-[120px]">
                 <img
                   src={seva.image}
                   alt={t(seva.titleKey)}
                   loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="h-full w-full rounded-lg object-cover object-center"
                 />
               </div>
 
