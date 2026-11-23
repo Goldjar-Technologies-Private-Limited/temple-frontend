@@ -1,12 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import { authService } from "@/services/auth/auth.service";
 
 export default function OtpClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useLanguage();
 
   const [otpValues, setOtpValues] = useState<string[]>(["", "", "", "", "", ""]);
@@ -18,10 +19,15 @@ export default function OtpClient() {
   const [mobile, setMobile] = useState("");
 
   useEffect(() => {
+    const paramMobile = searchParams.get("mobile");
     const storedMobile = sessionStorage.getItem("otpMobile") || "";
-    setMobile(storedMobile);
+    const effectiveMobile = paramMobile || storedMobile;
+    setMobile(effectiveMobile);
+    if (paramMobile && !storedMobile) {
+      sessionStorage.setItem("otpMobile", paramMobile);
+    }
     inputRefs.current[0]?.focus();
-  }, []);
+  }, [searchParams]);
 
   const doVerify = async (fullOtp: string) => {
     if (loading) return;

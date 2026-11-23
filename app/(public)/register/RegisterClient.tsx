@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { authService } from "@/services/auth/auth.service";
 
 function RegisterPage() {
   const router = useRouter();
@@ -78,19 +79,30 @@ function RegisterPage() {
       setLoading(true);
       setError("");
 
-      /* =====================================================
-         FRONTEND ONLY: Bypass API for signup and OTP
-         ===================================================== */
-      console.warn(
-        "Backend integration required for signup. Proceeding to OTP manually.",
-      );
+      await authService.signup({
+        name: cleanedName,
+        contactNo: cleanedMobile,
+      });
+
+      const initiateRes = await authService.loginInitiate({
+        mobileNumber: cleanedMobile,
+      });
+
+      sessionStorage.setItem("otpMobile", cleanedMobile);
+      if (initiateRes.sessionId) {
+        sessionStorage.setItem("otpSessionId", initiateRes.sessionId);
+      }
 
       router.push(
         `/otp?mobile=${encodeURIComponent(cleanedMobile)}&mode=register`,
       );
     } catch (err: any) {
       console.error("Registration error:", err);
-      setError("Registration failed. Please try again.");
+      const errorMsg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Registration failed. Please try again.";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
