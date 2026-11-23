@@ -1,259 +1,64 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import {
-  CART_CHECKOUT_PRODUCTS as products,
-  type CartCheckoutProduct as Product,
-  type PrasadamWeight as Weight,
-} from "@/data/prasadam";
+import { useCustomerPrasadCart } from "@/hooks/temple/prasad/usePrasad";
+import { CustomerPrasadCartItem } from "@/models/temple/prasad.model";
+import TempleLoader from "@/components/common/TempleLoader";
 
-/* =====================================================
-    TYPES
-===================================================== */
-
-type CartItemData = {
-  productId: number;
-  weight: Weight;
-  quantity: number;
-};
-
-type CartItem = Product & CartItemData;
-
-/* =====================================================
-    CONSTANTS
-===================================================== */
-
-const CART_STORAGE_KEY = "prasadam-cart";
-const OLD_WEIGHT_STORAGE_KEY = "prasadam-cart-weights";
-const CART_UPDATED_EVENT = "prasadam-cart-updated";
 const DELIVERY_CHARGE = 50;
-
-/* =====================================================
-    HELPERS
-===================================================== */
-
-function getWeightPrice(price: number, weight: Weight): number {
-  switch (weight) {
-    case "250gm":
-      return price * 0.5;
-
-    case "1kg":
-      return price * 2;
-
-    case "500gm":
-    default:
-      return price;
-  }
-}
-
-function getWeightLabel(weight: Weight): string {
-  switch (weight) {
-    case "250gm":
-      return "250 gm";
-
-    case "1kg":
-      return "1 kg";
-
-    case "500gm":
-    default:
-      return "500 gm";
-  }
-}
-
-function isValidWeight(value: unknown): value is Weight {
-  return value === "250gm" || value === "500gm" || value === "1kg";
-}
-
-function isValidCartItem(item: unknown): item is CartItemData {
-  if (!item || typeof item !== "object") {
-    return false;
-  }
-
-  const cartItem = item as Partial<CartItemData>;
-
-  return (
-    typeof cartItem.productId === "number" &&
-    Number.isFinite(cartItem.productId) &&
-    products.some((product) => product.id === cartItem.productId) &&
-    isValidWeight(cartItem.weight) &&
-    typeof cartItem.quantity === "number" &&
-    Number.isFinite(cartItem.quantity) &&
-    cartItem.quantity > 0
-  );
-}
 
 function formatPrice(price: number): string {
   return price.toLocaleString("en-IN");
 }
 
-/* =====================================================
-    LOAD CART
-===================================================== */
-
-function loadCart(): CartItemData[] {
-  try {
-    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-
-    if (!savedCart) {
-      return [];
-    }
-
-    const parsed: unknown = JSON.parse(savedCart);
-
-    if (Array.isArray(parsed)) {
-      return parsed.filter(isValidCartItem);
-    }
-
-    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-      return Object.entries(parsed)
-        .map(([productId, quantity]) => ({
-          productId: Number(productId),
-          weight: "500gm" as Weight,
-          quantity: Number(quantity),
-        }))
-        .filter(
-          (item) =>
-            Number.isFinite(item.productId) &&
-            Number.isFinite(item.quantity) &&
-            item.quantity > 0 &&
-            products.some((product) => product.id === item.productId),
-        );
-    }
-
-    return [];
-  } catch (error) {
-    console.error("Failed to load cart:", error);
-    return [];
-  }
-}
-
-/* =====================================================
-    SAVE CART
-===================================================== */
-
-function saveCart(cart: CartItemData[]): void {
-  try {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-    localStorage.removeItem(OLD_WEIGHT_STORAGE_KEY);
-    window.dispatchEvent(new Event(CART_UPDATED_EVENT));
-  } catch (error) {
-    console.error("Failed to save cart:", error);
-  }
-}
-
-/* =====================================================
-    CART PAGE
-===================================================== */
-
 export default function CartPage() {
   const router = useRouter();
+  const {
+    cart,
+    isLoading,
+    updateQuantity,
+    removeCartItem,
+  } = useCustomerPrasadCart();
 
-  const [cart, setCart] = useState<CartItemData[]>([]);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    const savedCart = loadCart();
-    setCart(savedCart);
-    setLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (!loaded) {
-      return;
-    }
-    saveCart(cart);
-  }, [cart, loaded]);
-
-  const cartItems = useMemo<CartItem[]>(() => {
-    return cart
-      .map((cartItem) => {
-        const product = products.find((item) => item.id === cartItem.productId);
-
-        if (!product) {
-          return null;
-        }
-
-        return {
-          ...product,
-          productId: cartItem.productId,
-          weight: cartItem.weight,
-          quantity: cartItem.quantity,
-        };
-      })
-      .filter((item): item is CartItem => item !== null);
+  const cartItems: CustomerPrasadCartItem[] = useMemo(() => {
+    return cart?.items || [];
   }, [cart]);
 
   const totalItems = useMemo(() => {
-    return cartItems.reduce((total, item) => total + item.quantity, 0);
-  }, [cartItems]);
+    return cart?.totalItems ?? cartItems.reduce((total, item) => total + item.quantity, 0);
+  }, [cart, cartItems]);
 
   const subtotal = useMemo(() => {
-    return cartItems.reduce((total, item) => {
-      const price = getWeightPrice(item.price, item.weight);
-      return total + price * item.quantity;
-    }, 0);
-  }, [cartItems]);
+    return cart?.totalAmount ?? cartItems.reduce((total, item) => total + (item.itemTotal || item.price * item.quantity), 0);
+  }, [cart, cartItems]);
 
   const deliveryCharge = subtotal > 0 ? DELIVERY_CHARGE : 0;
   const totalAmount = subtotal + deliveryCharge;
 
-  const increase = (productId: number, weight: Weight): void => {
-    setCart((previousCart) => {
-      const exists = previousCart.some(
-        (item) => item.productId === productId && item.weight === weight,
-      );
-
-      if (exists) {
-        return previousCart.map((item) =>
-          item.productId === productId && item.weight === weight
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        );
-      }
-
-      return [...previousCart, { productId, weight, quantity: 1 }];
-    });
+  const handleIncrease = async (item: CustomerPrasadCartItem) => {
+    await updateQuantity(item.cartItemId, item.quantity + 1);
   };
 
-  const decrease = (productId: number, weight: Weight): void => {
-    setCart((previousCart) =>
-      previousCart
-        .map((item) =>
-          item.productId === productId && item.weight === weight
-            ? { ...item, quantity: item.quantity - 1 }
-            : item,
-        )
-        .filter((item) => item.quantity > 0),
-    );
-  };
-
-  const removeItem = (productId: number, weight: Weight): void => {
-    setCart((previousCart) =>
-      previousCart.filter(
-        (item) => !(item.productId === productId && item.weight === weight),
-      ),
-    );
-  };
-
-  const handlePlaceOrder = (): void => {
-    if (!loaded || cartItems.length === 0) return;
-
-    const checkoutCart = cart.filter(isValidCartItem);
-    if (checkoutCart.length === 0) return;
-
-    try {
-      saveCart(checkoutCart);
-      router.push("/prasadam/checkout");
-    } catch (error) {
-      console.error("Failed to proceed to checkout:", error);
+  const handleDecrease = async (item: CustomerPrasadCartItem) => {
+    if (item.quantity <= 1) {
+      await removeCartItem(item.cartItemId);
+    } else {
+      await updateQuantity(item.cartItemId, item.quantity - 1);
     }
   };
 
-  if (!loaded) {
-    return (
-      <main className="min-h-[100dvh] bg-[#fffaf3] lg:ml-[92px] lg:w-[calc(100%-92px)]" />
-    );
+  const handleRemove = async (cartItemId: number) => {
+    await removeCartItem(cartItemId);
+  };
+
+  const handlePlaceOrder = (): void => {
+    if (cartItems.length === 0) return;
+    router.push("/prasadam/checkout");
+  };
+
+  if (isLoading) {
+    return <TempleLoader message="Loading cart items..." fullScreen />;
   }
 
   if (cartItems.length === 0) {
@@ -297,12 +102,13 @@ export default function CartPage() {
           <section className="min-w-0">
             <div className="overflow-hidden rounded-[18px] border border-[#eadbc5] bg-[#fffdf8] shadow-[0_8px_25px_rgba(80,45,15,0.05)]">
               {cartItems.map((item, index) => {
-                const itemPrice = getWeightPrice(item.price, item.weight);
-                const itemTotal = itemPrice * item.quantity;
+                const itemPrice = item.price;
+                const itemTotal = item.itemTotal || itemPrice * item.quantity;
+                const weightLabel = `${item.weight} ${item.unit}`;
 
                 return (
                   <article
-                    key={`${item.productId}-${item.weight}`}
+                    key={item.cartItemId}
                     className={`p-3 sm:p-4 lg:p-5 ${
                       index !== cartItems.length - 1
                         ? "border-b border-[#eecfcf]"
@@ -311,12 +117,16 @@ export default function CartPage() {
                   >
                     <div className="flex min-w-0 items-start gap-3 sm:gap-4">
                       {/* IMAGE CONTAINER FIXED */}
-                      <div className="relative flex aspect-square h-[76px] w-[76px] shrink-0 items-center justify-center overflow-hidden rounded-xl   sm:h-[100px] sm:w-[100px] lg:h-[120px] lg:w-[120px]">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="h-full w-full rounded-lg object-cover object-center"
-                        />
+                      <div className="relative flex aspect-square h-[76px] w-[76px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#faf6ee] sm:h-[100px] sm:w-[100px] lg:h-[120px] lg:w-[120px]">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.prasadName}
+                            className="h-full w-full rounded-lg object-cover object-center"
+                          />
+                        ) : (
+                          <div className="text-3xl">🛕</div>
+                        )}
                       </div>
 
                       {/* INFO */}
@@ -325,29 +135,25 @@ export default function CartPage() {
                           <div className="min-w-0 flex-1">
                             {/* CATEGORY */}
                             <span className="block text-[9px] font-bold uppercase tracking-[1px] text-[#c18b32]">
-                              Prasadam
+                              {item.category || "Prasadam"}
                             </span>
 
                             {/* NAME */}
                             <h3 className="mt-1 truncate text-[15px] font-bold text-[#4d1616] sm:text-lg">
-                              {item.name}
+                              {item.prasadName}
                             </h3>
 
                             {/* WEIGHT */}
-                            <span className=" mt-1 inline-flex rounded-md border border-[#eadbc5] bg-[#f5e7dc] px-2 py-1 text-[12px] font-bold text-[#a71919] sm:text-[10px]">
-                              {getWeightLabel(item.weight)}
+                            <span className="mt-1 inline-flex rounded-md border border-[#eadbc5] bg-[#f5e7dc] px-2 py-1 text-[12px] font-bold text-[#a71919] sm:text-[10px]">
+                              {weightLabel}
                             </span>
                           </div>
 
                           {/* REMOVE */}
                           <button
                             type="button"
-                            onClick={() =>
-                              removeItem(item.productId, item.weight)
-                            }
-                            aria-label={`Remove ${item.name} ${getWeightLabel(
-                              item.weight,
-                            )}`}
+                            onClick={() => handleRemove(item.cartItemId)}
+                            aria-label={`Remove ${item.prasadName} ${weightLabel}`}
                             className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#9a8b7e] transition hover:bg-[#fff0e8] hover:text-[#a71919]"
                           >
                             <TrashIcon />
@@ -357,9 +163,6 @@ export default function CartPage() {
                         {/* PRICE */}
                         <p className="mt-2 text-[13px] font-bold text-[#a71919] sm:text-base">
                           ₹{formatPrice(itemPrice)}
-                          <span className="ml-1 text-[9px] font-medium text-[#8d8177]">
-                           
-                          </span>
                         </p>
 
                         {/* QUANTITY */}
@@ -368,9 +171,7 @@ export default function CartPage() {
                             {/* MINUS */}
                             <button
                               type="button"
-                              onClick={() =>
-                                decrease(item.productId, item.weight)
-                              }
+                              onClick={() => handleDecrease(item)}
                               aria-label="Decrease quantity"
                               className="grid h-full w-9 place-items-center text-lg font-bold text-[#a71919] hover:bg-[#fff3df]"
                             >
@@ -385,11 +186,9 @@ export default function CartPage() {
                             {/* PLUS */}
                             <button
                               type="button"
-                              onClick={() =>
-                                increase(item.productId, item.weight)
-                              }
+                              onClick={() => handleIncrease(item)}
                               aria-label="Increase quantity"
-                              className="grid h-full w-9 place-items-center bg-[#e74b18] text-lg font-bold text-white hover:bg-[#d83f11]"
+                              className="grid h-full w-9 place-items-center text-lg font-bold text-[#a71919] hover:bg-[#fff3df]"
                             >
                               +
                             </button>
@@ -482,7 +281,6 @@ export default function CartPage() {
     </main>
   );
 }
-
 
 /* =====================================================
     SUMMARY ROW

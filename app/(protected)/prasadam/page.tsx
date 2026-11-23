@@ -1,173 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import TempleLoader from "@/components/common/TempleLoader";
-import { useCustomerPrasadList, useCustomerPrasadCategories } from "@/hooks/temple/prasad/usePrasad";
+import { useCustomerPrasadList, useCustomerPrasadCategories, useCustomerPrasadCart } from "@/hooks/temple/prasad/usePrasad";
 import { CustomerPrasadItem, CustomerPrasadVariant } from "@/models/temple/prasad.model";
-
-type CartItem = {
-  productId: number;
-  weight: string;
-  quantity: number;
-};
-
-type LegacyCart = Record<string, unknown>;
-
-/* =====================================================
-    CONSTANTS
-==================================================== */
-
-const CART_STORAGE_KEY = "prasadam-cart";
-const OLD_WEIGHT_STORAGE_KEY = "prasadam-cart-weights";
-const CART_UPDATED_EVENT = "prasadam-cart-updated";
 
 /* =====================================================
     HELPERS
 ===================================================== */
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 function formatVariantLabel(variant: CustomerPrasadVariant): string {
   return `${variant.weight} ${variant.unit}`;
-}
-
-/* =====================================================
-    CART VALIDATION
-===================================================== */
-
-function cleanCart(value: unknown): CartItem[] {
-  if (!Array.isArray(value)) return [];
-
-  const normalized = new Map<string, CartItem>();
-
-  for (const rawItem of value) {
-    if (!isRecord(rawItem)) continue;
-
-    const productId = Number(rawItem.productId);
-    const quantity = Number(rawItem.quantity);
-    const weight = typeof rawItem.weight === "string" ? rawItem.weight : String(rawItem.weight || "");
-
-    if (
-      !Number.isSafeInteger(productId) ||
-      !weight ||
-      !Number.isSafeInteger(quantity) ||
-      quantity <= 0
-    ) {
-      continue;
-    }
-
-    const key = `${productId}:${weight}`;
-    const existing = normalized.get(key);
-
-    if (existing) {
-      const combinedQuantity = existing.quantity + quantity;
-
-      if (Number.isSafeInteger(combinedQuantity)) {
-        existing.quantity = combinedQuantity;
-      }
-    } else {
-      normalized.set(key, {
-        productId,
-        weight,
-        quantity,
-      });
-    }
-  }
-
-  return Array.from(normalized.values());
-}
-
-/* =====================================================
-    LEGACY CART MIGRATION
-===================================================== */
-
-function migrateOldCart(oldCart: unknown, oldWeights: unknown): CartItem[] {
-  if (!isRecord(oldCart)) return [];
-
-  const weights: LegacyCart = isRecord(oldWeights) ? oldWeights : {};
-
-  const migrated: CartItem[] = [];
-
-  for (const [productId, rawQuantity] of Object.entries(oldCart)) {
-    const id = Number(productId);
-    const quantity = Number(rawQuantity);
-
-    if (
-      !Number.isSafeInteger(id) ||
-      !Number.isSafeInteger(quantity) ||
-      quantity <= 0
-    ) {
-      continue;
-    }
-
-    const savedWeight = weights[productId];
-
-    migrated.push({
-      productId: id,
-      weight: typeof savedWeight === "string" ? savedWeight : "500gm",
-      quantity,
-    });
-  }
-
-  return cleanCart(migrated);
-}
-
-/* =====================================================
-    CART STORAGE
-===================================================== */
-
-function loadCart(): CartItem[] {
-  try {
-    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-
-    if (!savedCart) {
-      const oldCart = localStorage.getItem("prasadam-cart");
-
-      if (!oldCart) return [];
-
-      return [];
-    }
-
-    const parsedCart: unknown = JSON.parse(savedCart);
-
-    if (Array.isArray(parsedCart)) {
-      return cleanCart(parsedCart);
-    }
-
-    let oldWeights: unknown = {};
-
-    const savedWeights = localStorage.getItem(OLD_WEIGHT_STORAGE_KEY);
-
-    if (savedWeights) {
-      try {
-        oldWeights = JSON.parse(savedWeights);
-      } catch {
-        oldWeights = {};
-      }
-    }
-
-    return migrateOldCart(parsedCart, oldWeights);
-  } catch (error) {
-    console.error("Unable to load prasadam cart:", error);
-    return [];
-  }
-}
-
-function saveCart(cart: CartItem[]): boolean {
-  try {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-
-    localStorage.removeItem(OLD_WEIGHT_STORAGE_KEY);
-
-    window.dispatchEvent(new Event(CART_UPDATED_EVENT));
-
-    return true;
-  } catch (error) {
-    console.error("Unable to save prasadam cart:", error);
-    return false;
-  }
 }
 
 /* =====================================================
@@ -177,59 +20,13 @@ function saveCart(cart: CartItem[]): boolean {
 export default function PrasadamPage() {
   const { data: products, isLoading: isProductsLoading } = useCustomerPrasadList();
   const { categories: apiCategories, isLoading: isCategoriesLoading } = useCustomerPrasadCategories();
+  const { cart, addToCart, updateQuantity, removeCartItem } = useCustomerPrasadCart();
 
   const [category, setCategory] = useState<string>("all");
-
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [cartLoaded, setCartLoaded] = useState(false);
 
   const [selectedVariants, setSelectedVariants] = useState<
     Record<number, number>
   >({});
-
-  /* LOAD CART */
-
-  useEffect(() => {
-    setCart(loadCart());
-    setCartLoaded(true);
-  }, []);
-
-  /* SAVE CART */
-
-  useEffect(() => {
-    if (!cartLoaded) return;
-
-    saveCart(cart);
-  }, [cart, cartLoaded]);
-
-  /* SYNC CART CHANGES FROM OTHER TABS */
-
-  useEffect(() => {
-    const handleStorage = (event: StorageEvent) => {
-      if (event.key !== CART_STORAGE_KEY && event.key !== null) {
-        return;
-      }
-
-      if (event.newValue === null) {
-        setCart([]);
-        return;
-      }
-
-      try {
-        const parsed: unknown = JSON.parse(event.newValue);
-
-        setCart(Array.isArray(parsed) ? cleanCart(parsed) : []);
-      } catch {
-        setCart([]);
-      }
-    };
-
-    window.addEventListener("storage", handleStorage);
-
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-    };
-  }, []);
 
   /* CATEGORIES LIST */
 
@@ -279,13 +76,15 @@ export default function PrasadamPage() {
     [selectedVariants],
   );
 
-  /* CART QUANTITY */
+  /* CART ITEM FINDER */
 
-  const getQuantity = useCallback(
-    (productId: number, weight: string): number =>
-      cart.find(
-        (item) => item.productId === productId && item.weight === weight,
-      )?.quantity ?? 0,
+  const getCartItemForVariant = useCallback(
+    (productId: number, variantId?: number) => {
+      if (!cart?.items || !variantId) return undefined;
+      return cart.items.find(
+        (item) => item.prasadId === productId && item.variantId === variantId
+      );
+    },
     [cart],
   );
 
@@ -298,65 +97,32 @@ export default function PrasadamPage() {
     }));
   };
 
-  /* ADD TO CART */
+  /* ADD OR INCREASE CART QUANTITY */
 
-  const increase = (productId: number, weight: string) => {
-    setCart((previous) => {
-      const existing = previous.find(
-        (item) => item.productId === productId && item.weight === weight,
-      );
-
-      if (existing) {
-        if (existing.quantity >= Number.MAX_SAFE_INTEGER) {
-          return previous;
-        }
-
-        return previous.map((item) =>
-          item.productId === productId && item.weight === weight
-            ? {
-                ...item,
-                quantity: item.quantity + 1,
-              }
-            : item,
-        );
-      }
-
-      return [
-        ...previous,
-        {
-          productId,
-          weight,
-          quantity: 1,
-        },
-      ];
-    });
+  const handleIncrease = async (product: CustomerPrasadItem, variant: CustomerPrasadVariant) => {
+    const existing = getCartItemForVariant(product.id, variant.id);
+    if (existing) {
+      await updateQuantity(existing.cartItemId, existing.quantity + 1);
+    } else {
+      await addToCart({
+        prasadId: product.id,
+        variantId: variant.id,
+        quantity: 1,
+      });
+    }
   };
 
   /* DECREASE CART QUANTITY */
 
-  const decrease = (productId: number, weight: string) => {
-    setCart((previous) => {
-      const existing = previous.find(
-        (item) => item.productId === productId && item.weight === weight,
-      );
+  const handleDecrease = async (product: CustomerPrasadItem, variant: CustomerPrasadVariant) => {
+    const existing = getCartItemForVariant(product.id, variant.id);
+    if (!existing) return;
 
-      if (!existing) return previous;
-
-      if (existing.quantity <= 1) {
-        return previous.filter(
-          (item) => !(item.productId === productId && item.weight === weight),
-        );
-      }
-
-      return previous.map((item) =>
-        item.productId === productId && item.weight === weight
-          ? {
-              ...item,
-              quantity: item.quantity - 1,
-            }
-          : item,
-      );
-    });
+    if (existing.quantity <= 1) {
+      await removeCartItem(existing.cartItemId);
+    } else {
+      await updateQuantity(existing.cartItemId, existing.quantity - 1);
+    }
   };
 
   if (isProductsLoading || isCategoriesLoading) {
@@ -417,8 +183,8 @@ export default function PrasadamPage() {
         >
           {filteredProducts.map((product) => {
             const selectedVariant = getSelectedVariant(product);
-            const selectedWeightKey = selectedVariant ? `${selectedVariant.weight}${selectedVariant.unit}` : "500gm";
-            const quantity = getQuantity(product.id, selectedWeightKey);
+            const cartItem = selectedVariant ? getCartItemForVariant(product.id, selectedVariant.id) : undefined;
+            const quantity = cartItem?.quantity ?? 0;
             const currentPrice = selectedVariant ? selectedVariant.price : 0;
             const isAvailable = product.isAvailable && (!selectedVariant || selectedVariant.isAvailable);
 
@@ -530,7 +296,8 @@ export default function PrasadamPage() {
                     ) : quantity === 0 ? (
                       <button
                         type="button"
-                        onClick={() => increase(product.id, selectedWeightKey)}
+                        disabled={!selectedVariant}
+                        onClick={() => selectedVariant && handleIncrease(product, selectedVariant)}
                         className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-[#e87519] px-1 text-[11px] font-bold text-white transition hover:bg-[#cf5f0d] active:scale-[0.98] sm:text-xs"
                       >
                         <span>Add to Cart</span>
@@ -539,7 +306,7 @@ export default function PrasadamPage() {
                       <div className="flex h-9 w-full items-center justify-between overflow-hidden rounded-lg border border-[#e87519] bg-white">
                         <button
                           type="button"
-                          onClick={() => decrease(product.id, selectedWeightKey)}
+                          onClick={() => selectedVariant && handleDecrease(product, selectedVariant)}
                           aria-label="Decrease quantity"
                           className="h-full flex-1 bg-[#fff7ef] text-lg font-semibold text-[#c45a0c] hover:bg-[#ffead8]"
                         >
@@ -555,7 +322,7 @@ export default function PrasadamPage() {
 
                         <button
                           type="button"
-                          onClick={() => increase(product.id, selectedWeightKey)}
+                          onClick={() => selectedVariant && handleIncrease(product, selectedVariant)}
                           aria-label="Increase quantity"
                           className="h-full flex-1 bg-[#e87519] text-lg font-semibold text-white hover:bg-[#cf5f0d]"
                         >

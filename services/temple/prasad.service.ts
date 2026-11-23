@@ -38,3 +38,88 @@ class PrasadService {
 }
 
 export const prasadService = new PrasadService();
+
+/* =====================================================
+    CUSTOMER PRASAD CART SERVICE
+===================================================== */
+
+import {
+  AddPrasadCartItemPayload,
+  GetCustomerPrasadCartCountResponse,
+  GetCustomerPrasadCartResponse,
+  PrasadCartActionResponse,
+  UpdatePrasadCartItemPayload,
+} from "../../models/temple/prasad.model";
+
+class PrasadCartService {
+  async getCart(): Promise<GetCustomerPrasadCartResponse> {
+    return apiClient<GetCustomerPrasadCartResponse>(
+      "/api/customer/temple/prasad-cart"
+    );
+  }
+
+  async getCartCount(): Promise<GetCustomerPrasadCartCountResponse> {
+    return apiClient<GetCustomerPrasadCartCountResponse>(
+      "/api/customer/temple/prasad-cart/count"
+    );
+  }
+
+  async addToCart(
+    payload: AddPrasadCartItemPayload
+  ): Promise<PrasadCartActionResponse> {
+    return apiClient<PrasadCartActionResponse>(
+      "/api/customer/temple/prasad-cart/add",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }
+    );
+  }
+
+  async updateCartItem(
+    cartItemId: number,
+    payload: UpdatePrasadCartItemPayload
+  ): Promise<PrasadCartActionResponse> {
+    return apiClient<PrasadCartActionResponse>(
+      `/api/customer/temple/prasad-cart/${cartItemId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      }
+    );
+  }
+
+  async updateCartItemQuantity(
+    cartItemId: number,
+    quantity: number
+  ): Promise<PrasadCartActionResponse> {
+    return apiClient<PrasadCartActionResponse>(
+      `/api/customer/temple/prasad-cart/${cartItemId}/quantity?quantity=${quantity}`,
+      {
+        method: "PUT",
+      }
+    );
+  }
+
+  async removeCartItem(
+    cartItemId: number
+  ): Promise<PrasadCartActionResponse> {
+    return apiClient<PrasadCartActionResponse>(
+      `/api/customer/temple/prasad-cart/${cartItemId}`,
+      {
+        method: "DELETE",
+      }
+    );
+  }
+
+  async clearCart(): Promise<PrasadCartActionResponse> {
+    return apiClient<PrasadCartActionResponse>(
+      "/api/customer/temple/prasad-cart/clear",
+      {
+        method: "DELETE",
+      }
+    );
+  }
+}
+
+export const prasadCartService = new PrasadCartService();

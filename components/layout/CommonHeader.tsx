@@ -40,33 +40,34 @@ export default function CommonHeader({
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
-    const loadCartCount = () => {
+    const loadCartCount = async () => {
+      try {
+        const { prasadCartService } = await import("@/services/temple/prasad.service");
+        const res = await prasadCartService.getCartCount();
+        if (res && res.success && typeof res.data === "number") {
+          setCartCount(res.data);
+          return;
+        }
+      } catch {
+        // Fallback to local storage
+      }
       try {
         const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-
         if (!storedCart) {
           setCartCount(0);
           return;
         }
-
         const parsedCart: unknown = JSON.parse(storedCart);
-
         if (!Array.isArray(parsedCart)) {
           setCartCount(0);
           return;
         }
-
         const totalItems = (parsedCart as CartItem[]).reduce((total, item) => {
           const quantity = Number(item?.quantity ?? 0);
-
-          return (
-            total + (Number.isFinite(quantity) && quantity > 0 ? quantity : 0)
-          );
+          return total + (Number.isFinite(quantity) && quantity > 0 ? quantity : 0);
         }, 0);
-
         setCartCount(totalItems);
-      } catch (error) {
-        console.error("Failed to load cart count in CommonHeader:", error);
+      } catch {
         setCartCount(0);
       }
     };

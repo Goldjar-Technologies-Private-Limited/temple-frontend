@@ -37,3 +37,45 @@ export interface ApiResponse<T> {
 export type GetCustomerPrasadListResponse = ApiResponse<CustomerPrasadItem[] | PaginatedData<CustomerPrasadItem>>;
 export type GetCustomerPrasadByIdResponse = ApiResponse<CustomerPrasadItem>;
 export type GetCustomerPrasadCategoriesResponse = ApiResponse<string[]>;
+
+/* =====================================================
+    CUSTOMER PRASAD CART MODELS
+===================================================== */
+
+export interface CustomerPrasadCartItem {
+  cartItemId: number;
+  prasadId: number;
+  prasadName: string;
+  category: string;
+  imageUrl?: string | null;
+  variantId: number;
+  weight: number;
+  unit: string;
+  price: number;
+  quantity: number;
+  itemTotal: number;
+  isAvailable: boolean;
+  comment?: string | null;
+  addedAt: string;
+}
+
+export interface CustomerPrasadCartData {
+  items: CustomerPrasadCartItem[];
+  totalItems: number;
+  totalAmount: number;
+}
+
+export interface AddPrasadCartItemPayload {
+  prasadId: number;
+  variantId: number;
+  quantity: number;
+}
+
+export interface UpdatePrasadCartItemPayload {
+  quantity?: number;
+  comment?: string | null;
+}
+
+export type GetCustomerPrasadCartResponse = ApiResponse<CustomerPrasadCartData>;
+export type GetCustomerPrasadCartCountResponse = ApiResponse<number>;
+export type PrasadCartActionResponse = ApiResponse<null>;

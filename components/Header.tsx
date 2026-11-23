@@ -58,28 +58,32 @@ export default function HomeHeader() {
   }, []);
 
   useEffect(() => {
-    const loadCartCount = () => {
+    const loadCartCount = async () => {
+      try {
+        const { prasadCartService } = await import("@/services/temple/prasad.service");
+        const res = await prasadCartService.getCartCount();
+        if (res && res.success && typeof res.data === "number") {
+          setCartCount(res.data);
+          return;
+        }
+      } catch {
+        // Fallback to local storage
+      }
       try {
         const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-
         if (!storedCart) {
           setCartCount(0);
           return;
         }
-
         const parsedCart = JSON.parse(storedCart);
-
         let totalItems = 0;
-
         if (Array.isArray(parsedCart)) {
           totalItems = parsedCart.reduce((total: number, item: CartItem) => {
             return total + Number(item.quantity || 0);
           }, 0);
         }
-
         setCartCount(totalItems);
-      } catch (error) {
-        console.error("Failed to load cart:", error);
+      } catch {
         setCartCount(0);
       }
     };
