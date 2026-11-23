@@ -3,12 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageProvider";
+import { authService } from "@/services/auth/auth.service";
 
 export default function OtpClient() {
   const router = useRouter();
   const { t } = useLanguage();
-
-
 
   const [otpValues, setOtpValues] = useState<string[]>(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
@@ -16,24 +15,37 @@ export default function OtpClient() {
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Focus first input on mount
+  const [mobile, setMobile] = useState("");
 
-  
-const [mobile, setMobile] = useState("");
+  useEffect(() => {
+    const storedMobile = sessionStorage.getItem("otpMobile") || "";
+    setMobile(storedMobile);
+    inputRefs.current[0]?.focus();
+  }, []);
 
-useEffect(() => {
-  setMobile(sessionStorage.getItem("otpMobile") || "");
-  inputRefs.current[0]?.focus();
-}, []);
-
-
-  const doVerify = async (_fullOtp: string) => {
+  const doVerify = async (fullOtp: string) => {
     if (loading) return;
     setLoading(true);
     setError("");
 
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    router.push("/dashboard");
+    try {
+      const response = await authService.loginVerify({
+        mobileNumber: mobile,
+        otp: fullOtp,
+      });
+
+      if (response.success && response.jwtResponse) {
+        authService.setToken(response.jwtResponse.token);
+        router.push("/dashboard");
+      } else {
+        setError(response.message || "Invalid OTP. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("[Auth OTP] Login verify error:", err);
+      setError(err?.message || "Invalid OTP. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const DEFAULT_TEST_OTP = "000000";
@@ -62,10 +74,23 @@ useEffect(() => {
     }
   };
 
-  const resendOtp = () => {
+  const resendOtp = async () => {
     setOtpValues(["", "", "", "", "", ""]);
     setError("");
     inputRefs.current[0]?.focus();
+
+    if (!mobile) return;
+    try {
+      const response = await authService.loginInitiate({
+        mobileNumber: mobile,
+      });
+      if (response.sessionId) {
+        sessionStorage.setItem("otpSessionId", response.sessionId);
+      }
+    } catch (err: any) {
+      console.error("[Auth OTP] Resend OTP error:", err);
+      setError(err?.message || "Failed to resend OTP");
+    }
   };
 
   const changeMobileNumber = () => {

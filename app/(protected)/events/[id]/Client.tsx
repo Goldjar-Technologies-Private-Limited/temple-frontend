@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import type { ReactNode } from "react";
-import { useLanguage } from "@/contexts/LanguageProvider";
 import {
   Calendar,
   Clock,
@@ -14,20 +13,24 @@ import {
   Play,
 } from "lucide-react";
 
-import {
-  EVENTS_WITH_POSITIONS as events,
-  EVENT_DETAILS as eventDetails,
-} from "@/data/events";
+import { useCustomerEventDetails } from "@/hooks/temple/events/useEvents";
+import { formatDateDisplay, format12Hour } from "@/utils/time";
+import TempleLoader from "@/components/common/TempleLoader";
 
 export default function EventDetailsPage() {
   const router = useRouter();
   const params = useParams();
-  const { t } = useLanguage();
 
   const eventId = params?.id as string;
-  const event = events.find((item) => item.id === eventId);
 
-  if (!event) {
+  // Fetch live event from API
+  const { event: apiEvent, loading: apiLoading } = useCustomerEventDetails(eventId);
+
+  if (apiLoading) {
+    return <TempleLoader message="Fetching Sacred Event Details..." fullScreen />;
+  }
+
+  if (!apiEvent) {
     return (
       <main className="flex min-h-dvh w-full items-center justify-center overflow-x-clip bg-[#fffaf0] px-4 py-8 sm:px-6 lg:ml-[92px] lg:w-[calc(100%-92px)]">
         <div className="w-full max-w-md rounded-3xl border border-[#ead9bf] bg-white p-6 text-center shadow-xl sm:p-8">
@@ -55,12 +58,16 @@ export default function EventDetailsPage() {
     );
   }
 
-  const details = eventDetails[event.id];
+  const durationDisplay = apiEvent.dateTime?.endTime
+    ? `${format12Hour(apiEvent.dateTime.startTime)} - ${format12Hour(apiEvent.dateTime.endTime)}`
+    : "Sacred Timing";
+  const dateDisplay = formatDateDisplay(apiEvent.dateTime?.startDate);
+  const timeDisplay = format12Hour(apiEvent.dateTime?.startTime);
 
   const handleShare = async () => {
     const shareData = {
-      title: t(event.titleKey),
-      text: details.description,
+      title: apiEvent.title,
+      text: apiEvent.shortDescription,
       url: window.location.href,
     };
 
@@ -79,8 +86,12 @@ export default function EventDetailsPage() {
   };
 
   const handleViewLocation = () => {
+    if (apiEvent.venue?.locationUrl) {
+      window.open(apiEvent.venue.locationUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
     const query = encodeURIComponent(
-      `Shri Govardhannath Haveli ${details.location}`
+      `Shri Govardhannath Haveli ${apiEvent.venue?.address || ""}`
     );
 
     window.open(
@@ -113,7 +124,7 @@ export default function EventDetailsPage() {
           <span className="text-[#c8b5a0]">/</span>
 
           <span className="max-w-[300px] truncate font-semibold text-[#5d4339]">
-            {t(event.titleKey)}
+            {apiEvent.title}
           </span>
         </div>
 
@@ -121,14 +132,14 @@ export default function EventDetailsPage() {
         <section className="relative overflow-hidden rounded-[24px] border border-[#ead8bd] bg-[#4d2119] shadow-[0_20px_60px_rgba(90,48,25,0.14)] sm:rounded-[32px] lg:rounded-[36px]">
           <div className="relative min-h-[420px] w-full sm:min-h-[500px] lg:min-h-[560px]">
             <Image
-              src={event.image}
-              alt={t(event.titleKey)}
+              src={apiEvent.imageUrl || "/images/janmashtami2.jpg"}
+              alt={apiEvent.title}
               fill
               priority
               quality={95}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1280px"
               style={{
-                objectPosition: event.imagePosition || "center center",
+                objectPosition: "center 35%",
               }}
               className="object-cover"
             />
@@ -139,7 +150,7 @@ export default function EventDetailsPage() {
             <div className="absolute left-4 top-4 sm:left-6 sm:top-6">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/30 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#f3c76a]" />
-                {details.category}
+                Sacred Event
               </div>
             </div>
 
@@ -155,32 +166,32 @@ export default function EventDetailsPage() {
                   </span>
 
                   <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[9px] font-semibold text-white/90 backdrop-blur-md sm:py-1.5 sm:text-[10px]">
-                    {details.duration}
+                    {durationDisplay}
                   </span>
                 </div>
 
                 <h1 className="text-2xl font-black leading-[1.1] tracking-[-0.03em] text-white sm:text-4xl lg:text-5xl xl:text-6xl">
-                  {t(event.titleKey)}
+                  {apiEvent.title}
                 </h1>
 
                 <div className="mt-4 h-px w-16 bg-[#e6b95e] sm:mt-5 sm:w-20" />
 
                 <p className="mt-4 max-w-3xl text-xs leading-6 text-white/85 sm:mt-5 sm:text-sm sm:leading-7 lg:text-base">
-                  {details.description}
+                  {apiEvent.shortDescription}
                 </p>
 
                 <div className="mt-6 flex flex-wrap gap-2.5 sm:gap-3">
                   <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/25 px-3.5 py-2.5 backdrop-blur-md sm:rounded-2xl sm:px-4 sm:py-3">
                     <Calendar className="h-4 w-4 shrink-0 text-white/80 sm:h-5 sm:w-5" />
                     <span className="text-xs font-semibold text-white sm:text-sm">
-                      {t(event.dateKey)}
+                      {dateDisplay}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/25 px-3.5 py-2.5 backdrop-blur-md sm:rounded-2xl sm:px-4 sm:py-3">
                     <Clock className="h-4 w-4 shrink-0 text-white/80 sm:h-5 sm:w-5" />
                     <span className="text-xs font-semibold text-white sm:text-sm">
-                      {details.time}
+                      {timeDisplay}
                     </span>
                   </div>
                 </div>
@@ -212,7 +223,7 @@ export default function EventDetailsPage() {
 
                   <div className="space-y-4">
                     <p className="text-sm leading-7 text-[#66574f] sm:text-base sm:leading-8">
-                      {details.about}
+                      {apiEvent.about_event}
                     </p>
 
                     <p className="text-sm leading-7 text-[#66574f] sm:text-base sm:leading-8">
@@ -228,126 +239,134 @@ export default function EventDetailsPage() {
             {/* 2. MOBILE / TABLET ONLY: EVENT INFO & SHARE CARDS */}
             <div className="block lg:hidden space-y-5">
               <EventInfoCard
-                title={t(event.titleKey)}
-                date={t(event.dateKey)}
-                time={details.time}
-                location={details.location}
-                duration={details.duration}
-                onSevaClick={() => router.push("/seva-donation")}
+                title={apiEvent.title}
+                date={dateDisplay}
+                time={timeDisplay}
+                location={apiEvent.venue?.address || "Shri Govardhannath Haveli"}
+                duration={durationDisplay}
+                onSevaClick={() => {
+                  if (apiEvent.seva?.sevaUrl && apiEvent.seva.sevaUrl.startsWith("http")) {
+                    window.open(apiEvent.seva.sevaUrl, "_blank", "noopener,noreferrer");
+                  } else {
+                    router.push("/seva-donation");
+                  }
+                }}
               />
 
               <EventShareCard onShareClick={handleShare} />
             </div>
 
             {/* 3. HIGHLIGHTS */}
-            <section>
-              <SectionHeading eyebrow="Experience" title="Event Highlights" />
+            {apiEvent.highlights && apiEvent.highlights.length > 0 && (
+              <section>
+                <SectionHeading eyebrow="Experience" title="Event Highlights" />
 
-              <div className="mt-5 grid gap-4 sm:mt-6 sm:grid-cols-3">
-                <Highlight
-                  icon="🙏"
-                  title="Sacred Darshan"
-                  text="Experience peaceful and devotional darshan."
-                />
-
-                <Highlight
-                  icon="🎶"
-                  title="Devotional Music"
-                  text="Traditional bhajans, kirtan and sacred melodies."
-                />
-
-                <Highlight
-                  icon="🪔"
-                  title="Spiritual Gathering"
-                  text="Join devotees in a meaningful sacred celebration."
-                />
-              </div>
-            </section>
-
-            {/* 4. LIVE DARSHAN BANNER */}
-            <section>
-              <div className="relative overflow-hidden rounded-[24px] bg-[#7e1717] p-5 shadow-[0_18px_45px_rgba(126,23,23,0.20)] sm:rounded-[28px] sm:p-8">
-                <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
-                <div className="absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-[#e9b94f]/15 blur-2xl" />
-
-                <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="max-w-xl">
-                    <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#ffe7b0]">
-                      <span className="h-2 w-2 animate-pulse rounded-full bg-[#f4c76b]" />
-                      Live Darshan
-                    </div>
-
-                    <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-3xl">
-                      Experience Darshan from Anywhere
-                    </h2>
-
-                    <p className="mt-2 text-xs leading-6 text-white/75 sm:text-sm">
-                      Join the sacred atmosphere of Shri Govardhannath Haveli
-                      through our live darshan experience.
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => router.push("/live-darshan")}
-                    className="group flex min-h-[50px] w-full shrink-0 items-center justify-center gap-3 rounded-2xl bg-white px-4 py-3.5 text-sm font-bold text-[#8c1717] shadow-lg transition hover:bg-[#fff8e8] active:scale-[0.98] sm:min-h-[54px] sm:px-5 lg:w-auto"
-                  >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#a71919] text-white sm:h-9 sm:w-9">
-                      <Play className="h-3.5 w-3.5 fill-white sm:h-4 sm:w-4" />
-                    </span>
-
-                    <span>Watch Live Darshan</span>
-                    <span className="text-lg transition-transform group-hover:translate-x-0.5">
-                      →
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            {/* 5. SCHEDULE */}
-            <section>
-              <SectionHeading eyebrow="Program" title="Event Schedule" />
-
-              <div className="relative mt-6 sm:mt-7">
-                <div className="absolute bottom-5 left-[21px] top-5 w-px bg-gradient-to-b from-[#d9b56c] via-[#ead9bb] to-transparent sm:left-[27px]" />
-
-                <div className="space-y-4 sm:space-y-5">
-                  {details.schedule.map((item, index) => (
-                    <div
-                      key={`${item.time}-${item.title}`}
-                      className="group relative flex min-w-0 gap-4 sm:gap-6"
-                    >
-                      <div className="relative z-10 flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full border border-[#e5c98f] bg-[#fffaf0] sm:h-[54px] sm:w-[54px]">
-                        <div className="h-2.5 w-2.5 rounded-full bg-[#a71919] shadow-[0_0_0_4px_#fff3d8] transition group-hover:scale-125 sm:h-3 sm:w-3" />
-                      </div>
-
-                      <div className="min-w-0 flex-1 rounded-[20px] border border-[#eadcc8] bg-white p-4 shadow-[0_8px_30px_rgba(90,48,25,0.05)] transition duration-300 group-hover:-translate-y-0.5 sm:rounded-[22px] sm:p-6">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                          <div className="min-w-0 space-y-1 sm:space-y-1.5">
-                            <p className="text-[9px] font-extrabold uppercase tracking-[0.18em] text-[#a71919] sm:text-[10px]">
-                              Step {String(index + 1).padStart(2, "0")}
-                            </p>
-
-                            <h3 className="break-words text-sm font-bold text-[#4b2921] sm:text-base lg:text-lg">
-                              {item.title}
-                            </h3>
-
-                            <p className="text-xs leading-5 text-[#7a6b62] sm:text-sm sm:leading-6">
-                              {item.description}
-                            </p>
-                          </div>
-
-                          <span className="w-fit shrink-0 rounded-full bg-[#fff3dc] px-3 py-1 text-[11px] font-bold text-[#805a27] sm:text-xs">
-                            {item.time}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                <div className="mt-5 grid gap-4 sm:mt-6 sm:grid-cols-3">
+                  {apiEvent.highlights.map((h, i) => (
+                    <Highlight
+                      key={`${h.title}-${i}`}
+                      icon={h.icon || "🙏"}
+                      title={h.title}
+                      text={h.description}
+                    />
                   ))}
                 </div>
-              </div>
-            </section>
+              </section>
+            )}
+
+            {/* 4. LIVE DARSHAN BANNER */}
+            {apiEvent.liveDarshan?.enabled && (
+              <section>
+                <div className="relative overflow-hidden rounded-[24px] bg-[#7e1717] p-5 shadow-[0_18px_45px_rgba(126,23,23,0.20)] sm:rounded-[28px] sm:p-8">
+                  <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
+                  <div className="absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-[#e9b94f]/15 blur-2xl" />
+
+                  <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="max-w-xl">
+                      <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#ffe7b0]">
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-[#f4c76b]" />
+                        {apiEvent.liveDarshan?.badge || "Live Darshan"}
+                      </div>
+
+                      <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-3xl">
+                        {apiEvent.liveDarshan?.title || "Experience Darshan from Anywhere"}
+                      </h2>
+
+                      <p className="mt-2 text-xs leading-6 text-white/75 sm:text-sm">
+                        {apiEvent.liveDarshan?.description || "Join the sacred atmosphere of Shri Govardhannath Haveli through our live darshan experience."}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (apiEvent.liveDarshan?.videoUrl && apiEvent.liveDarshan.videoUrl.startsWith("http")) {
+                          window.open(apiEvent.liveDarshan.videoUrl, "_blank", "noopener,noreferrer");
+                        } else {
+                          router.push("/live-darshan");
+                        }
+                      }}
+                      className="group flex min-h-[50px] w-full shrink-0 items-center justify-center gap-3 rounded-2xl bg-white px-4 py-3.5 text-sm font-bold text-[#8c1717] shadow-lg transition hover:bg-[#fff8e8] active:scale-[0.98] sm:min-h-[54px] sm:px-5 lg:w-auto"
+                    >
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#a71919] text-white sm:h-9 sm:w-9">
+                        <Play className="h-3.5 w-3.5 fill-white sm:h-4 sm:w-4" />
+                      </span>
+
+                      <span>Watch Live Darshan</span>
+                      <span className="text-lg transition-transform group-hover:translate-x-0.5">
+                        →
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* 5. SCHEDULE */}
+            {apiEvent.schedule && apiEvent.schedule.length > 0 && (
+              <section>
+                <SectionHeading eyebrow="Program" title="Event Schedule" />
+
+                <div className="relative mt-6 sm:mt-7">
+                  <div className="absolute bottom-5 left-[21px] top-5 w-px bg-gradient-to-b from-[#d9b56c] via-[#ead9bb] to-transparent sm:left-[27px]" />
+
+                  <div className="space-y-4 sm:space-y-5">
+                    {apiEvent.schedule.map((item, index) => (
+                      <div
+                        key={`${item.startTime}-${item.title}-${index}`}
+                        className="group relative flex min-w-0 gap-4 sm:gap-6"
+                      >
+                        <div className="relative z-10 flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full border border-[#e5c98f] bg-[#fffaf0] sm:h-[54px] sm:w-[54px]">
+                          <div className="h-2.5 w-2.5 rounded-full bg-[#a71919] shadow-[0_0_0_4px_#fff3d8] transition group-hover:scale-125 sm:h-3 sm:w-3" />
+                        </div>
+
+                        <div className="min-w-0 flex-1 rounded-[20px] border border-[#eadcc8] bg-white p-4 shadow-[0_8px_30px_rgba(90,48,25,0.05)] transition duration-300 group-hover:-translate-y-0.5 sm:rounded-[22px] sm:p-6">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                            <div className="min-w-0 space-y-1 sm:space-y-1.5">
+                              <p className="text-[9px] font-extrabold uppercase tracking-[0.18em] text-[#a71919] sm:text-[10px]">
+                                Step {String(index + 1).padStart(2, "0")}
+                              </p>
+
+                              <h3 className="break-words text-sm font-bold text-[#4b2921] sm:text-base lg:text-lg">
+                                {item.title}
+                              </h3>
+
+                              <p className="text-xs leading-5 text-[#7a6b62] sm:text-sm sm:leading-6">
+                                {item.description}
+                              </p>
+                            </div>
+
+                            <span className="w-fit shrink-0 rounded-full bg-[#fff3dc] px-3 py-1 text-[11px] font-bold text-[#805a27] sm:text-xs">
+                              {format12Hour(item.startTime)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
 
             {/* 6. VENUE */}
             <section>
@@ -367,12 +386,12 @@ export default function EventDetailsPage() {
                     </p>
 
                     <h3 className="break-words text-lg font-bold text-white sm:text-xl lg:text-2xl">
-                      Shri Govardhannath Haveli
+                      {apiEvent.venue?.name || "Shri Govardhannath Haveli"}
                     </h3>
 
                     <div className="flex items-start gap-2 text-xs leading-5 text-white/70 sm:text-sm sm:leading-6">
                       <MapPin className="mt-0.5 h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
-                      <span>{details.location}</span>
+                      <span>{apiEvent.venue?.address || "Shri Govardhannath Haveli, Main Mandir Complex"}</span>
                     </div>
                   </div>
 
@@ -392,12 +411,18 @@ export default function EventDetailsPage() {
           <aside className="hidden lg:sticky lg:top-6 lg:block xl:top-8">
             <div className="space-y-5">
               <EventInfoCard
-                title={t(event.titleKey)}
-                date={t(event.dateKey)}
-                time={details.time}
-                location={details.location}
-                duration={details.duration}
-                onSevaClick={() => router.push("/seva-donation")}
+                title={apiEvent.title}
+                date={dateDisplay}
+                time={timeDisplay}
+                location={apiEvent.venue?.address || "Shri Govardhannath Haveli"}
+                duration={durationDisplay}
+                onSevaClick={() => {
+                  if (apiEvent.seva?.sevaUrl && apiEvent.seva.sevaUrl.startsWith("http")) {
+                    window.open(apiEvent.seva.sevaUrl, "_blank", "noopener,noreferrer");
+                  } else {
+                    router.push("/seva-donation");
+                  }
+                }}
               />
 
               <EventShareCard onShareClick={handleShare} />

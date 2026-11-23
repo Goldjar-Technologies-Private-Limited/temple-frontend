@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import { defaultProfile, type ProfileData } from "@/data/profile";
 import { menuSections, type IconName } from "@/data/navigation";
+import { authService } from "@/services/auth/auth.service";
 
 type Props = {
   onClose: () => void;
@@ -133,7 +134,7 @@ const handleClose = useCallback(() => {
   // =========================================================
 
  const handleLogout = () => {
-  localStorage.removeItem("auth-token");
+  authService.removeToken();
 
   handleClose();
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useLanguage } from "@/contexts/LanguageProvider";
+import { authService } from "@/services/auth/auth.service";
 
 export default function Login() {
   const router = useRouter();
@@ -19,9 +20,26 @@ export default function Login() {
     setLoading(true);
     setError("");
 
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    sessionStorage.setItem("otpMobile", validNumber);
-    router.push("/otp");
+    try {
+      const response = await authService.loginInitiate({
+        mobileNumber: validNumber,
+      });
+
+      if (response.success) {
+        sessionStorage.setItem("otpMobile", validNumber);
+        if (response.sessionId) {
+          sessionStorage.setItem("otpSessionId", response.sessionId);
+        }
+        router.push("/otp");
+      } else {
+        setError(response.message || "Failed to send OTP");
+      }
+    } catch (err: any) {
+      console.error("[Auth Login] Error initiating login:", err);
+      setError(err?.message || "Failed to send OTP. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const DEFAULT_TEST_MOBILE = "7498473263";

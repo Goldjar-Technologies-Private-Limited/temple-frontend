@@ -1,112 +1,130 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
+import { useEffect, useState, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageProvider";
-
-import {
-  DARSHANS,
-  type DarshanTimingItem as DarshanItem,
-} from "@/data/darshan";
+import { useDarshanTimings } from "@/hooks/temple/darshan-timings/useDarshanTimings";
+import { format12Hour, parseTimeParts } from "@/utils/time";
+import type { TranslationKey } from "@/utils/i18n";
+import TempleLoader from "@/components/common/TempleLoader";
 
 type DarshanStatus = "completed" | "openNow" | "upcoming";
 
+interface UnifiedDarshanItem {
+  id?: number | string;
+  title: string;
+  timeDisplay: string;
+  hour: number;
+  minute: number;
+  endHour?: number;
+  endMinute?: number;
+  image: string;
+}
+
 const getMinutes = (hour: number, minute: number) => hour * 60 + minute;
 
-function getStatus(index: number, currentTime: Date | null): DarshanStatus {
+/* ---------------------------------------
+   STATUS HELPER
+---------------------------------------- */
+
+const getDarshanStatus = (
+  darshan: UnifiedDarshanItem,
+  currentTime: Date | null,
+): DarshanStatus => {
   if (!currentTime) return "upcoming";
 
-  const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+  const currentMinutes =
+    currentTime.getHours() * 60 + currentTime.getMinutes();
 
-  const currentDarshan = DARSHANS[index];
+  const startMinutes = getMinutes(darshan.hour, darshan.minute);
+  const endMinutes =
+    darshan.endHour !== undefined && darshan.endMinute !== undefined
+      ? getMinutes(darshan.endHour, darshan.endMinute)
+      : startMinutes + 30;
 
-  const startTime = getMinutes(currentDarshan.hour, currentDarshan.minute);
-
-  const nextDarshan = DARSHANS[index + 1];
-
-  if (currentMinutes < startTime) {
-    return "upcoming";
-  }
-
-  if (!nextDarshan) {
+  if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {
     return "openNow";
   }
 
-  const nextTime = getMinutes(nextDarshan.hour, nextDarshan.minute);
-
-  return currentMinutes < nextTime ? "openNow" : "completed";
-}
-
-function getCurrentDarshan(currentTime: Date | null): DarshanItem | null {
-  if (!currentTime) return null;
-
-  const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
-
-  for (let i = DARSHANS.length - 1; i >= 0; i--) {
-    const darshan = DARSHANS[i];
-
-    if (currentMinutes >= getMinutes(darshan.hour, darshan.minute)) {
-      return darshan;
-    }
+  if (currentMinutes >= endMinutes) {
+    return "completed";
   }
 
-  return null;
-}
+  return "upcoming";
+};
+
+/* ---------------------------------------
+   CURRENT / NEXT DARSHAN
+---------------------------------------- */
+
+const getCurrentDarshan = (
+  items: UnifiedDarshanItem[],
+  currentTime: Date | null,
+) => {
+  if (!items.length) return null;
+  if (!currentTime) return items[0];
+
+  const currentMinutes =
+    currentTime.getHours() * 60 + currentTime.getMinutes();
+
+  const openNow = items.find((item) => {
+    const start = getMinutes(item.hour, item.minute);
+    const end =
+      item.endHour !== undefined && item.endMinute !== undefined
+        ? getMinutes(item.endHour, item.endMinute)
+        : start + 30;
+
+    return currentMinutes >= start && currentMinutes < end;
+  });
+
+  if (openNow) return openNow;
+
+  const nextUpcoming = items.find((item) => {
+    const start = getMinutes(item.hour, item.minute);
+    return currentMinutes < start;
+  });
+
+  return nextUpcoming || items[0];
+};
+
+/* ---------------------------------------
+   STATUS BADGE
+---------------------------------------- */
 
 function StatusBadge({
   status,
   t,
 }: {
   status: DarshanStatus;
-  t: ReturnType<typeof useLanguage>["t"];
+  t: (key: TranslationKey) => string;
 }) {
-  const styles = {
-    completed: "border-gray-200 bg-gray-100 text-gray-500",
-
-    openNow: "border-emerald-200 bg-emerald-50 text-emerald-700",
-
-    upcoming: "border-amber-200 bg-amber-50 text-amber-700",
+  const styles: Record<DarshanStatus, string> = {
+    openNow: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    upcoming: "bg-amber-50 text-amber-700 border-amber-200",
+    completed: "bg-stone-100 text-stone-500 border-stone-200",
   };
 
-  const labels = {
-    completed: t("completed"),
+  const labels: Record<DarshanStatus, string> = {
     openNow: t("openNow"),
     upcoming: t("upcoming"),
+    completed: t("completed"),
   };
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${styles[status]}`}
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${styles[status]}`}
     >
-      {status === "openNow" && (
-        <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500" />
-      )}
-
       {labels[status]}
     </span>
   );
 }
 
 /* ---------------------------------------
-   PROFILE STYLE IMAGE
+   IMAGE COMPONENT
 ---------------------------------------- */
 
-function ProfileImage({
-  src,
-  alt,
-  size = "normal",
-}: {
-  src: string;
-  alt: string;
-  size?: "normal" | "large";
-}) {
-  const sizeClass =
-    size === "large" ? "h-20 w-20 sm:h-24 sm:w-24" : "h-16 w-16";
-
+function DarshanImage({ src, alt }: { src: string; alt: string }) {
   return (
-    <div
-      className={`relative shrink-0 overflow-hidden rounded-full border border-[#dfc38d] bg-[#fffaf0] shadow-sm ${sizeClass}`}
-    >
+    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[#eadcc5] bg-[#fffaf0] sm:h-16 sm:w-16">
       <img
         src={src}
         alt={alt}
@@ -119,8 +137,38 @@ function ProfileImage({
 
 export default function DarshanTimings() {
   const { t, language } = useLanguage();
-
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
+
+  // Hook to fetch darshan timings from API
+  const { data: apiData, isLoading: apiLoading } = useDarshanTimings();
+
+  /* ---------------------------------------
+     UNIFY DATA (API only)
+  ---------------------------------------- */
+  const darshanList = useMemo<UnifiedDarshanItem[]>(() => {
+    if (apiData && apiData.length > 0) {
+      return apiData.map((item) => {
+        const startParts = parseTimeParts(item.startTime);
+        const endParts = item.endTime ? parseTimeParts(item.endTime) : undefined;
+        const timeDisplay = item.endTime
+          ? `${format12Hour(item.startTime)} - ${format12Hour(item.endTime)}`
+          : format12Hour(item.startTime);
+
+        return {
+          id: item.id,
+          title: item.title,
+          timeDisplay,
+          hour: startParts.hour,
+          minute: startParts.minute,
+          endHour: endParts?.hour,
+          endMinute: endParts?.minute,
+          image: item.imageUrl || "/images/mangala.jpg",
+        };
+      });
+    }
+
+    return [];
+  }, [apiData]);
 
   /* ---------------------------------------
      LIVE CLOCK
@@ -132,7 +180,6 @@ export default function DarshanTimings() {
     };
 
     updateTime();
-
     const interval = window.setInterval(updateTime, 1000);
 
     return () => {
@@ -140,7 +187,7 @@ export default function DarshanTimings() {
     };
   }, []);
 
-  const currentDarshan = getCurrentDarshan(currentTime);
+  const currentDarshan = getCurrentDarshan(darshanList, currentTime);
 
   /* ---------------------------------------
      LANGUAGE / DATE
@@ -167,132 +214,183 @@ export default function DarshanTimings() {
       })
     : "--:--:--";
 
+  if (apiLoading) {
+    return <TempleLoader message="Fetching Sacred Darshan Timings..." fullScreen />;
+  }
+
   return (
     <main className="min-h-screen bg-[#fffaf0] px-4 pt-4 pb-5 text-[#40372f] sm:px-6 lg:ml-[92px] lg:px-10">
-      <div className="mx-auto max-w-7xl ">
+      <div className="mx-auto max-w-7xl">
         {/* ---------------------------------------
            RESPONSIVE DARSHAN HEADER
         ---------------------------------------- */}
 
-        <section className="mt-1 mb-4 flex items-center justify-between gap-3 rounded-2xl border border-[#eadcc5] bg-white px-3 py-3 shadow-sm sm:gap-4 sm:p-4 lg:mt-6 lg:mb-6">
-          {/* CONTENT */}
+        {currentDarshan && (
+          <section className="mt-1 mb-4 flex items-center justify-between gap-3 rounded-2xl border border-[#eadcc5] bg-white px-3 py-3 shadow-sm sm:gap-4 sm:p-4 lg:mt-6 lg:mb-6">
+            {/* CONTENT */}
 
-          <div className="min-w-0 flex-1">
-            {/* DARSHAN NAME */}
+            <div className="min-w-0 flex-1">
+              {/* DARSHAN NAME */}
 
-            <h1 className="truncate text-lg font-bold leading-tight text-[#991919] sm:text-xl lg:text-2xl">
-              {currentDarshan ? t(currentDarshan.nameKey) : t("darshan")}
-            </h1>
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="truncate text-base font-bold text-[#8c1717] sm:text-xl lg:text-2xl">
+                  {currentDarshan.title}
+                </h1>
 
-            {/* DATE */}
+                <StatusBadge
+                  status={getDarshanStatus(currentDarshan, currentTime)}
+                  t={t}
+                />
+              </div>
 
-            <p className="mt-1 truncate text-[11px] text-[#938476] sm:text-xs lg:text-sm">
-              {currentDate}
-            </p>
+              {/* DATE */}
 
-            {/* LIVE CLOCK */}
+              <p className="mt-1 truncate text-xs text-[#7d6e63] sm:text-sm">
+                {currentDate}
+              </p>
 
-            <div className="mt-1.5 inline-flex items-center gap-1.5 px-0 py-0 text-[11px] font-medium text-[#6d5b49] sm:mt-2 sm:text-xs lg:text-sm">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 sm:h-2 sm:w-2" />
+              {/* TIMINGS */}
 
-              {currentFormattedTime}
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[#52443a] sm:text-sm">
+                <span>
+                  Darshan: <strong>{currentDarshan.timeDisplay}</strong>
+                </span>
+
+                <span>•</span>
+
+                <span>
+                  Current: <strong>{currentFormattedTime}</strong>
+                </span>
+              </div>
             </div>
-          </div>
 
-          {/* CURRENT DARSHAN IMAGE */}
+            {/* CURRENT DARSHAN IMAGE */}
 
-          {currentDarshan && (
-            <ProfileImage
+            <DarshanImage
               src={currentDarshan.image}
-              alt={t(currentDarshan.nameKey)}
-              size="normal"
+              alt={currentDarshan.title}
             />
-          )}
-        </section>
+          </section>
+        )}
 
         {/* ---------------------------------------
-           TITLE
+           SUMMARY CHIPS
         ---------------------------------------- */}
 
-        <div className="mb-5 flex items-center gap-3 sm:gap-4">
-          <div className="h-px flex-1 bg-[#e3cfaa]" />
-
-          <div className="shrink-0 text-center">
-            <p className="text-lg font-semibold text-[#991919] sm:text-xl">
-              {t("darshan")}
-            </p>
-
-            <span className="text-xs text-[#b18a4d]">Daily Timings</span>
+        <section className="mb-4 grid grid-cols-3 gap-2 sm:mb-6 sm:gap-4">
+          <div className="rounded-xl border border-[#eadcc5] bg-white p-2.5 text-center sm:p-3">
+            <span className="block text-[11px] text-[#7d6e63] sm:text-xs">
+              Total Darshans
+            </span>
+            <strong className="text-sm font-bold text-[#40342c] sm:text-lg">
+              {darshanList.length}
+            </strong>
           </div>
 
-          <div className="h-px flex-1 bg-[#e3cfaa]" />
-        </div>
+          <div className="rounded-xl border border-[#eadcc5] bg-white p-2.5 text-center sm:p-3">
+            <span className="block text-[11px] text-[#7d6e63] sm:text-xs">
+              {t("completed")}
+            </span>
+            <strong className="text-sm font-bold text-stone-600 sm:text-lg">
+              {
+                darshanList.filter(
+                  (item) =>
+                    getDarshanStatus(item, currentTime) === "completed",
+                ).length
+              }
+            </strong>
+          </div>
+
+          <div className="rounded-xl border border-[#eadcc5] bg-white p-2.5 text-center sm:p-3">
+            <span className="block text-[11px] text-[#7d6e63] sm:text-xs">
+              Remaining
+            </span>
+            <strong className="text-sm font-bold text-amber-700 sm:text-lg">
+              {
+                darshanList.filter(
+                  (item) => getDarshanStatus(item, currentTime) !== "completed",
+                ).length
+              }
+            </strong>
+          </div>
+        </section>
 
         {/* ---------------------------------------
            DARSHAN CARDS
         ---------------------------------------- */}
 
-        <section className="grid gap-4 md:grid-cols-2">
-          {DARSHANS.map((darshan, index) => {
-            const status = getStatus(index, currentTime);
+        <section className="space-y-3">
+          {darshanList.length === 0 ? (
+            <div className="rounded-2xl border border-[#eadbc5] bg-white p-8 text-center shadow-sm">
+              <span className="text-3xl">🛕</span>
+              <h2 className="mt-2 text-base font-bold text-[#641010]">No Darshan Timings Scheduled</h2>
+              <p className="mt-1 text-xs text-[#8a8077]">Please check back soon for the updated schedule.</p>
+            </div>
+          ) : (
+            darshanList.map((darshan, index) => {
+              const status = getDarshanStatus(darshan, currentTime);
+              const isCurrent = currentDarshan?.id === darshan.id;
 
-            const isCurrent = status === "openNow";
+              return (
+                <article
+                  key={darshan.id ?? index}
+                  className={`flex items-center gap-3 rounded-2xl border bg-white p-3 shadow-sm transition hover:shadow-md sm:gap-4 sm:p-4 ${
+                    isCurrent
+                      ? "border-[#c99435] ring-2 ring-[#c99435]/20"
+                      : "border-[#eadcc5]"
+                  }`}
+                >
+                  {/* ---------------------------------------
+                     IMAGE
+                  ---------------------------------------- */}
 
-            return (
-              <article
-                key={darshan.nameKey}
-                className={`group flex items-center gap-3 rounded-2xl border bg-white p-3 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg sm:gap-4 sm:p-4 ${isCurrent ? "border-emerald-200 bg-gradient-to-r from-emerald-50/70 to-white" : "border-[#eadcc5]"}`}
-              >
-                {/* ---------------------------------------
-                   PROFILE IMAGE
-                ---------------------------------------- */}
+                  <DarshanImage src={darshan.image} alt={darshan.title} />
 
-                <ProfileImage src={darshan.image} alt={t(darshan.nameKey)} />
+                  {/* ---------------------------------------
+                     DETAILS
+                  ---------------------------------------- */}
 
-                {/* ---------------------------------------
-                   DETAILS
-                ---------------------------------------- */}
-
-                <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex items-center gap-2">
-                    <span className="text-[11px] font-semibold tracking-wider text-[#c99435]">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-
-                    {isCurrent && (
-                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                        LIVE
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 flex items-center gap-2">
+                      <span className="text-[11px] font-semibold tracking-wider text-[#c99435]">
+                        {String(index + 1).padStart(2, "0")}
                       </span>
-                    )}
+
+                      {isCurrent && (
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                          LIVE
+                        </span>
+                      )}
+                    </div>
+
+                    <h2 className="truncate text-base font-bold text-[#40342c] sm:text-lg">
+                      {darshan.title}
+                    </h2>
+
+                    <p className="mt-1 truncate text-xs text-[#938476]">
+                      {status === "openNow"
+                        ? t("darshanLiveNow")
+                        : status === "completed"
+                          ? t("darshanCompleted")
+                          : t("darshanUpcoming")}
+                    </p>
                   </div>
 
-                  <h2 className="truncate text-base font-bold text-[#40342c] sm:text-lg">
-                    {t(darshan.nameKey)}
-                  </h2>
+                  {/* ---------------------------------------
+                     TIME + STATUS
+                  ---------------------------------------- */}
 
-                  <p className="mt-1 truncate text-xs text-[#938476]">
-                    {status === "openNow"
-                      ? t("darshanLiveNow")
-                      : status === "completed"
-                        ? t("darshanCompleted")
-                        : t("darshanUpcoming")}
-                  </p>
-                </div>
+                  <div className="flex shrink-0 flex-col items-end gap-2">
+                    <time className="text-xs font-bold text-[#40342c] sm:text-sm">
+                      {darshan.timeDisplay}
+                    </time>
 
-                {/* ---------------------------------------
-                   TIME + STATUS
-                ---------------------------------------- */}
-
-                <div className="flex shrink-0 flex-col items-end gap-2">
-                  <time className="text-xs font-bold text-[#40342c] sm:text-sm">
-                    {darshan.time}
-                  </time>
-
-                  <StatusBadge status={status} t={t} />
-                </div>
-              </article>
-            );
-          })}
+                    <StatusBadge status={status} t={t} />
+                  </div>
+                </article>
+              );
+            })
+          )}
         </section>
 
         {/* ---------------------------------------

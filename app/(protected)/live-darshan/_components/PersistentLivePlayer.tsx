@@ -42,6 +42,8 @@ export default function PersistentLivePlayer() {
   const isClosedRef = useRef(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isClosed, setIsClosed] = useState(false);
+  void hasStarted;
+  void isClosed;
 
   const updatePlayerPosition = useCallback(() => {
     const player = playerRef.current;

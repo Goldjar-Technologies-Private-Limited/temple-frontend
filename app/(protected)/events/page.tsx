@@ -1,11 +1,22 @@
-
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import type { TranslationKey } from "@/utils/i18n";
-import { EVENTS as events, type EventItem, type EventTab } from "@/data/events";
+import type { EventTab } from "@/data/events";
+import { useCustomerEvents } from "@/hooks/temple/events/useEvents";
+import { formatDateDisplay } from "@/utils/time";
+import TempleLoader from "@/components/common/TempleLoader";
+
+interface UnifiedEventItem {
+  id: string | number;
+  title: string;
+  dateDisplay: string;
+  image: string;
+  titleKey?: TranslationKey;
+  dateKey?: TranslationKey;
+}
 
 /* =========================================================
    SECTION TITLE
@@ -28,15 +39,18 @@ function EventCard({
   onClick,
   t,
 }: {
-  event: EventItem;
+  event: UnifiedEventItem;
   onClick: () => void;
   t: (key: TranslationKey) => string;
 }) {
+  const displayTitle = event.titleKey ? t(event.titleKey) : event.title;
+  const displayDate = event.dateKey ? t(event.dateKey) : event.dateDisplay;
+
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={`${t(event.titleKey)} — View Details`}
+      aria-label={`${displayTitle} — View Details`}
       className="
         group flex min-w-0 w-full flex-col overflow-hidden
         rounded-2xl border border-[#eadbc5] bg-[#fffdf8]
@@ -64,7 +78,7 @@ function EventCard({
       >
         <img
           src={event.image}
-          alt={t(event.titleKey)}
+          alt={displayTitle}
           loading="lazy"
           className="
             block h-full w-full object-cover
@@ -120,7 +134,7 @@ function EventCard({
                 2xl:text-xl
               "
             >
-              {t(event.titleKey)}
+              {displayTitle}
             </span>
           </SectionTitle>
 
@@ -141,7 +155,7 @@ function EventCard({
             </span>
 
             <span className="min-w-0 break-words">
-              {t(event.dateKey)}
+              {displayDate}
             </span>
           </div>
         </div>
@@ -207,11 +221,11 @@ function EmptyEvents({
       </div>
 
       <h2 className="text-xl font-semibold text-[#641010] sm:text-2xl">
-        {t("past")}
+        {t("events")}
       </h2>
 
       <p className="mt-2 max-w-sm text-sm leading-relaxed text-[#8a8077]">
-        {t("noPastEvents")}
+        No events found for this category.
       </p>
     </div>
   );
@@ -252,8 +266,20 @@ export default function Events() {
   const { t } = useLanguage();
 
   const [tab, setTab] = useState<EventTab>("upcoming");
+  const { events: apiEvents, loading: apiLoading } = useCustomerEvents(tab);
 
-  const visibleEvents = tab === "upcoming" ? events : [];
+  const visibleEvents: UnifiedEventItem[] = useMemo(() => {
+    if (apiEvents && apiEvents.length > 0) {
+      return apiEvents.map((evt) => ({
+        id: evt.id,
+        title: evt.title,
+        dateDisplay: formatDateDisplay(evt.date),
+        image: evt.imageUrl || "/images/janmashtami.jpg",
+      }));
+    }
+
+    return [];
+  }, [apiEvents]);
 
   return (
     <main
@@ -350,27 +376,26 @@ export default function Events() {
           })}
         </div>
 
-        {/* EVENTS GRID
-            Small phones: 1 column
-            Large phones / tablets: 2 columns
-            Desktop: 3 columns
-            Wide desktop: 4 columns
-        */}
+        {/* EVENTS GRID */}
 
-        <section
-          aria-label={tab === "upcoming" ? "Upcoming events" : "Past events"}
-          className="
-            mt-4 grid min-w-0 grid-cols-1
-            items-stretch gap-4
-            sm:mt-5 sm:grid-cols-2 sm:gap-5
-            lg:mt-7 lg:gap-6
-            xl:grid-cols-3
-            2xl:grid-cols-4 2xl:gap-7
-          "
-        >
-          {tab === "upcoming" ? (
-            visibleEvents.length > 0 ? (
-              visibleEvents.map((event: EventItem) => (
+        {apiLoading ? (
+          <div className="mt-10">
+            <TempleLoader message="Fetching Temple Events..." />
+          </div>
+        ) : (
+          <section
+            aria-label={tab === "upcoming" ? "Upcoming events" : "Past events"}
+            className="
+              mt-4 grid min-w-0 grid-cols-1
+              items-stretch gap-4
+              sm:mt-5 sm:grid-cols-2 sm:gap-5
+              lg:mt-7 lg:gap-6
+              xl:grid-cols-3
+              2xl:grid-cols-4 2xl:gap-7
+            "
+          >
+            {visibleEvents.length > 0 ? (
+              visibleEvents.map((event) => (
                 <EventCard
                   key={event.id}
                   event={event}
@@ -380,11 +405,9 @@ export default function Events() {
               ))
             ) : (
               <EmptyEvents t={t} />
-            )
-          ) : (
-            <EmptyEvents t={t} />
-          )}
-        </section>
+            )}
+          </section>
+        )}
 
         {/* BOTTOM DECORATION */}
 
