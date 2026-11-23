@@ -14,8 +14,14 @@ export function useDarshanTimings() {
     setError(null);
     try {
       const res = await darshanTimingService.getDarshanTimings();
-      if (res.success && Array.isArray(res.data)) {
-        setData(res.data);
+      if (res.success && res.data) {
+        // Handle both raw array data: [...] and paginated object data: { data: [...], pagination: {...} }
+        const items = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray((res.data as any).data)
+          ? (res.data as any).data
+          : [];
+        setData(items);
       } else {
         setError(res.message || "Failed to load darshan timings");
       }
@@ -52,20 +58,18 @@ export function useDarshanTiming(id: number | null) {
       if (res.success && res.data) {
         setData(res.data);
       } else {
-        setError(res.message || "Failed to load darshan timing details");
+        setError(res.message || "Failed to load darshan timing");
       }
     } catch (err: any) {
-      setError(err?.message || "Failed to fetch darshan timing details");
+      setError(err?.message || "Failed to fetch darshan timing");
     } finally {
       setIsLoading(false);
     }
   }, [id]);
 
   useEffect(() => {
-    if (id) {
-      fetchTiming();
-    }
-  }, [id, fetchTiming]);
+    fetchTiming();
+  }, [fetchTiming]);
 
   return {
     data,

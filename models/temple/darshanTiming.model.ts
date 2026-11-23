@@ -8,11 +8,23 @@ export interface CustomerDarshanTiming {
   imageUrl?: string | null;
 }
 
+export interface PaginationMeta {
+  currentPage: number;
+  totalPages: number;
+  totalElements: number;
+  pageSize: number;
+}
+
+export interface PaginatedData<T> {
+  data: T[];
+  pagination: PaginationMeta;
+}
+
 export interface ApiResponse<T> {
   data: T;
   message: string;
   success: boolean;
 }
 
-export type GetCustomerDarshanTimingsResponse = ApiResponse<CustomerDarshanTiming[]>;
+export type GetCustomerDarshanTimingsResponse = ApiResponse<CustomerDarshanTiming[] | PaginatedData<CustomerDarshanTiming>>;
 export type GetCustomerDarshanTimingByIdResponse = ApiResponse<CustomerDarshanTiming>;

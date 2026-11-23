@@ -18,8 +18,14 @@ export function useCustomerEvents(type?: EventFilterType) {
       setLoading(true);
       setError(null);
       const res = await eventService.getEvents(type);
-      if (res.success && Array.isArray(res.data)) {
-        setEvents(res.data);
+      if (res.success && res.data) {
+        // Handle both raw array data: [...] and paginated object data: { data: [...], pagination: {...} }
+        const items = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray((res.data as any).data)
+          ? (res.data as any).data
+          : [];
+        setEvents(items);
       } else {
         setEvents([]);
       }
