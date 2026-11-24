@@ -1,17 +1,19 @@
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { jsPDF } from "jspdf";
 
 import {
   Heart,
   ShieldCheck,
   Check,
-  ReceiptText,
   HandHeart,
   Landmark,
   ShieldAlert,
   ArrowRight,
+  Download,
 } from "lucide-react";
 
 import {
@@ -31,19 +33,153 @@ const HISTORY_KEY = "myDonations";
 const formatPrice = (amount: number) =>
   Number(amount || 0).toLocaleString("en-IN");
 
-function escapeHtml(value: unknown): string {
-  return String(value ?? "").replace(/[&<>"']/g, (character) => {
-    const entities: Record<string, string> = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;",
-    };
+/* =========================================================
+   DOWNLOAD PAYMENT RECEIPT
+========================================================= */
 
-    return entities[character];
+const downloadReceipt = (donation: Donation) => {
+  const pdf = new jsPDF();
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const centerX = pageWidth / 2;
+
+  // Header background
+  pdf.setFillColor(100, 16, 16);
+  pdf.rect(0, 0, pageWidth, 48, "F");
+
+  // Temple name
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(19);
+
+  pdf.text("SHRI GOVARDHANNATH", centerX, 19, {
+    align: "center",
   });
-}
+
+  pdf.setFontSize(11);
+
+  pdf.text("TEMPLE DONATION RECEIPT", centerX, 30, {
+    align: "center",
+  });
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(9);
+
+  pdf.text("Thank you for your generous seva", centerX, 39, {
+    align: "center",
+  });
+
+  // Receipt heading
+  pdf.setTextColor(100, 16, 16);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(16);
+
+  pdf.text("PAYMENT RECEIPT", centerX, 65, {
+    align: "center",
+  });
+
+  // Divider
+  pdf.setDrawColor(220, 200, 170);
+  pdf.line(20, 78, pageWidth - 20, 78);
+
+  // Receipt details
+  const details: [string, string][] = [
+    ["Receipt ID", String(donation.id || "N/A")],
+    ["Transaction ID", String(donation.transactionId || "N/A")],
+    ["Donor Name", String(donation.donorName || "N/A")],
+    ["Donation", String(donation.title || "Temple Donation")],
+    ["Payment Method", String(donation.paymentMethod || "N/A")],
+    ["Payment Date", String(donation.date || "N/A")],
+    ["Payment Status", "SUCCESSFUL"],
+  ];
+
+  let y = 95;
+
+  details.forEach(([label, value]) => {
+    pdf.setTextColor(130, 115, 100);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+
+    pdf.text(label, 22, y);
+
+    pdf.setTextColor(65, 45, 35);
+    pdf.setFont("helvetica", "bold");
+
+    const wrappedValue = pdf.splitTextToSize(value, 85);
+
+    pdf.text(wrappedValue, pageWidth - 22, y, {
+      align: "right",
+    });
+
+    y += Math.max(12, wrappedValue.length * 5);
+  });
+
+  // Amount section
+  y += 5;
+
+  pdf.setFillColor(255, 247, 232);
+  pdf.roundedRect(20, y, pageWidth - 40, 29, 3, 3, "F");
+
+  pdf.setTextColor(100, 16, 16);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(11);
+
+  pdf.text("TOTAL DONATION", 27, y + 18);
+
+  pdf.setFontSize(17);
+
+  pdf.text(
+    `INR ${formatPrice(Number(donation.amount || 0))}`,
+    pageWidth - 27,
+    y + 18,
+    { align: "right" },
+  );
+
+  // Footer
+  y += 48;
+
+  pdf.setDrawColor(220, 200, 170);
+  pdf.line(20, y, pageWidth - 20, y);
+
+  pdf.setTextColor(100, 16, 16);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(11);
+
+  pdf.text(
+    "Thank You For Your Contribution!",
+    centerX,
+    y + 12,
+    { align: "center" },
+  );
+
+  pdf.setTextColor(130, 115, 100);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(9);
+
+  pdf.text(
+    "Every act of seva begins with a generous heart.",
+    centerX,
+    y + 20,
+    { align: "center" },
+  );
+
+  pdf.setFontSize(8);
+
+  pdf.text(
+    "Thank you for your contribution to temple seva.",
+    centerX,
+    y + 29,
+    { align: "center" },
+  );
+
+  // Download PDF
+  const safeId = String(donation.id || "receipt").replace(
+    /[^a-zA-Z0-9-_]/g,
+    "-",
+  );
+
+  pdf.save(`Temple-Payment-Receipt-${safeId}.pdf`);
+};
 
 /* =========================================================
    MAIN PAGE
@@ -68,7 +204,6 @@ export default function MyDonationsPage() {
         if (Array.isArray(parsed)) {
           const savedDonations = parsed as Donation[];
 
-          // Saved donations take priority over dummy records with the same ID.
           const combined = [...savedDonations, ...dummyDonations];
 
           const uniqueDonations = Array.from(
@@ -94,20 +229,26 @@ export default function MyDonationsPage() {
       return donations;
     }
 
-    return donations.filter((donation) => donation.status === activeFilter);
+    return donations.filter(
+      (donation) => donation.status === activeFilter,
+    );
   }, [activeFilter, donations]);
 
   /* Calculate summary */
 
   const successfulDonations = useMemo(
-    () => donations.filter((donation) => donation.status === "successful"),
+    () =>
+      donations.filter(
+        (donation) => donation.status === "successful",
+      ),
     [donations],
   );
 
   const totalDonated = useMemo(
     () =>
       successfulDonations.reduce(
-        (total, donation) => total + Number(donation.amount || 0),
+        (total, donation) =>
+          total + Number(donation.amount || 0),
         0,
       ),
     [successfulDonations],
@@ -119,10 +260,12 @@ export default function MyDonationsPage() {
       successful: donations.filter(
         (donation) => donation.status === "successful",
       ).length,
-      pending: donations.filter((donation) => donation.status === "pending")
-        .length,
-      failed: donations.filter((donation) => donation.status === "failed")
-        .length,
+      pending: donations.filter(
+        (donation) => donation.status === "pending",
+      ).length,
+      failed: donations.filter(
+        (donation) => donation.status === "failed",
+      ).length,
     }),
     [donations],
   );
@@ -131,13 +274,11 @@ export default function MyDonationsPage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#fffaf1] pb-28 text-[#40372f] sm:pb-12 lg:ml-[92px] lg:w-[calc(100%-92px)]">
-      {/* =====================================================
-          HERO SECTION
-      ===================================================== */}
+
+      {/* HERO SECTION */}
 
       <div className="mx-auto w-full max-w-[1400px] px-3 pt-4 sm:px-5 sm:pt-6 md:px-6 lg:px-8">
         <section className="relative isolate overflow-hidden rounded-2xl border border-[#8e3025]/20 bg-gradient-to-br from-[#641010] via-[#851817] to-[#a83d25] text-white shadow-lg sm:rounded-[24px]">
-          {/* Decorative circles */}
 
           <div
             aria-hidden="true"
@@ -150,7 +291,6 @@ export default function MyDonationsPage() {
           />
 
           <div className="relative grid grid-cols-1 items-center gap-6 px-4 py-6 sm:px-7 sm:py-8 md:grid-cols-[minmax(0,1fr)_340px] lg:gap-8 lg:px-9 lg:py-9">
-            {/* Hero text */}
 
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border border-[#f0d49b]/30 bg-white/[0.08] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#f4d69d] sm:text-[10px]">
@@ -160,12 +300,14 @@ export default function MyDonationsPage() {
 
               <h1 className="mt-4 max-w-[460px] font-serif text-2xl font-bold leading-tight sm:text-2xl lg:text-2xl">
                 Your Donation
-                <span className="block text-[#f1d49a]">History &amp; Seva</span>
+                <span className="block text-[#f1d49a]">
+                  History &amp; Seva
+                </span>
               </h1>
 
               <p className="mt-3 max-w-[490px] text-xs leading-6 text-white/75 sm:text-sm">
                 Every contribution is a step towards devotion. Track your
-                donations, check payment status, and print your receipts.
+                donations and download your payment receipts in one place.
               </p>
 
               <div className="mt-5 flex items-center gap-2 text-[10px] text-white/75 sm:text-xs">
@@ -176,8 +318,6 @@ export default function MyDonationsPage() {
                 Your donation history in one place
               </div>
             </div>
-
-            {/* Summary cards */}
 
             <div className="grid grid-cols-2 gap-3">
               <SummaryCard
@@ -192,18 +332,17 @@ export default function MyDonationsPage() {
                 icon="check"
               />
             </div>
+
           </div>
         </section>
       </div>
 
-      {/* =====================================================
-          MAIN CONTENT
-      ===================================================== */}
+      {/* MAIN CONTENT */}
 
       <div className="mx-auto w-full max-w-[1400px] px-3 py-7 sm:px-5 sm:py-8 md:px-6 lg:px-8 lg:py-9">
-        {/* Section heading and filters */}
 
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+
           <div>
             <div className="flex items-center gap-2">
               <span className="h-px w-6 bg-[#b78a3d]" />
@@ -218,14 +357,15 @@ export default function MyDonationsPage() {
             </h2>
 
             <p className="mt-1 text-[11px] text-[#8c7e72] sm:text-xs">
-              View your donations and manage your receipts.
+              View your donations, payment status and download receipts.
             </p>
           </div>
 
-          {/* Responsive filter buttons */}
+          {/* FILTER BUTTONS */}
 
           <div className="-mx-3 overflow-x-auto px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0">
             <div className="flex w-max gap-1.5 rounded-xl border border-[#eadfce] bg-white/80 p-1.5">
+
               {filters.map((filter) => {
                 const active = activeFilter === filter.key;
                 const count = counts[filter.key];
@@ -256,13 +396,12 @@ export default function MyDonationsPage() {
                   </button>
                 );
               })}
+
             </div>
           </div>
         </div>
 
-        {/* ===================================================
-            DONATION CARDS
-        =================================================== */}
+        {/* DONATION CARDS */}
 
         {!historyLoaded ? (
           <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -279,18 +418,23 @@ export default function MyDonationsPage() {
             className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
           >
             {filteredDonations.map((donation) => (
-              <DonationCard key={donation.id} donation={donation} />
+              <DonationCard
+                key={donation.id}
+                donation={donation}
+              />
             ))}
           </section>
         ) : (
-          <EmptyState filter={activeFilter} onDonate={goToSeva} />
+          <EmptyState
+            filter={activeFilter}
+            onDonate={goToSeva}
+          />
         )}
 
-        {/* ===================================================
-            INFORMATION SECTION
-        =================================================== */}
+        {/* INFORMATION SECTION */}
 
         <section className="mt-9">
+
           <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#b78a3d]">
             Giving With Confidence
           </p>
@@ -300,29 +444,32 @@ export default function MyDonationsPage() {
           </h2>
 
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+
             <InfoCard
               icon="shield"
-              title="Demo Payment Flow"
-              description="This project currently uses simulated payments. No real money is transferred."
+              title="Secure Payment Tracking"
+              description="Your donation records and payment status are available in one place."
             />
 
             <InfoCard
               icon="receipt"
-              title="Printable Receipts"
-              description="Open a receipt for a successful demo donation and print it or save it as PDF."
+              title="Payment Receipts"
+              description="Download a PDF receipt for your successful donations."
             />
 
             <InfoCard
               icon="heart"
               title="Temple Seva"
-              description="Explore seva options and keep track of your demo donation history."
+              description="Explore seva options and keep track of your donation history."
             />
+
           </div>
         </section>
 
-        {/* Bottom quote */}
+        {/* FOOTER MESSAGE */}
 
         <div className="mt-8 flex items-center justify-center gap-3 rounded-xl border border-[#eadbc5] bg-[#fff7e9] px-4 py-5 text-center">
+
           <span className="h-px w-6 shrink-0 bg-[#d5b579]" />
 
           <p className="font-serif text-xs italic text-[#8d6b3e] sm:text-sm">
@@ -330,14 +477,15 @@ export default function MyDonationsPage() {
           </p>
 
           <span className="h-px w-6 shrink-0 bg-[#d5b579]" />
+
         </div>
+
       </div>
 
-      {/* =====================================================
-          MOBILE DONATION BUTTON
-      ===================================================== */}
+      {/* MOBILE DONATION BUTTON */}
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#eadfce] bg-[#fffaf1]/95 p-3 backdrop-blur-md sm:hidden">
+
         <button
           type="button"
           onClick={goToSeva}
@@ -347,7 +495,9 @@ export default function MyDonationsPage() {
           Explore Seva
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </button>
+
       </div>
+
     </main>
   );
 }
@@ -357,249 +507,23 @@ export default function MyDonationsPage() {
 ========================================================= */
 
 function DonationCard({ donation }: { donation: Donation }) {
-  const [receiptError, setReceiptError] = useState("");
-
-  const downloadReceipt = () => {
-    setReceiptError("");
-
-    if (donation.status !== "successful") {
-      setReceiptError("Receipts are available only for successful donations.");
-      return;
-    }
-
-    const receiptWindow = window.open("", "_blank");
-
-    if (!receiptWindow) {
-      setReceiptError("Allow pop-ups in your browser to open the receipt.");
-      return;
-    }
-
-    const title = escapeHtml(donation.title);
-    const donationId = escapeHtml(donation.id);
-    const transactionId = escapeHtml(donation.transactionId);
-    const paymentMethod = escapeHtml(donation.paymentMethod);
-    const donorName = escapeHtml(donation.donorName);
-    const donationDate = escapeHtml(donation.date);
-    const amount = formatPrice(Number(donation.amount || 0));
-
-    receiptWindow.document.open();
-
-    receiptWindow.document.write(`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Donation Receipt - ${donationId}</title>
-        <style>
-          * { box-sizing: border-box; }
-
-          body {
-            margin: 0;
-            padding: 32px 16px;
-            background: #fffaf1;
-            color: #40372f;
-            font-family: Arial, sans-serif;
-          }
-
-          .receipt {
-            max-width: 680px;
-            margin: 0 auto;
-            padding: 32px;
-            background: #fffdf9;
-            border: 1px solid #eadbc5;
-            border-radius: 16px;
-          }
-
-          .top {
-            padding-bottom: 22px;
-            border-bottom: 2px solid #eadbc5;
-            text-align: center;
-          }
-
-          .temple {
-            color: #641010;
-            font-family: Georgia, serif;
-            font-size: 26px;
-            font-weight: bold;
-          }
-
-          .subtitle {
-            margin-top: 8px;
-            color: #8c7e72;
-            font-size: 12px;
-          }
-
-          .badge {
-            display: inline-block;
-            margin-top: 18px;
-            padding: 7px 12px;
-            border-radius: 30px;
-            background: #eff8f0;
-            color: #347243;
-            font-size: 11px;
-            font-weight: bold;
-          }
-
-          .amount {
-            margin: 26px 0;
-            padding: 24px 12px;
-            border-radius: 12px;
-            background: #fff3df;
-            text-align: center;
-          }
-
-          .amount small {
-            display: block;
-            color: #8c7e72;
-            font-size: 11px;
-          }
-
-          .amount strong {
-            display: block;
-            margin-top: 8px;
-            color: #a71919;
-            font-size: 32px;
-          }
-
-          .row {
-            display: flex;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 13px 0;
-            border-bottom: 1px solid #f0e5d6;
-            font-size: 12px;
-          }
-
-          .row span { color: #8c7e72; }
-
-          .row strong {
-            max-width: 65%;
-            overflow-wrap: anywhere;
-            text-align: right;
-          }
-
-          .footer {
-            margin-top: 26px;
-            color: #8d6b3e;
-            font-family: Georgia, serif;
-            font-size: 12px;
-            font-style: italic;
-            line-height: 1.7;
-            text-align: center;
-          }
-
-          .print {
-            display: block;
-            margin: 24px auto 0;
-            padding: 12px 22px;
-            border: 0;
-            border-radius: 8px;
-            background: #641010;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-          }
-
-          @media print {
-            body { padding: 0; background: white; }
-            .receipt { border: 0; border-radius: 0; }
-            .print { display: none; }
-          }
-
-          @media (max-width: 480px) {
-            .receipt { padding: 22px 16px; }
-            .temple { font-size: 22px; }
-            .row { font-size: 11px; }
-          }
-        </style>
-      </head>
-
-      <body>
-        <main class="receipt">
-          <header class="top">
-            <div class="temple">Shri Govardhannath</div>
-            <div class="subtitle">Demo Temple Donation Receipt</div>
-            <div class="badge">✓ DEMO PAYMENT SUCCESSFUL</div>
-          </header>
-
-          <section class="amount">
-            <small>Donation Amount</small>
-            <strong>₹${amount}</strong>
-          </section>
-
-          <section>
-            <div class="row">
-              <span>Receipt / Donation ID</span>
-              <strong>${donationId}</strong>
-            </div>
-
-            <div class="row">
-              <span>Transaction ID</span>
-              <strong>${transactionId}</strong>
-            </div>
-
-            <div class="row">
-              <span>Donor Name</span>
-              <strong>${donorName}</strong>
-            </div>
-
-            <div class="row">
-              <span>Donation</span>
-              <strong>${title}</strong>
-            </div>
-
-            <div class="row">
-              <span>Donation Date</span>
-              <strong>${donationDate}</strong>
-            </div>
-
-            <div class="row">
-              <span>Payment Method</span>
-              <strong>${paymentMethod}</strong>
-            </div>
-
-            <div class="row">
-              <span>Status</span>
-              <strong>Successful (Demo)</strong>
-            </div>
-          </section>
-
-          <footer class="footer">
-            Thank you for your generous contribution.<br />
-            May your seva bring peace and blessings.
-            <br /><br />
-            This is a demo receipt, not proof of a real payment.
-          </footer>
-
-          <button class="print" onclick="window.print()">
-            Print / Save as PDF
-          </button>
-        </main>
-      </body>
-      </html>
-    `);
-
-    receiptWindow.document.close();
-    receiptWindow.focus();
-  };
-
   return (
     <article className="group overflow-hidden rounded-[18px] border border-[#eadfce] bg-[#fffdf9] shadow-[0_5px_20px_rgba(74,42,16,0.035)] transition-all duration-300 hover:border-[#d8bd89] hover:shadow-[0_12px_28px_rgba(74,42,16,0.075)]">
-      {/* Top accent */}
 
       <div className="h-[3px] bg-gradient-to-r from-[#641010] via-[#b78a3d] to-[#f0d49b]" />
 
-      {/* Card heading */}
+      {/* CARD HEADER */}
 
       <div className="flex items-start justify-between gap-3 border-b border-[#f0e4d3] bg-gradient-to-br from-[#fff8eb] to-[#fffdf9] p-4 sm:p-5">
+
         <div className="flex min-w-0 items-center gap-3">
+
           <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-[#f0dfc1] bg-[#fff0d8] text-[#a71919]">
             <HandHeart className="h-5 w-5" aria-hidden="true" />
           </div>
 
           <div className="min-w-0">
+
             <p className="text-[8px] font-bold uppercase tracking-[0.15em] text-[#b4873e]">
               Temple Donation
             </p>
@@ -607,17 +531,22 @@ function DonationCard({ donation }: { donation: Donation }) {
             <h3 className="mt-1 break-words text-sm font-bold text-[#641010] sm:text-[15px]">
               {donation.title}
             </h3>
+
           </div>
         </div>
 
         <StatusBadge status={donation.status} />
+
       </div>
 
-      {/* Amount and date */}
+      {/* CARD BODY */}
 
       <div className="p-4 sm:p-5">
+
         <div className="flex items-end justify-between gap-3">
+
           <div className="min-w-0">
+
             <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#9e9083]">
               Donation Amount
             </p>
@@ -625,9 +554,11 @@ function DonationCard({ donation }: { donation: Donation }) {
             <strong className="mt-1 block break-words text-2xl font-extrabold leading-tight text-[#a71919] sm:text-[26px]">
               ₹{formatPrice(Number(donation.amount || 0))}
             </strong>
+
           </div>
 
           <div className="shrink-0 text-right">
+
             <p className="text-[8px] font-semibold uppercase tracking-[0.1em] text-[#a89a8c]">
               Date
             </p>
@@ -635,43 +566,68 @@ function DonationCard({ donation }: { donation: Donation }) {
             <p className="mt-1 text-[10px] font-semibold text-[#77685b]">
               {donation.date}
             </p>
+
           </div>
+
         </div>
 
-        {/* Transaction details */}
+        {/* TRANSACTION DETAILS */}
 
         <div className="mt-4 rounded-xl border border-[#f0e5d6] bg-[#fff9ef] p-3.5">
+
           <p className="mb-3 text-[8px] font-bold uppercase tracking-[0.15em] text-[#a77b34]">
             Transaction Details
           </p>
 
           <div className="space-y-3">
-            <DetailRow label="Donation ID" value={donation.id} />
-            <DetailRow label="Transaction ID" value={donation.transactionId} />
-            <DetailRow label="Payment Method" value={donation.paymentMethod} />
-            <DetailRow label="Donor Name" value={donation.donorName} />
+
+            <DetailRow
+              label="Donation ID"
+              value={donation.id}
+            />
+
+            <DetailRow
+              label="Transaction ID"
+              value={donation.transactionId}
+            />
+
+            <DetailRow
+              label="Payment Method"
+              value={donation.paymentMethod}
+            />
+
+            <DetailRow
+              label="Donor Name"
+              value={donation.donorName}
+            />
+
           </div>
         </div>
 
-        {/* Card actions */}
+        {/* CARD FOOTER */}
 
         <div className="mt-4 flex min-h-[35px] items-center justify-between gap-2 border-t border-[#f0e5d6] pt-3">
+
           <span className="flex min-w-0 items-center gap-1.5 text-[9px] font-medium text-[#8f8175]">
+
             <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#fff1dc] text-[#9d762f]">
               <Landmark className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
 
-            <span className="truncate">Shri Govardhannath</span>
+            <span className="truncate">
+              Shri Govardhannath
+            </span>
+
           </span>
 
           {donation.status === "successful" && (
             <button
               type="button"
-              onClick={downloadReceipt}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#ead4a9] bg-[#fff7e9] px-3 py-2 text-[10px] font-bold text-[#8f201b] transition hover:bg-[#fff0d8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a71919]"
+              onClick={() => downloadReceipt(donation)}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#641010] px-3 py-2 text-[10px] font-bold text-white shadow-sm transition hover:bg-[#851817] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a71919] focus-visible:ring-offset-2"
             >
-              <ReceiptText className="h-[15px] w-[15px]" aria-hidden="true" />
-              Receipt
+              <Download className="h-3.5 w-3.5" aria-hidden="true" />
+              Download Receipt
             </button>
           )}
 
@@ -690,18 +646,9 @@ function DonationCard({ donation }: { donation: Donation }) {
               Try Again ›
             </button>
           )}
+
         </div>
 
-        {/* Receipt error */}
-
-        {receiptError && (
-          <p
-            role="alert"
-            className="mt-3 text-[10px] font-medium text-[#a23a32]"
-          >
-            {receiptError}
-          </p>
-        )}
       </div>
     </article>
   );
@@ -735,7 +682,6 @@ function StatusBadge({ status }: { status: DonationStatus }) {
       className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[8px] font-bold sm:text-[9px] ${styles[status]}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${dotStyles[status]}`} />
-
       {labels[status]}
     </span>
   );
@@ -756,6 +702,7 @@ function SummaryCard({
 }) {
   return (
     <div className="relative min-w-0 overflow-hidden rounded-[15px] border border-white/15 bg-white/[0.09] p-3.5 backdrop-blur-sm sm:p-4">
+
       <div className="grid h-8 w-8 place-items-center rounded-lg border border-[#f1d49a]/25 bg-[#f1d49a]/10 text-[#f1d49a]">
         {icon === "rupee" ? <RupeeIcon /> : <CheckIcon />}
       </div>
@@ -769,6 +716,7 @@ function SummaryCard({
       </p>
 
       <div className="mt-2.5 h-0.5 w-8 rounded-full bg-gradient-to-r from-[#f1d49a] to-white/20" />
+
     </div>
   );
 }
@@ -777,14 +725,24 @@ function SummaryCard({
    DETAIL ROW
 ========================================================= */
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+function DetailRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
   return (
     <div className="flex items-start justify-between gap-3">
-      <span className="shrink-0 text-[9px] text-[#998b7e]">{label}</span>
+
+      <span className="shrink-0 text-[9px] text-[#998b7e]">
+        {label}
+      </span>
 
       <strong className="min-w-0 break-all text-right text-[9px] font-semibold leading-4 text-[#554a41]">
         {value || "—"}
       </strong>
+
     </div>
   );
 }
@@ -804,24 +762,33 @@ function InfoCard({
 }) {
   return (
     <article className="group flex items-start gap-3.5 rounded-[16px] border border-[#eadfce] bg-[#fffdf9] p-4 transition-all duration-300 hover:border-[#d8bd89] hover:shadow-[0_8px_22px_rgba(74,42,16,0.05)]">
+
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#f0dfc1] bg-[#fff2de] text-[#a71919]">
+
         {icon === "shield" && (
           <ShieldCheck className="h-[17px] w-[17px]" aria-hidden="true" />
         )}
 
         {icon === "receipt" && (
-          <ReceiptText className="h-[15px] w-[15px]" aria-hidden="true" />
+          <Download className="h-[15px] w-[15px]" aria-hidden="true" />
         )}
 
-        {icon === "heart" && <Heart className="h-4 w-4" aria-hidden="true" />}
+        {icon === "heart" && (
+          <Heart className="h-4 w-4" aria-hidden="true" />
+        )}
+
       </div>
 
       <div className="min-w-0">
-        <h3 className="text-xs font-bold text-[#51463d]">{title}</h3>
+
+        <h3 className="text-xs font-bold text-[#51463d]">
+          {title}
+        </h3>
 
         <p className="mt-1.5 text-[10px] leading-5 text-[#918479] sm:text-[11px]">
           {description}
         </p>
+
       </div>
     </article>
   );
@@ -840,6 +807,7 @@ function EmptyState({
 }) {
   return (
     <section className="relative mx-auto mt-7 max-w-[460px] overflow-hidden rounded-[20px] border border-[#eadfce] bg-[#fffdf9] px-6 py-10 text-center shadow-sm sm:px-9">
+
       <div className="mx-auto grid h-[72px] w-[72px] place-items-center rounded-full border border-[#f0dfc1] bg-[#fff2de] text-[#a71919]">
         <HandHeart className="h-7 w-7" aria-hidden="true" />
       </div>
@@ -866,6 +834,7 @@ function EmptyState({
         <Heart className="h-4 w-4" aria-hidden="true" />
         Make a Donation
       </button>
+
     </section>
   );
 }

@@ -3,7 +3,7 @@
 import type { ChangeEvent, FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, Check, Save, UserRound } from "lucide-react";
+import { Camera, Check, Save, Trash2, UserRound } from "lucide-react";
 import { defaultProfile, type ProfileData } from "@/data/profile";
 
 const PROFILE_STORAGE_KEY = "profile-data";
@@ -72,6 +72,15 @@ export default function EditProfilePage() {
   // OPEN PHOTO PICKER
   const handleImageClick = () => {
     fileInputRef.current?.click();
+  };
+
+  // DELETE PROFILE PHOTO
+  const handleImageDelete = () => {
+    updateField("image", "");
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   // UPLOAD PHOTO
@@ -146,9 +155,11 @@ export default function EditProfilePage() {
       router.push("/dashboard");
     } catch (err) {
       console.error("Failed to save profile:", err);
+
       setError(
         "Unable to save your profile. Try a smaller image or free up browser storage.",
       );
+
       setIsSaving(false);
     }
   };
@@ -157,24 +168,39 @@ export default function EditProfilePage() {
     <main className="min-h-dvh w-full min-w-0 overflow-x-clip bg-[#fffaf1] pb-20 lg:pb-6 lg:pl-[92px]">
       {/* PAGE CONTENT */}
       <section className="mx-auto w-full max-w-3xl px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
-        {/* INTRODUCTION */}
-
         {/* PROFILE CARD */}
         <div className="overflow-hidden rounded-2xl border border-[#eadbc5] bg-[#fffdf8] shadow-[0_8px_30px_rgba(100,16,16,0.05)]">
           {/* PROFILE BANNER */}
           <div className="relative overflow-hidden bg-[linear-gradient(145deg,#641010_0%,#961b18_55%,#b74c25_100%)] px-5 py-9 text-center sm:py-11">
             <div className="pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full border border-white/10" />
+
             <div className="pointer-events-none absolute -bottom-20 -left-8 h-44 w-44 rounded-full border border-white/10" />
 
             {/* PROFILE IMAGE */}
-            <div className="relative mx-auto h-28 w-28 sm:h-32 sm:w-32">
-              <div className="h-28 w-28 overflow-hidden rounded-full border-4 border-[#f2d18d] bg-[#fff8e9] shadow-lg sm:h-32 sm:w-32">
+            <div className="group relative mx-auto h-28 w-28 sm:h-32 sm:w-32">
+              <div className="relative h-28 w-28 overflow-hidden rounded-full border-4 border-[#f2d18d] bg-[#fff8e9] shadow-lg sm:h-32 sm:w-32">
                 {profile.image ? (
-                  <img
-                    src={profile.image}
-                    alt="Profile photo preview"
-                    className="block h-full w-full object-cover"
-                  />
+                  <>
+                    {/* PROFILE PHOTO */}
+                    <img
+                      src={profile.image}
+                      alt="Profile photo preview"
+                      className="block h-full w-full object-cover transition-all duration-300 group-hover:blur-sm"
+                    />
+
+                    {/* BLACK OVERLAY + DELETE ICON */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/30 group-hover:opacity-100">
+                      <button
+                        type="button"
+                        onClick={handleImageDelete}
+                        aria-label="Delete profile photo"
+                        title="Delete profile photo"
+                        className="flex  cursor-pointer items-center justify-center rounded-full text-red-500 shadow-lg transition hover:scale-110 active:scale-95"
+                      >
+                        <Trash2 size={19} />
+                      </button>
+                    </div>
+                  </>
                 ) : (
                   <div className="grid h-full w-full place-items-center text-[#a71919]">
                     <UserRound size={54} strokeWidth={1.2} />
@@ -182,16 +208,18 @@ export default function EditProfilePage() {
                 )}
               </div>
 
+              {/* CHANGE PHOTO ICON */}
               <button
                 type="button"
                 onClick={handleImageClick}
                 aria-label="Change profile photo"
                 title="Change profile photo"
-                className="absolute bottom-0 right-0 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-2 border-[#fffdf8] bg-[#a71919] text-white shadow-md transition hover:bg-[#8f1515] active:scale-95"
+                className="absolute bottom-0 right-0 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-2 border-[#fffdf8] bg-[#a71919] text-white shadow-md transition hover:bg-[#8f1515] active:scale-95"
               >
                 <Camera size={17} />
               </button>
 
+              {/* HIDDEN FILE INPUT */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -202,6 +230,7 @@ export default function EditProfilePage() {
               />
             </div>
 
+            {/* PROFILE NAME */}
             <h3 className="mt-4 truncate px-2 text-xl text-white sm:text-2xl">
               {profile.name.trim() || "Your Name"}
             </h3>
@@ -217,10 +246,12 @@ export default function EditProfilePage() {
             onSubmit={handleSubmit}
             className="space-y-5 p-5 sm:p-8"
           >
+            {/* FULL NAME */}
             <div>
               <label htmlFor="name" className={labelClass}>
                 Full Name
               </label>
+
               <input
                 id="name"
                 type="text"
@@ -233,10 +264,12 @@ export default function EditProfilePage() {
               />
             </div>
 
+            {/* MOBILE NUMBER */}
             <div>
               <label htmlFor="phone" className={labelClass}>
                 Mobile Number
               </label>
+
               <input
                 id="phone"
                 type="tel"
@@ -255,15 +288,18 @@ export default function EditProfilePage() {
                 pattern="[0-9]{10}"
                 required
               />
+
               <p className="mt-1.5 text-xs text-[#9a8879]">
                 Enter exactly 10 digits.
               </p>
             </div>
 
+            {/* EMAIL ADDRESS */}
             <div>
               <label htmlFor="email" className={labelClass}>
                 Email Address
               </label>
+
               <input
                 id="email"
                 type="email"
@@ -275,10 +311,12 @@ export default function EditProfilePage() {
               />
             </div>
 
+            {/* CITY */}
             <div>
               <label htmlFor="city" className={labelClass}>
                 City
               </label>
+
               <input
                 id="city"
                 type="text"
@@ -290,7 +328,7 @@ export default function EditProfilePage() {
               />
             </div>
 
-            {/* ERROR */}
+            {/* ERROR MESSAGE */}
             {error && (
               <div
                 role="alert"
@@ -300,7 +338,7 @@ export default function EditProfilePage() {
               </div>
             )}
 
-            {/* SUCCESS */}
+            {/* SUCCESS MESSAGE */}
             {saved && (
               <div
                 role="status"
@@ -325,6 +363,7 @@ export default function EditProfilePage() {
           </form>
         </div>
 
+        {/* FOOTER */}
         <p className="mt-5 text-center text-xs leading-5 text-[#9a8879]">
           Your profile information is stored in this browser.
         </p>
