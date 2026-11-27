@@ -8,8 +8,10 @@ const MAX_PULL = 110; // maximum visual pull distance
 
 export default function PullToRefresh({
   children,
+  onRefresh,
 }: {
   children: React.ReactNode;
+  onRefresh?: () => Promise<void> | void;
 }) {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -63,10 +65,19 @@ export default function PullToRefresh({
       setPullDistance((currentDistance) => {
         if (currentDistance >= PULL_THRESHOLD) {
           setIsRefreshing(true);
-          // Trigger page reload
-          setTimeout(() => {
-            window.location.reload();
-          }, 300);
+          if (onRefresh) {
+            Promise.resolve(onRefresh())
+              .catch((err) => console.error("[PullToRefresh] onRefresh error:", err))
+              .finally(() => {
+                setIsRefreshing(false);
+                setPullDistance(0);
+              });
+          } else {
+            // Trigger full page reload as fallback
+            setTimeout(() => {
+              window.location.reload();
+            }, 300);
+          }
           return PULL_THRESHOLD * 0.7; // keep indicator visible while reloading
         }
         return 0;

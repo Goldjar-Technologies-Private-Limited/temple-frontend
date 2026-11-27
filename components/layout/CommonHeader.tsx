@@ -1,20 +1,11 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { ArrowLeft, Bell, Save, ShoppingCart } from "lucide-react";
 import { getPageInfo } from "@/data/commonHeader";
 import { useLanguage } from "@/contexts/LanguageProvider";
-import type { PrasadamWeight as Weight } from "@/data/prasadam";
-
-type CartItem = {
-  productId: number;
-  weight: Weight;
-  quantity: number;
-};
-
-const CART_STORAGE_KEY = "prasadam-cart";
-const CART_UPDATED_EVENT = "prasadam-cart-updated";
+import { useCustomerPrasadCartCount } from "@/hooks/temple/prasad/usePrasad";
 
 type CommonHeaderProps = {
   title?: string;
@@ -36,52 +27,7 @@ export default function CommonHeader({
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useLanguage();
-
-  const [cartCount, setCartCount] = useState(0);
-
-  useEffect(() => {
-    const loadCartCount = async () => {
-      try {
-        const { prasadCartService } = await import("@/services/temple/prasad.service");
-        const res = await prasadCartService.getCartCount();
-        if (res && res.success && typeof res.data === "number") {
-          setCartCount(res.data);
-          return;
-        }
-      } catch {
-        // Fallback to local storage
-      }
-      try {
-        const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-        if (!storedCart) {
-          setCartCount(0);
-          return;
-        }
-        const parsedCart: unknown = JSON.parse(storedCart);
-        if (!Array.isArray(parsedCart)) {
-          setCartCount(0);
-          return;
-        }
-        const totalItems = (parsedCart as CartItem[]).reduce((total, item) => {
-          const quantity = Number(item?.quantity ?? 0);
-          return total + (Number.isFinite(quantity) && quantity > 0 ? quantity : 0);
-        }, 0);
-        setCartCount(totalItems);
-      } catch {
-        setCartCount(0);
-      }
-    };
-
-    loadCartCount();
-
-    window.addEventListener(CART_UPDATED_EVENT, loadCartCount);
-    window.addEventListener("storage", loadCartCount);
-
-    return () => {
-      window.removeEventListener(CART_UPDATED_EVENT, loadCartCount);
-      window.removeEventListener("storage", loadCartCount);
-    };
-  }, []);
+  const { count: cartCount } = useCustomerPrasadCartCount();
 
   const routeInfo = getPageInfo(pathname);
 

@@ -642,22 +642,6 @@ export default function DonatePage() {
               handlePayment={handlePayment}
             />
           </div>
-
-          <div className="mt-6 lg:hidden">
-            <Summary
-              seva={seva}
-              type={type}
-              frequency={frequency}
-              paymentMethod={paymentMethod}
-              formattedAmount={formattedAmount}
-              mandateAccepted={mandateAccepted}
-              onMandateChange={(checked) => {
-                setMandateAccepted(checked);
-                setError("");
-              }}
-              handlePayment={handlePayment}
-            />
-          </div>
         </div>
 
         <div className="hidden min-w-0 lg:block">

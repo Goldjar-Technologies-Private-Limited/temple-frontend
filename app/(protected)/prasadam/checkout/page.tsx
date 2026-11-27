@@ -2,11 +2,24 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCustomerPrasadCart } from "@/hooks/temple/prasad/usePrasad";
+import { useDeliveryAddresses } from "@/hooks/temple/address/useAddresses";
+import { DeliveryAddress } from "@/models/temple/address.model";
+import { Plus, CheckCircle2 } from "lucide-react";
 import {
   CART_CHECKOUT_PRODUCTS as products,
-  type CartCheckoutProduct as Product,
   type PrasadamWeight as Weight,
 } from "@/data/prasadam";
+
+interface CheckoutDisplayItem {
+  id: string | number;
+  productId: number;
+  name: string;
+  image: string;
+  weight: string;
+  price: number;
+  quantity: number;
+}
 
 /* =========================================================
    TYPES
@@ -51,58 +64,79 @@ function getWeightPrice(basePrice: number, weight: Weight) {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { cart: apiCart, isLoading: apiCartLoading, clearCart } = useCustomerPrasadCart();
+  const { addresses: savedAddresses, createAddress } = useDeliveryAddresses();
 
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [localCart, setLocalCart] = useState<CartItem[]>([]);
+  const [localLoaded, setLocalLoaded] = useState(false);
 
-  const [loaded, setLoaded] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | "new">("new");
+  const [saveThisAddress, setSaveThisAddress] = useState(true);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi");
-
   const [fullName, setFullName] = useState("");
-
   const [phone, setPhone] = useState("");
-
   const [email, setEmail] = useState("");
-
   const [address, setAddress] = useState("");
-
   const [landmark, setLandmark] = useState("");
-
   const [city, setCity] = useState("");
-
   const [state, setState] = useState("");
-
   const [pincode, setPincode] = useState("");
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Auto-select default or first address if available
+  useEffect(() => {
+    if (savedAddresses && savedAddresses.length > 0) {
+      const defaultAddr = savedAddresses.find((a) => a.isDefault) || savedAddresses[0];
+      setSelectedAddressId(defaultAddr.id);
+      applySavedAddress(defaultAddr);
+    } else {
+      setSelectedAddressId("new");
+    }
+  }, [savedAddresses]);
+
+  const applySavedAddress = (addr: DeliveryAddress) => {
+    setFullName(addr.recipientName || "");
+    setPhone(addr.phoneNumber ? addr.phoneNumber.replace(/\D/g, "").slice(-10) : "");
+    setEmail(addr.email || "");
+    setAddress(addr.fullAddress || "");
+    setLandmark(addr.landmark || "");
+    setCity(addr.city || "");
+    setState(addr.state || "");
+    setPincode(addr.pincode || "");
+  };
+
+  const handleSelectAddress = (id: number | "new") => {
+    setSelectedAddressId(id);
+    if (id === "new") {
+      setFullName("");
+      setPhone("");
+      setEmail("");
+      setAddress("");
+      setLandmark("");
+      setCity("");
+      setState("");
+      setPincode("");
+    } else {
+      const found = savedAddresses.find((a) => a.id === id);
+      if (found) {
+        applySavedAddress(found);
+      }
+    }
+  };
+
   /* =========================================================
-     LOAD CART
+     LOAD LOCAL CART (Fallback)
   ========================================================= */
 
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem("prasadam-cart");
-
       if (!savedCart) {
-        setCart([]);
+        setLocalCart([]);
         return;
       }
-
       const parsedCart = JSON.parse(savedCart);
-
-      /*
-        NEW FORMAT
-
-        [
-          {
-            productId: 1,
-            weight: "1kg",
-            quantity: 5
-          }
-        ]
-      */
-
       if (Array.isArray(parsedCart)) {
         const validCart: CartItem[] = parsedCart.filter(
           (item): item is CartItem =>
@@ -112,95 +146,55 @@ export default function CheckoutPage() {
             Number.isFinite(item?.quantity) &&
             item.quantity > 0,
         );
-
-        setCart(validCart);
-
+        setLocalCart(validCart);
         return;
       }
-
-      /*
-        OLD FORMAT SUPPORT
-
-        {
-          "1": 2,
-          "2": 3
-        }
-
-        Old cart had no weight information,
-        so we assume 500gm.
-      */
-
-      if (parsedCart && typeof parsedCart === "object") {
-        const oldCart: CartItem[] = [];
-
-        Object.entries(parsedCart).forEach(([productId, quantity]) => {
-          const id = Number(productId);
-
-          const qty = Number(quantity);
-
-          if (
-            Number.isFinite(id) &&
-            Number.isFinite(qty) &&
-            qty > 0 &&
-            products.some((product) => product.id === id)
-          ) {
-            oldCart.push({
-              productId: id,
-              weight: "500gm",
-              quantity: qty,
-            });
-          }
-        });
-
-        setCart(oldCart);
-      }
     } catch (error) {
-      console.error("Failed to load cart:", error);
-
-      setCart([]);
+      console.error("Failed to load local cart:", error);
+      setLocalCart([]);
     } finally {
-      setLoaded(true);
+      setLocalLoaded(true);
     }
   }, []);
 
   /* =========================================================
-     CART ITEMS
+     CART ITEMS (API with Local Fallback)
   ========================================================= */
 
-  const cartItems = useMemo(() => {
-    return cart
-      .map((cartItem) => {
-        const product = products.find((item) => item.id === cartItem.productId);
+  const cartItems: CheckoutDisplayItem[] = useMemo(() => {
+    // 1. Prefer API Cart
+    if (apiCart && apiCart.items && apiCart.items.length > 0) {
+      return apiCart.items.map((item) => ({
+        id: item.cartItemId,
+        productId: item.prasadId,
+        name: item.prasadName,
+        image: item.imageUrl || "/images/mohanthal.jpg",
+        weight: `${item.weight} ${item.unit}`,
+        price: item.price,
+        quantity: item.quantity,
+      }));
+    }
 
-        if (!product) {
-          return null;
-        }
+    // 2. Fallback to Local Storage Cart
+    const items: CheckoutDisplayItem[] = [];
+    for (const cartItem of localCart) {
+      const product = products.find((item) => item.id === cartItem.productId);
+      if (!product || !isValidWeight(cartItem.weight)) continue;
+      const price = getWeightPrice(product.price, cartItem.weight);
+      items.push({
+        id: `${cartItem.productId}-${cartItem.weight}`,
+        productId: cartItem.productId,
+        name: product.name,
+        image: product.image,
+        weight: cartItem.weight,
+        price,
+        quantity: cartItem.quantity,
+      });
+    }
+    return items;
+  }, [apiCart, localCart]);
 
-        if (!isValidWeight(cartItem.weight)) {
-          return null;
-        }
-
-        const price = getWeightPrice(product.price, cartItem.weight);
-
-        return {
-          ...product,
-          productId: cartItem.productId,
-          weight: cartItem.weight,
-          quantity: cartItem.quantity,
-          price,
-        };
-      })
-      .filter(
-        (
-          item,
-        ): item is Product & {
-          productId: number;
-          weight: Weight;
-          quantity: number;
-          price: number;
-        } => item !== null,
-      );
-  }, [cart]);
+  const loaded = !apiCartLoading || localLoaded;
 
   /* =========================================================
      TOTAL ITEMS
@@ -237,7 +231,7 @@ export default function CheckoutPage() {
      PLACE ORDER
   ========================================================= */
 
-  const handlePlaceOrder = (event: FormEvent<HTMLFormElement>) => {
+  const handlePlaceOrder = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (cartItems.length === 0) {
@@ -254,87 +248,78 @@ export default function CheckoutPage() {
       !pincode.trim()
     ) {
       alert("Please fill all required delivery details.");
-
       return;
     }
 
     if (phone.length !== 10) {
       alert("Please enter a valid 10 digit mobile number.");
-
       return;
     }
 
     if (pincode.length !== 6) {
       alert("Please enter a valid 6 digit PIN code.");
-
       return;
     }
 
     setIsSubmitting(true);
 
-    /*
-      ==========================================
-      BACKEND API LATER
+    try {
+      // If user typed a new address and opted to save it
+      if (selectedAddressId === "new" && saveThisAddress) {
+        try {
+          await createAddress({
+            recipientName: fullName.trim(),
+            phoneNumber: phone.trim(),
+            email: email.trim() || undefined,
+            fullAddress: address.trim(),
+            landmark: landmark.trim() || undefined,
+            city: city.trim(),
+            state: state.trim(),
+            pincode: pincode.trim(),
+            isDefault: savedAddresses.length === 0,
+          });
+        } catch (addrErr) {
+          console.error("Failed to save new address to API:", addrErr);
+        }
+      }
 
-      Yahan future me:
-
-      POST /prasadam/orders
-
-      Payload:
-
-      {
-        customer: {...},
+      const order = {
+        id: `ORD-${Date.now()}`,
+        customer: {
+          fullName,
+          phone,
+          email,
+          address,
+          landmark,
+          city,
+          state,
+          pincode,
+        },
         items: cartItems,
         paymentMethod,
         subtotal,
         deliveryCharge,
-        totalAmount
+        totalAmount,
+        createdAt: new Date().toISOString(),
+      };
+
+      localStorage.setItem("last-prasadam-order", JSON.stringify(order));
+
+      // Clear both local storage and server-side cart
+      try {
+        await clearCart();
+      } catch (e) {
+        console.error("Failed to clear server cart:", e);
       }
 
-      Payment gateway bhi yahin connect hoga.
-      ==========================================
-    */
+      localStorage.removeItem("prasadam-cart");
+      localStorage.removeItem("prasadam-cart-weights");
+      window.dispatchEvent(new Event("prasadam-cart-updated"));
 
-    const order = {
-      id: `ORD-${Date.now()}`,
-
-      customer: {
-        fullName,
-        phone,
-        email,
-        address,
-        landmark,
-        city,
-        state,
-        pincode,
-      },
-
-      items: cartItems,
-
-      paymentMethod,
-
-      subtotal,
-
-      deliveryCharge,
-
-      totalAmount,
-
-      createdAt: new Date().toISOString(),
-    };
-
-    localStorage.setItem("last-prasadam-order", JSON.stringify(order));
-
-    /*
-      Successful order ke baad cart clear.
-    */
-
-    localStorage.removeItem("prasadam-cart");
-
-    localStorage.removeItem("prasadam-cart-weights");
-
-    window.dispatchEvent(new Event("prasadam-cart-updated"));
-
-    router.push("/prasadam/order-success");
+      router.push("/prasadam/order-success");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   /* =========================================================
@@ -405,6 +390,71 @@ export default function CheckoutPage() {
               subtitle="Where should we send your prasadam?"
             />
 
+            {/* SAVED ADDRESS SELECTOR */}
+            {savedAddresses.length > 0 && (
+              <div className="mt-4 mb-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-bold text-[#5c5047] uppercase tracking-wider">
+                    Select Saved Address
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectAddress("new")}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#a71919] hover:underline"
+                  >
+                    <Plus size={14} /> Add New Address
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {savedAddresses.map((addr) => {
+                    const isSelected = selectedAddressId === addr.id;
+                    return (
+                      <div
+                        key={addr.id}
+                        onClick={() => handleSelectAddress(addr.id)}
+                        className={`relative cursor-pointer rounded-xl border p-3 transition-all ${
+                          isSelected
+                            ? "border-[#b72c22] bg-[#fff6ee] shadow-[0_4px_14px_rgba(167,25,25,0.09)]"
+                            : "border-[#e8decb] bg-white hover:border-[#cfb68d]"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-[#443830]">
+                              {addr.recipientName}
+                            </span>
+                            {addr.isDefault && (
+                              <span className="rounded bg-[#ffe8d6] px-1.5 py-0.5 text-[9px] font-bold text-[#b55815]">
+                                Default
+                              </span>
+                            )}
+                          </div>
+                          {isSelected && (
+                            <CheckCircle2 size={16} className="text-[#a71919] shrink-0" />
+                          )}
+                        </div>
+
+                        <p className="mt-1.5 line-clamp-2 text-[11px] leading-4 text-[#75675c]">
+                          {addr.fullAddress}
+                          {addr.landmark ? `, ${addr.landmark}` : ""}
+                        </p>
+
+                        <p className="mt-1 text-[11px] font-semibold text-[#8a7a6e]">
+                          {addr.city}, {addr.state} - {addr.pincode}
+                        </p>
+
+                        <p className="mt-1 text-[10px] text-[#9c8d80]">
+                          📞 {addr.phoneNumber}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* MANUAL FORM OR SELECTED ADDRESS DETAILS */}
             <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <InputField
                 label="Full Name"
@@ -486,6 +536,22 @@ export default function CheckoutPage() {
                   required
                 />
               </div>
+
+              {/* SAVE ADDRESS CHECKBOX (Only for new addresses) */}
+              {selectedAddressId === "new" && (
+                <div className="sm:col-span-2 flex items-center gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="save-address"
+                    checked={saveThisAddress}
+                    onChange={(e) => setSaveThisAddress(e.target.checked)}
+                    className="h-4 w-4 rounded border-[#dfd0bb] text-[#a71919] focus:ring-[#c99435]"
+                  />
+                  <label htmlFor="save-address" className="text-xs font-semibold text-[#5c5047] cursor-pointer">
+                    Save this address for future deliveries
+                  </label>
+                </div>
+              )}
             </div>
           </section>
 

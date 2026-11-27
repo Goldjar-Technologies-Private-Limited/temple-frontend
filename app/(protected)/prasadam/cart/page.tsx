@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCustomerPrasadCart } from "@/hooks/temple/prasad/usePrasad";
 import { CustomerPrasadCartItem } from "@/models/temple/prasad.model";
 import TempleLoader from "@/components/common/TempleLoader";
+import PullToRefresh from "@/components/PullToRefresh";
 
 const DELIVERY_CHARGE = 50;
 
@@ -19,7 +20,12 @@ export default function CartPage() {
     isLoading,
     updateQuantity,
     removeCartItem,
+    refetch,
   } = useCustomerPrasadCart();
+
+  const handleRefresh = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
 
   const cartItems: CustomerPrasadCartItem[] = useMemo(() => {
     return cart?.items || [];
@@ -36,20 +42,58 @@ export default function CartPage() {
   const deliveryCharge = subtotal > 0 ? DELIVERY_CHARGE : 0;
   const totalAmount = subtotal + deliveryCharge;
 
+  const [busyItemId, setBusyItemId] = useState<number | null>(null);
+
   const handleIncrease = async (item: CustomerPrasadCartItem) => {
-    await updateQuantity(item.cartItemId, item.quantity + 1);
+    if (busyItemId === item.cartItemId) return;
+    setBusyItemId(item.cartItemId);
+    try {
+      await updateQuantity(item.cartItemId, item.quantity + 1);
+    } finally {
+      setBusyItemId(null);
+    }
   };
 
   const handleDecrease = async (item: CustomerPrasadCartItem) => {
-    if (item.quantity <= 1) {
-      await removeCartItem(item.cartItemId);
-    } else {
-      await updateQuantity(item.cartItemId, item.quantity - 1);
+    if (busyItemId === item.cartItemId) return;
+    setBusyItemId(item.cartItemId);
+    try {
+      if (item.quantity <= 1) {
+        await removeCartItem(item.cartItemId);
+      } else {
+        await updateQuantity(item.cartItemId, item.quantity - 1);
+      }
+    } finally {
+      setBusyItemId(null);
+    }
+  };
+
+  const handleManualQuantity = async (item: CustomerPrasadCartItem, val: string) => {
+    const parsed = parseInt(val, 10);
+    if (isNaN(parsed) || parsed < 0) return;
+    if (parsed === item.quantity) return;
+
+    if (busyItemId === item.cartItemId) return;
+    setBusyItemId(item.cartItemId);
+    try {
+      if (parsed === 0) {
+        await removeCartItem(item.cartItemId);
+      } else {
+        await updateQuantity(item.cartItemId, parsed);
+      }
+    } finally {
+      setBusyItemId(null);
     }
   };
 
   const handleRemove = async (cartItemId: number) => {
-    await removeCartItem(cartItemId);
+    if (busyItemId === cartItemId) return;
+    setBusyItemId(cartItemId);
+    try {
+      await removeCartItem(cartItemId);
+    } finally {
+      setBusyItemId(null);
+    }
   };
 
   const handlePlaceOrder = (): void => {
@@ -63,36 +107,39 @@ export default function CartPage() {
 
   if (cartItems.length === 0) {
     return (
-      <main className="min-h-[100dvh] bg-[#fffaf3] pb-[100px] lg:ml-[92px] lg:w-[calc(100%-92px)]">
-        <section className="flex min-h-[calc(100dvh-170px)] items-center justify-center px-4">
-          <div className="w-full max-w-[430px] text-center">
-            <div className="mx-auto grid h-[90px] w-[90px] place-items-center rounded-full border border-[#eadbc5] bg-[#fffdf8] shadow-sm">
-              <CartIcon />
+      <PullToRefresh onRefresh={handleRefresh}>
+        <main className="min-h-[100dvh] bg-[#fffaf3] pb-[100px] lg:ml-[92px] lg:w-[calc(100%-92px)]">
+          <section className="flex min-h-[calc(100dvh-170px)] items-center justify-center px-4">
+            <div className="w-full max-w-[430px] text-center">
+              <div className="mx-auto grid h-[90px] w-[90px] place-items-center rounded-full border border-[#eadbc5] bg-[#fffdf8] shadow-sm">
+                <CartIcon />
+              </div>
+
+              <h2 className="mt-6 text-2xl font-bold text-[#561010]">
+                Your cart is empty
+              </h2>
+
+              <p className="mx-auto mt-2 max-w-[330px] text-sm leading-6 text-[#81756c]">
+                Add your favourite prasadam before placing an order.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => router.push("/prasadam")}
+                className="mt-7 min-h-[48px] rounded-xl bg-[#a71919] px-8 text-sm font-bold text-white shadow-md transition hover:bg-[#861414] active:scale-[0.98]"
+              >
+                Explore Prasadam
+              </button>
             </div>
-
-            <h2 className="mt-6 text-2xl font-bold text-[#561010]">
-              Your cart is empty
-            </h2>
-
-            <p className="mx-auto mt-2 max-w-[330px] text-sm leading-6 text-[#81756c]">
-              Add your favourite prasadam before placing an order.
-            </p>
-
-            <button
-              type="button"
-              onClick={() => router.push("/prasadam")}
-              className="mt-7 min-h-[48px] rounded-xl bg-[#a71919] px-8 text-sm font-bold text-white shadow-md transition hover:bg-[#861414] active:scale-[0.98]"
-            >
-              Explore Prasadam
-            </button>
-          </div>
-        </section>
-      </main>
+          </section>
+        </main>
+      </PullToRefresh>
     );
   }
 
   return (
-    <main className="min-h-[100dvh] overflow-x-hidden bg-[#fffaf3] pb-10 lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-12">
+    <PullToRefresh onRefresh={handleRefresh}>
+      <main className="min-h-[100dvh] overflow-x-hidden bg-[#fffaf3] pb-10 lg:ml-[92px] lg:w-[calc(100%-92px)] lg:pb-12">
       <div className="mx-auto w-full max-w-[1400px] px-3 py-5 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-7 xl:grid-cols-[minmax(0,1fr)_390px]">
           {/* =================================================
@@ -167,28 +214,39 @@ export default function CartPage() {
 
                         {/* QUANTITY */}
                         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                          <div className="flex h-9 items-center overflow-hidden rounded-lg border border-[#dfcdb4] bg-white sm:h-10">
+                          <div className={`flex h-9 items-center overflow-hidden rounded-lg border border-[#dfcdb4] bg-white sm:h-10 transition-opacity ${
+                            busyItemId === item.cartItemId ? "opacity-60" : ""
+                          }`}>
                             {/* MINUS */}
                             <button
                               type="button"
                               onClick={() => handleDecrease(item)}
                               aria-label="Decrease quantity"
-                              className="grid h-full w-9 place-items-center text-lg font-bold text-[#a71919] hover:bg-[#fff3df]"
+                              disabled={busyItemId === item.cartItemId}
+                              className="grid h-full w-9 place-items-center text-lg font-bold text-[#a71919] hover:bg-[#fff3df] active:bg-[#ffe7cc] disabled:opacity-50"
                             >
                               −
                             </button>
 
-                            {/* QUANTITY */}
-                            <span className="grid h-full min-w-[38px] place-items-center border-x border-[#eee1cf] px-2 text-xs font-bold">
-                              {item.quantity}
-                            </span>
+                            {/* QUANTITY INPUT */}
+                            <input
+                              type="number"
+                              min="1"
+                              max="999"
+                              value={item.quantity}
+                              disabled={busyItemId === item.cartItemId}
+                              onChange={(e) => handleManualQuantity(item, e.target.value)}
+                              aria-label={`Quantity for ${item.prasadName}`}
+                              className="h-full w-12 border-x border-[#eee1cf] bg-transparent text-center text-xs font-bold text-[#40372f] outline-none focus:bg-[#fff9f0] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            />
 
                             {/* PLUS */}
                             <button
                               type="button"
                               onClick={() => handleIncrease(item)}
                               aria-label="Increase quantity"
-                              className="grid h-full w-9 place-items-center text-lg font-bold text-[#a71919] hover:bg-[#fff3df]"
+                              disabled={busyItemId === item.cartItemId}
+                              className="grid h-full w-9 place-items-center text-lg font-bold text-[#a71919] hover:bg-[#fff3df] active:bg-[#ffe7cc] disabled:opacity-50"
                             >
                               +
                             </button>
@@ -279,6 +337,7 @@ export default function CartPage() {
         </div>
       </div>
     </main>
+  </PullToRefresh>
   );
 }
 

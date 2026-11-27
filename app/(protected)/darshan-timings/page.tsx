@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import { useDarshanTimings } from "@/hooks/temple/darshan-timings/useDarshanTimings";
 import { format12Hour, parseTimeParts } from "@/utils/time";
 import type { TranslationKey } from "@/utils/i18n";
 import TempleLoader from "@/components/common/TempleLoader";
+import PullToRefresh from "@/components/PullToRefresh";
 
 type DarshanStatus = "completed" | "openNow" | "upcoming";
 
@@ -140,7 +141,11 @@ export default function DarshanTimings() {
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   // Hook to fetch darshan timings from API
-  const { data: apiData, isLoading: apiLoading } = useDarshanTimings();
+  const { data: apiData, isLoading: apiLoading, refetch } = useDarshanTimings();
+
+  const handleRefresh = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
 
   /* ---------------------------------------
      UNIFY DATA (API only)
@@ -219,11 +224,12 @@ export default function DarshanTimings() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fffaf0] px-4 pt-4 pb-5 text-[#40372f] sm:px-6 lg:ml-[92px] lg:px-10">
-      <div className="mx-auto max-w-7xl">
-        {/* ---------------------------------------
-           RESPONSIVE DARSHAN HEADER
-        ---------------------------------------- */}
+    <PullToRefresh onRefresh={handleRefresh}>
+      <main className="min-h-screen bg-[#fffaf0] px-4 pt-4 pb-5 text-[#40372f] sm:px-6 lg:ml-[92px] lg:px-10">
+        <div className="mx-auto max-w-7xl">
+          {/* ---------------------------------------
+             RESPONSIVE DARSHAN HEADER
+          ---------------------------------------- */}
 
         {currentDarshan && (
           <section className="mt-1 mb-4 flex items-center justify-between gap-3 rounded-2xl border border-[#eadcc5] bg-white px-3 py-3 shadow-sm sm:gap-4 sm:p-4 lg:mt-6 lg:mb-6">
@@ -406,5 +412,6 @@ export default function DarshanTimings() {
         </div>
       </div>
     </main>
+  </PullToRefresh>
   );
 }

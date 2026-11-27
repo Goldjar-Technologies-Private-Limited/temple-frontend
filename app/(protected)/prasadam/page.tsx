@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import TempleLoader from "@/components/common/TempleLoader";
+import PullToRefresh from "@/components/PullToRefresh";
 import { useCustomerPrasadList, useCustomerPrasadCategories, useCustomerPrasadCart } from "@/hooks/temple/prasad/usePrasad";
 import { CustomerPrasadItem, CustomerPrasadVariant } from "@/models/temple/prasad.model";
 
@@ -18,9 +19,17 @@ function formatVariantLabel(variant: CustomerPrasadVariant): string {
 ===================================================== */
 
 export default function PrasadamPage() {
-  const { data: products, isLoading: isProductsLoading } = useCustomerPrasadList();
-  const { categories: apiCategories, isLoading: isCategoriesLoading } = useCustomerPrasadCategories();
-  const { cart, addToCart, updateQuantity, removeCartItem } = useCustomerPrasadCart();
+  const { data: products, isLoading: isProductsLoading, refetch: refetchProducts } = useCustomerPrasadList();
+  const { categories: apiCategories, isLoading: isCategoriesLoading, refetch: refetchCategories } = useCustomerPrasadCategories();
+  const { cart, addToCart, updateQuantity, removeCartItem, refetch: refetchCart } = useCustomerPrasadCart();
+
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([
+      refetchProducts(),
+      refetchCategories(),
+      refetchCart(),
+    ]);
+  }, [refetchProducts, refetchCategories, refetchCart]);
 
   const [category, setCategory] = useState<string>("all");
 
@@ -88,6 +97,8 @@ export default function PrasadamPage() {
     [cart],
   );
 
+  const [busyVariantKey, setBusyVariantKey] = useState<string | null>(null);
+
   /* CHANGE VARIANT / WEIGHT */
 
   const changeVariant = (productId: number, variantId: number) => {
@@ -100,28 +111,75 @@ export default function PrasadamPage() {
   /* ADD OR INCREASE CART QUANTITY */
 
   const handleIncrease = async (product: CustomerPrasadItem, variant: CustomerPrasadVariant) => {
-    const existing = getCartItemForVariant(product.id, variant.id);
-    if (existing) {
-      await updateQuantity(existing.cartItemId, existing.quantity + 1);
-    } else {
-      await addToCart({
-        prasadId: product.id,
-        variantId: variant.id,
-        quantity: 1,
-      });
+    const key = `${product.id}-${variant.id}`;
+    if (busyVariantKey === key) return;
+    setBusyVariantKey(key);
+    try {
+      const existing = getCartItemForVariant(product.id, variant.id);
+      if (existing) {
+        await updateQuantity(existing.cartItemId, existing.quantity + 1);
+      } else {
+        await addToCart({
+          prasadId: product.id,
+          variantId: variant.id,
+          quantity: 1,
+        });
+      }
+    } finally {
+      setBusyVariantKey(null);
     }
   };
 
   /* DECREASE CART QUANTITY */
 
   const handleDecrease = async (product: CustomerPrasadItem, variant: CustomerPrasadVariant) => {
-    const existing = getCartItemForVariant(product.id, variant.id);
-    if (!existing) return;
+    const key = `${product.id}-${variant.id}`;
+    if (busyVariantKey === key) return;
+    setBusyVariantKey(key);
+    try {
+      const existing = getCartItemForVariant(product.id, variant.id);
+      if (!existing) return;
 
-    if (existing.quantity <= 1) {
-      await removeCartItem(existing.cartItemId);
-    } else {
-      await updateQuantity(existing.cartItemId, existing.quantity - 1);
+      if (existing.quantity <= 1) {
+        await removeCartItem(existing.cartItemId);
+      } else {
+        await updateQuantity(existing.cartItemId, existing.quantity - 1);
+      }
+    } finally {
+      setBusyVariantKey(null);
+    }
+  };
+
+  /* MANUAL QUANTITY INPUT */
+
+  const handleManualQuantity = async (
+    product: CustomerPrasadItem,
+    variant: CustomerPrasadVariant,
+    val: string,
+  ) => {
+    const parsed = parseInt(val, 10);
+    if (isNaN(parsed) || parsed < 0) return;
+
+    const existing = getCartItemForVariant(product.id, variant.id);
+    if (existing && parsed === existing.quantity) return;
+
+    const key = `${product.id}-${variant.id}`;
+    if (busyVariantKey === key) return;
+    setBusyVariantKey(key);
+    try {
+      if (parsed === 0) {
+        if (existing) await removeCartItem(existing.cartItemId);
+      } else if (existing) {
+        await updateQuantity(existing.cartItemId, parsed);
+      } else {
+        await addToCart({
+          prasadId: product.id,
+          variantId: variant.id,
+          quantity: parsed,
+        });
+      }
+    } finally {
+      setBusyVariantKey(null);
     }
   };
 
@@ -132,7 +190,8 @@ export default function PrasadamPage() {
   /* RENDER */
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-[#fffaf1] pb-12 text-[#332820] lg:ml-[92px] lg:w-[calc(100%-92px)]">
+    <PullToRefresh onRefresh={handleRefresh}>
+      <main className="min-h-screen w-full overflow-x-hidden bg-[#fffaf1] pb-12 text-[#332820] lg:ml-[92px] lg:w-[calc(100%-92px)]">
       <div className="mx-auto w-full max-w-[1500px]">
         {/* CATEGORY FILTERS */}
         <div className="flex gap-2 overflow-x-auto px-3 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-5 md:justify-center lg:justify-start lg:px-8">
@@ -303,28 +362,40 @@ export default function PrasadamPage() {
                         <span>Add to Cart</span>
                       </button>
                     ) : (
-                      <div className="flex h-9 w-full items-center justify-between overflow-hidden rounded-lg border border-[#e87519] bg-white">
+                      <div className={`flex h-9 w-full items-center justify-between overflow-hidden rounded-lg border border-[#e87519] bg-white transition-opacity ${
+                        selectedVariant && busyVariantKey === `${product.id}-${selectedVariant.id}`
+                          ? "opacity-60"
+                          : ""
+                      }`}>
                         <button
                           type="button"
                           onClick={() => selectedVariant && handleDecrease(product, selectedVariant)}
                           aria-label="Decrease quantity"
-                          className="h-full flex-1 bg-[#fff7ef] text-lg font-semibold text-[#c45a0c] hover:bg-[#ffead8]"
+                          disabled={Boolean(selectedVariant && busyVariantKey === `${product.id}-${selectedVariant.id}`)}
+                          className="h-full w-8 bg-[#fff7ef] text-lg font-semibold text-[#c45a0c] hover:bg-[#ffead8] active:bg-[#ffdfc4] disabled:opacity-50"
                         >
                           −
                         </button>
 
-                        <span
-                          aria-live="polite"
-                          className="flex-1 text-center text-xs font-bold text-gray-800"
-                        >
-                          {quantity}
-                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="999"
+                          value={quantity}
+                          disabled={Boolean(selectedVariant && busyVariantKey === `${product.id}-${selectedVariant.id}`)}
+                          onChange={(e) =>
+                            selectedVariant && handleManualQuantity(product, selectedVariant, e.target.value)
+                          }
+                          aria-label={`Quantity for ${product.name}`}
+                          className="h-full w-10 border-x border-[#f4cbb2] bg-transparent text-center text-xs font-bold text-gray-800 outline-none focus:bg-[#fff9f4] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        />
 
                         <button
                           type="button"
                           onClick={() => selectedVariant && handleIncrease(product, selectedVariant)}
                           aria-label="Increase quantity"
-                          className="h-full flex-1 bg-[#e87519] text-lg font-semibold text-white hover:bg-[#cf5f0d]"
+                          disabled={Boolean(selectedVariant && busyVariantKey === `${product.id}-${selectedVariant.id}`)}
+                          className="h-full w-8 bg-[#e87519] text-lg font-semibold text-white hover:bg-[#cf5f0d] active:bg-[#b85309] disabled:opacity-50"
                         >
                           +
                         </button>
@@ -363,5 +434,6 @@ export default function PrasadamPage() {
         </footer>
       </div>
     </main>
+  </PullToRefresh>
   );
 }

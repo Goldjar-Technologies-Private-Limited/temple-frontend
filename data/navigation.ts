@@ -5,6 +5,7 @@ export type IconName =
   | "booking"
   | "donation"
   | "notification"
+  | "address"
   | "settings"
   | "help"
   | "logout"
@@ -44,6 +45,11 @@ export const menuSections: MenuSection[] = [
         icon: "notification",
         key: "notifications",
         route: "/notifications",
+      },
+      {
+        icon: "address",
+        key: "savedAddresses",
+        route: "/addresses",
       },
     ],
   },

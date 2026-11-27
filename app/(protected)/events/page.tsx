@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import type { TranslationKey } from "@/utils/i18n";
@@ -8,6 +8,7 @@ import type { EventTab } from "@/data/events";
 import { useCustomerEvents } from "@/hooks/temple/events/useEvents";
 import { formatDateDisplay } from "@/utils/time";
 import TempleLoader from "@/components/common/TempleLoader";
+import PullToRefresh from "@/components/PullToRefresh";
 
 interface UnifiedEventItem {
   id: string | number;
@@ -266,7 +267,11 @@ export default function Events() {
   const { t } = useLanguage();
 
   const [tab, setTab] = useState<EventTab>("upcoming");
-  const { events: apiEvents, loading: apiLoading } = useCustomerEvents(tab);
+  const { events: apiEvents, loading: apiLoading, refresh } = useCustomerEvents(tab);
+
+  const handleRefresh = useCallback(async () => {
+    await refresh();
+  }, [refresh]);
 
   const visibleEvents: UnifiedEventItem[] = useMemo(() => {
     if (apiEvents && apiEvents.length > 0) {
@@ -282,8 +287,9 @@ export default function Events() {
   }, [apiEvents]);
 
   return (
-    <main
-      className="
+    <PullToRefresh onRefresh={handleRefresh}>
+      <main
+        className="
         relative min-h-dvh w-full min-w-0
         overflow-x-clip
         bg-[radial-gradient(circle_at_50%_-10%,#fffef9_0,#fffaf0_42%,#f6ead5_100%)]
@@ -294,7 +300,7 @@ export default function Events() {
         lg:bg-[radial-gradient(circle_at_top_right,rgba(201,148,53,0.12),transparent_30%),#fff9ed]
         lg:pb-12
       "
-    >
+      >
       {/* PAGE CONTAINER
           Mobile: full width
           Tablet: comfortable horizontal padding
@@ -414,5 +420,6 @@ export default function Events() {
         <Decoration />
       </div>
     </main>
+  </PullToRefresh>
   );
 }

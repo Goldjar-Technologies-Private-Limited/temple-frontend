@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
-import { Settings, Languages, Check, Trash2, ChevronRight } from "lucide-react";
+import { Settings, Languages, Check, Trash2, ChevronRight, MapPin } from "lucide-react";
 
 import {
   SETTINGS_LANGUAGES as languages,
@@ -135,6 +135,36 @@ export default function SettingsPage() {
               })}
             </div>
           </div>
+        </section>
+
+        {/* SAVED ADDRESSES */}
+        <section className="mt-5">
+          <button
+            type="button"
+            onClick={() => router.push("/addresses")}
+            className="group flex min-h-[58px] w-full items-center gap-3 rounded-[16px] border border-[#eadfce] bg-[#fffdf9] px-4 text-left shadow-[0_4px_16px_rgba(74,42,16,0.035)] transition-all hover:border-[#d7b97f] hover:bg-[#fffcf7] active:scale-[0.99]"
+          >
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#fff2e2] text-[#b74c25] transition group-hover:bg-[#ffead2]">
+              <MapPin size={19} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+
+            <span className="min-w-0 flex-1">
+              <strong className="block text-[13px] font-bold text-[#4c3e34]">
+                Saved Delivery Addresses
+              </strong>
+
+              <span className="mt-[2px] block text-[10px] text-[#918377]">
+                Manage addresses for prasadam deliveries
+              </span>
+            </span>
+
+            <ChevronRight
+              size={19}
+              strokeWidth={1.8}
+              className="text-[#9e8f82] transition-transform group-hover:translate-x-[2px]"
+              aria-hidden="true"
+            />
+          </button>
         </section>
 
         {/* DELETE ACCOUNT */}

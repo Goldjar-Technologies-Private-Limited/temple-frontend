@@ -417,6 +417,9 @@ function getDescription(icon: IconName) {
     case "notification":
       return "Updates and temple notifications";
 
+    case "address":
+      return "Manage your saved delivery addresses";
+
     case "settings":
       return "Language and account preferences";
 
@@ -527,6 +530,27 @@ function MenuIcon({ name }: { name: IconName }) {
         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
 
         <path d="M10 21h4" />
+      </svg>
+    );
+  }
+
+  // =======================================================
+  // ADDRESS
+  // =======================================================
+
+  if (name === "address") {
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={common}
+      >
+        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+        <circle cx="12" cy="10" r="3" />
       </svg>
     );
   }

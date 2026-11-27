@@ -2,20 +2,22 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { authService } from "@/services/auth/auth.service";
 
 export default function Splash() {
   const router = useRouter();
 
   const navigateNext = () => {
+    const target = authService.isAuthenticated() ? "/dashboard" : "/onboarding";
     try {
-      router.replace("/onboarding");
+      router.replace(target);
     } catch (_) {}
     setTimeout(() => {
       if (
         typeof window !== "undefined" &&
         (window.location.pathname === "/" || window.location.pathname === "")
       ) {
-        window.location.assign("/onboarding");
+        window.location.assign(target);
       }
     }, 400);
   };

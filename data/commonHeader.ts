@@ -89,6 +89,11 @@ export const PAGE_INFO: PageInfoMap = {
     subtitle: "Shri Govardhannath Haveli",
     backHref: "/dashboard",
   },
+  "/addresses": {
+    title: "Saved Addresses",
+    subtitle: "Manage your delivery locations",
+    backHref: "/settings",
+  },
   "/help": {
     title: "Help & Support",
     subtitle: "Shri Govardhannath Haveli",

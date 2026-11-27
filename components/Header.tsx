@@ -5,17 +5,10 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import ProfileDrawer from "@/components/navigation/ProfileDrawer";
 import type { ProfileData } from "@/data/profile";
-import type { PrasadamWeight as Weight } from "@/data/prasadam";
 import { Bell, ShoppingCart } from "lucide-react";
-
-type CartItem = {
-  productId: number;
-  weight: Weight;
-  quantity: number;
-};
+import { useCustomerPrasadCartCount } from "@/hooks/temple/prasad/usePrasad";
 
 const PROFILE_STORAGE_KEY = "profile-data";
-const CART_STORAGE_KEY = "prasadam-cart";
 
 export default function HomeHeader() {
   const router = useRouter();
@@ -24,7 +17,7 @@ export default function HomeHeader() {
   const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
   const [profileName, setProfileName] = useState("");
   const [profileImage, setProfileImage] = useState("");
-  const [cartCount, setCartCount] = useState(0);
+  const { count: cartCount } = useCustomerPrasadCartCount();
 
   useEffect(() => {
     const loadProfile = () => {
@@ -54,48 +47,6 @@ export default function HomeHeader() {
 
     return () => {
       window.removeEventListener("profile-updated", loadProfile);
-    };
-  }, []);
-
-  useEffect(() => {
-    const loadCartCount = async () => {
-      try {
-        const { prasadCartService } = await import("@/services/temple/prasad.service");
-        const res = await prasadCartService.getCartCount();
-        if (res && res.success && typeof res.data === "number") {
-          setCartCount(res.data);
-          return;
-        }
-      } catch {
-        // Fallback to local storage
-      }
-      try {
-        const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-        if (!storedCart) {
-          setCartCount(0);
-          return;
-        }
-        const parsedCart = JSON.parse(storedCart);
-        let totalItems = 0;
-        if (Array.isArray(parsedCart)) {
-          totalItems = parsedCart.reduce((total: number, item: CartItem) => {
-            return total + Number(item.quantity || 0);
-          }, 0);
-        }
-        setCartCount(totalItems);
-      } catch {
-        setCartCount(0);
-      }
-    };
-
-    loadCartCount();
-
-    window.addEventListener("prasadam-cart-updated", loadCartCount);
-    window.addEventListener("storage", loadCartCount);
-
-    return () => {
-      window.removeEventListener("prasadam-cart-updated", loadCartCount);
-      window.removeEventListener("storage", loadCartCount);
     };
   }, []);
 

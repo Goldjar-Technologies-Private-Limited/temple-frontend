@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-
 import {
   HeartHandshake,
   Gift,
@@ -15,21 +14,27 @@ import {
   CalendarDays,
   PanelLeft,
 } from "lucide-react";
-
 import { GiCow } from "react-icons/gi";
-
 import { useLanguage } from "@/contexts/LanguageProvider";
 import HomeHeader from "@/components/Header";
 import ProfileDrawer from "@/components/navigation/ProfileDrawer";
-
-import {
-  DARSHAN_SCHEDULE,
-  type DarshanScheduleItem as DarshanItem,
-} from "@/data/darshan";
+import { useDarshanTimings } from "@/hooks/temple/darshan-timings/useDarshanTimings";
+import { parseTimeParts } from "@/utils/time";
+import { DARSHAN_SCHEDULE } from "@/data/darshan";
 import {
   ACTION_ITEMS,
   type DashboardActionItem as ActionItem,
 } from "@/data/dashboard";
+
+interface DisplayDarshan {
+  title: string;
+  hour: number;
+  minute: number;
+  endHour?: number;
+  endMinute?: number;
+  image: string;
+  isOpenNow?: boolean;
+}
 
 /* =========================================================
    ICONS
@@ -57,32 +62,80 @@ function getMinutesFromMidnight(hour: number, minute: number) {
   return hour * 60 + minute;
 }
 
-function getNextDarshan(currentTime: Date | null): DarshanItem {
+function resolveActiveOrNextDarshan(
+  items: DisplayDarshan[],
+  currentTime: Date | null,
+): DisplayDarshan {
+  if (!items.length) {
+    return {
+      title: "Mangala",
+      hour: 5,
+      minute: 30,
+      image: "/images/mangala.jpg",
+    };
+  }
+
   if (!currentTime) {
-    return DARSHAN_SCHEDULE[0];
+    return items[0];
   }
 
   const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
 
-  return (
-    DARSHAN_SCHEDULE.find(
-      (darshan) =>
-        getMinutesFromMidnight(darshan.hour, darshan.minute) > currentMinutes,
-    ) ?? DARSHAN_SCHEDULE[0]
+  // 1. Check if a darshan is currently open/live
+  const openNow = items.find((item) => {
+    const start = getMinutesFromMidnight(item.hour, item.minute);
+    const end =
+      item.endHour !== undefined && item.endMinute !== undefined
+        ? getMinutesFromMidnight(item.endHour, item.endMinute)
+        : start + 30;
+    return currentMinutes >= start && currentMinutes < end;
+  });
+
+  if (openNow) {
+    return { ...openNow, isOpenNow: true };
+  }
+
+  // 2. Otherwise find the upcoming darshan today
+  const next = items.find(
+    (item) => getMinutesFromMidnight(item.hour, item.minute) > currentMinutes,
   );
+
+  return next
+    ? { ...next, isOpenNow: false }
+    : { ...items[0], isOpenNow: false };
 }
 
-function getCountdown(darshan: DarshanItem, currentTime: Date | null): string {
+function getCountdown(
+  darshan: DisplayDarshan,
+  currentTime: Date | null,
+): string {
   if (!currentTime) {
     return "--:--:--";
   }
 
-  const target = new Date(currentTime);
+  if (darshan.isOpenNow) {
+    // If open now and we have end time, countdown until it ends
+    if (darshan.endHour !== undefined && darshan.endMinute !== undefined) {
+      const endTarget = new Date(currentTime);
+      endTarget.setHours(darshan.endHour, darshan.endMinute, 0, 0);
+      const totalSeconds = Math.max(
+        0,
+        Math.floor((endTarget.getTime() - currentTime.getTime()) / 1000),
+      );
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return [hours, minutes, seconds]
+        .map((value) => String(value).padStart(2, "0"))
+        .join(":");
+    }
+    return "LIVE";
+  }
 
+  const target = new Date(currentTime);
   target.setHours(darshan.hour, darshan.minute, 0, 0);
 
   const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
-
   const darshanMinutes = getMinutesFromMidnight(darshan.hour, darshan.minute);
 
   if (darshanMinutes <= currentMinutes) {
@@ -114,6 +167,39 @@ export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
 
+  // Dynamic API darshan timings
+  const { data: apiDarshanData } = useDarshanTimings();
+
+  /* =======================================================
+     RESOLVE DARSHAN TIMINGS (API with fallback)
+  ======================================================= */
+  const darshanList = useMemo<DisplayDarshan[]>(() => {
+    if (apiDarshanData && apiDarshanData.length > 0) {
+      return apiDarshanData.map((item) => {
+        const startParts = parseTimeParts(item.startTime);
+        const endParts = item.endTime
+          ? parseTimeParts(item.endTime)
+          : undefined;
+        return {
+          title: item.title,
+          hour: startParts.hour,
+          minute: startParts.minute,
+          endHour: endParts?.hour,
+          endMinute: endParts?.minute,
+          image: item.imageUrl || "/images/mangala.jpg",
+        };
+      });
+    }
+
+    // Fallback to static schedule if API returns empty or fails
+    return DARSHAN_SCHEDULE.map((item) => ({
+      title: t(item.nameKey),
+      hour: item.hour,
+      minute: item.minute,
+      image: item.image,
+    }));
+  }, [apiDarshanData, t]);
+
   /* =======================================================
      LIVE CLOCK
   ======================================================= */
@@ -131,11 +217,14 @@ export default function Dashboard() {
   }, []);
 
   /* =======================================================
-     NEXT DARSHAN
+     ACTIVE / NEXT DARSHAN
   ======================================================= */
 
-  const nextDarshan = getNextDarshan(currentTime);
-  const countdown = getCountdown(nextDarshan, currentTime);
+  const activeOrNextDarshan = useMemo(() => {
+    return resolveActiveOrNextDarshan(darshanList, currentTime);
+  }, [darshanList, currentTime]);
+
+  const countdown = getCountdown(activeOrNextDarshan, currentTime);
 
   /* =======================================================
      CURRENT TIME
@@ -204,24 +293,33 @@ export default function Dashboard() {
           </div>
         </button>
 
-        {/* NEXT DARSHAN */}
+        {/* NEXT / ACTIVE DARSHAN */}
         <section className="mt-3 flex min-h-[110px] w-full items-center justify-between gap-2 rounded-xl border border-[#eadbc5] bg-[#fffdf8] px-3 py-3 shadow-[0_2px_8px_rgba(100,60,10,0.03)] sm:gap-4 sm:px-4 md:px-5 md:py-4 lg:mt-4 lg:min-h-[145px] lg:px-6 lg:py-5 xl:min-h-[155px]">
           <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
             <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full border border-[#d8bd83] bg-[#fff8e9] p-[3px] shadow-[0_3px_10px_rgba(100,60,10,0.10)] sm:h-14 sm:w-14 md:h-16 md:w-16 lg:h-[72px] lg:w-[72px] xl:h-[78px] xl:w-[78px]">
               <img
-                src={nextDarshan.image}
-                alt={t(nextDarshan.nameKey)}
-                className="h-full w-full rounded-full object-contain object-center"
+                src={activeOrNextDarshan.image}
+                alt={activeOrNextDarshan.title}
+                className="h-full w-full rounded-full object-cover object-center"
               />
             </div>
 
             <div className="min-w-0">
-              <h2 className="mb-1.5 text-base font-bold text-[#641010] sm:text-lg lg:text-[22px]">
-                {t("nextDarshan")}
-              </h2>
+              <div className="mb-1 flex items-center gap-2">
+                <h2 className="text-base font-bold text-[#641010] sm:text-lg lg:text-[22px]">
+                  {activeOrNextDarshan.isOpenNow
+                    ? t("liveDarshanNow")
+                    : t("nextDarshan")}
+                </h2>
+                {activeOrNextDarshan.isOpenNow && (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                    LIVE
+                  </span>
+                )}
+              </div>
 
               <strong className="block truncate text-xs sm:text-sm lg:text-base">
-                {t(nextDarshan.nameKey)}
+                {activeOrNextDarshan.title}
               </strong>
 
               <span className="mt-1 block text-[9px] text-[#81766d] sm:text-[10px] lg:text-xs">
@@ -235,7 +333,13 @@ export default function Dashboard() {
               {formattedTime}
             </span>
 
-            <span className="rounded bg-[#dff0df] px-2 py-1 text-[11px] font-bold tracking-wide text-[#47784e] sm:px-2.5 sm:text-[13px] lg:px-3 lg:py-1.5 lg:text-base">
+            <span
+              className={`rounded px-2 py-1 text-[11px] font-bold tracking-wide sm:px-2.5 sm:text-[13px] lg:px-3 lg:py-1.5 lg:text-base ${
+                activeOrNextDarshan.isOpenNow
+                  ? "bg-[#e8f5e9] text-[#2e7d32]"
+                  : "bg-[#dff0df] text-[#47784e]"
+              }`}
+            >
               {countdown}
             </span>
 
@@ -259,7 +363,7 @@ export default function Dashboard() {
                 key={item.key}
                 type="button"
                 onClick={() => handleAction(item)}
-                className="group flex h-[88px] min-w-0 flex-col items-center justify-center rounded-xl border border-[#efdfc9] bg-[#fffdf9] px-2 py-2 text-[#a71919] shadow-[0_2px_8px_rgba(100,60,10,0.04)] transition-all duration-200 active:scale-[0.97] sm:h-[100px] md:h-[110px] lg:h-[120px] lg:rounded-[14px] lg:hover:-translate-y-1 lg:hover:border-[#d7b879] lg:hover:shadow-[0_10px_25px_rgba(90,50,20,0.10)] xl:h-[128px]"
+                className="group relative flex h-[88px] min-w-0 flex-col items-center justify-center rounded-xl border border-[#efdfc9] bg-[#fffdf9] px-2 py-2 text-[#a71919] shadow-[0_2px_8px_rgba(100,60,10,0.04)] transition-all duration-200 active:scale-[0.97] sm:h-[100px] md:h-[110px] lg:h-[120px] lg:rounded-[14px] lg:hover:-translate-y-1 lg:hover:border-[#d7b879] lg:hover:shadow-[0_10px_25px_rgba(90,50,20,0.10)] xl:h-[128px]"
               >
                 <span className="grid h-8 place-items-center transition-transform duration-200 group-hover:scale-110 lg:h-9">
                   <IconComponent size={25} strokeWidth={1.8} />

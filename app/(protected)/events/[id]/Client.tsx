@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
-import type { ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 import {
   Calendar,
   Clock,
@@ -16,6 +16,7 @@ import {
 import { useCustomerEventDetails } from "@/hooks/temple/events/useEvents";
 import { formatDateDisplay, format12Hour } from "@/utils/time";
 import TempleLoader from "@/components/common/TempleLoader";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function EventDetailsPage() {
   const router = useRouter();
@@ -24,7 +25,11 @@ export default function EventDetailsPage() {
   const eventId = params?.id as string;
 
   // Fetch live event from API
-  const { event: apiEvent, loading: apiLoading } = useCustomerEventDetails(eventId);
+  const { event: apiEvent, loading: apiLoading, refresh } = useCustomerEventDetails(eventId);
+
+  const handleRefresh = useCallback(async () => {
+    await refresh();
+  }, [refresh]);
 
   if (apiLoading) {
     return <TempleLoader message="Fetching Sacred Event Details..." fullScreen />;
@@ -102,14 +107,15 @@ export default function EventDetailsPage() {
   };
 
   return (
-    <main
-      className="
+    <PullToRefresh onRefresh={handleRefresh}>
+      <main
+        className="
         relative min-h-dvh w-full overflow-x-clip
         bg-[#fffaf0] text-[#4b4039]
         pb-12 px-3 sm:px-6 lg:px-8
         lg:ml-[92px] lg:w-[calc(100%-92px)]
       "
-    >
+      >
       <div className="mx-auto w-full max-w-7xl">
         {/* BREADCRUMB */}
         <div className="hidden items-center gap-2 py-4 text-xs sm:flex sm:py-5">
@@ -442,6 +448,7 @@ export default function EventDetailsPage() {
         </p>
       </div>
     </main>
+  </PullToRefresh>
   );
 }
 

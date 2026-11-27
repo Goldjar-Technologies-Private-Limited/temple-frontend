@@ -14,6 +14,7 @@ import {
   X,
   LoaderCircle,
 } from "lucide-react";
+import { authService } from "@/services/auth/auth.service";
 
 export default function DeleteAccountPage() {
   const router = useRouter();
@@ -53,8 +54,8 @@ export default function DeleteAccountPage() {
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // Clear the local session token for this demo.
-      localStorage.removeItem("auth-token");
+      // Clear the local session token
+      authService.removeToken();
 
       setDeleted(true);
       setShowConfirm(false);
