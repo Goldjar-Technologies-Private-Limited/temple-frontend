@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCustomerPrasadCart } from "@/hooks/temple/prasad/usePrasad";
 import { useDeliveryAddresses } from "@/hooks/temple/address/useAddresses";
+import { usePrasadOrders } from "@/hooks/temple/order/useOrders";
 import { DeliveryAddress } from "@/models/temple/address.model";
 import { Plus, CheckCircle2 } from "lucide-react";
 import {
@@ -66,6 +67,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { cart: apiCart, isLoading: apiCartLoading, clearCart } = useCustomerPrasadCart();
   const { addresses: savedAddresses, createAddress } = useDeliveryAddresses();
+  const { createOrder } = usePrasadOrders();
 
   const [localCart, setLocalCart] = useState<CartItem[]>([]);
   const [localLoaded, setLocalLoaded] = useState(false);
@@ -73,6 +75,7 @@ export default function CheckoutPage() {
   const [selectedAddressId, setSelectedAddressId] = useState<number | "new">("new");
   const [saveThisAddress, setSaveThisAddress] = useState(true);
 
+  const [customerComment, setCustomerComment] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -264,10 +267,12 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      // If user typed a new address and opted to save it
-      if (selectedAddressId === "new" && saveThisAddress) {
+      let resolvedAddressId: number | null = typeof selectedAddressId === "number" ? selectedAddressId : null;
+
+      // If user typed a new address, create it first
+      if (selectedAddressId === "new") {
         try {
-          await createAddress({
+          const newAddrRes = await createAddress({
             recipientName: fullName.trim(),
             phoneNumber: phone.trim(),
             email: email.trim() || undefined,
@@ -276,15 +281,49 @@ export default function CheckoutPage() {
             city: city.trim(),
             state: state.trim(),
             pincode: pincode.trim(),
-            isDefault: savedAddresses.length === 0,
+            isDefault: saveThisAddress ? savedAddresses.length === 0 : false,
           });
+          if (newAddrRes && newAddrRes.data && newAddrRes.data.id) {
+            resolvedAddressId = newAddrRes.data.id;
+          }
         } catch (addrErr) {
           console.error("Failed to save new address to API:", addrErr);
+          alert("Failed to save delivery address. Please check your details and try again.");
+          setIsSubmitting(false);
+          return;
         }
       }
 
+      if (!resolvedAddressId) {
+        alert("Please select or enter a valid delivery address.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Collect all cart item IDs (sending all or null places full cart order as required)
+      const cartItemIds = apiCart && apiCart.items.length > 0
+        ? apiCart.items.map((i) => i.cartItemId)
+        : null;
+
+      // Call Prasad Order Create API
+      let serverOrder: any = null;
+      try {
+        serverOrder = await createOrder({
+          cartItemIds,
+          deliveryAddressId: resolvedAddressId,
+          customerComment: customerComment.trim() || undefined,
+        });
+      } catch (orderErr: any) {
+        console.error("Failed to place prasad order on server:", orderErr);
+        alert(orderErr?.message || "Failed to place order. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
       const order = {
-        id: `ORD-${Date.now()}`,
+        id: serverOrder?.orderNumber || serverOrder?.orderId ? String(serverOrder.orderNumber || serverOrder.orderId) : `ORD-${Date.now()}`,
+        orderId: serverOrder?.orderId,
+        orderNumber: serverOrder?.orderNumber,
         customer: {
           fullName,
           phone,
@@ -299,8 +338,8 @@ export default function CheckoutPage() {
         paymentMethod,
         subtotal,
         deliveryCharge,
-        totalAmount,
-        createdAt: new Date().toISOString(),
+        totalAmount: serverOrder?.totalAmount ?? totalAmount,
+        createdAt: serverOrder?.createdAt || new Date().toISOString(),
       };
 
       localStorage.setItem("last-prasadam-order", JSON.stringify(order));
@@ -316,7 +355,8 @@ export default function CheckoutPage() {
       localStorage.removeItem("prasadam-cart-weights");
       window.dispatchEvent(new Event("prasadam-cart-updated"));
 
-      router.push("/prasadam/order-success");
+      const targetId = serverOrder?.orderId || serverOrder?.orderNumber || order.id;
+      router.push(`/prasadam/order-success?orderId=${targetId}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -599,6 +639,20 @@ export default function CheckoutPage() {
                 Your payment information will be processed securely. Payment
                 gateway integration will handle online payments.
               </p>
+            </div>
+
+            {/* ORDER COMMENT / INSTRUCTIONS */}
+            <div className="mt-4 pt-4 border-t border-[#f0e4d3]">
+              <label className="mb-1.5 block text-[11px] font-bold text-[#5c5047]">
+                Delivery Notes / Special Instructions (Optional)
+              </label>
+              <textarea
+                value={customerComment}
+                onChange={(e) => setCustomerComment(e.target.value)}
+                rows={2}
+                placeholder="e.g., Deliver before 1 PM, ring the bell, etc."
+                className="w-full resize-none rounded-xl border border-[#dfd0bb] bg-white px-3.5 py-2.5 text-xs text-[#40372f] outline-none transition placeholder:text-[#aaa096] focus:border-[#c99435] focus:ring-2 focus:ring-[#c99435]/10"
+              />
             </div>
           </section>
 
