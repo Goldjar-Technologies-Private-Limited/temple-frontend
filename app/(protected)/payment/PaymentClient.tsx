@@ -4,8 +4,9 @@ import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   DONATION_FREQUENCIES as frequencies,
-  DONATION_AMOUNTS as amounts,
+  DONATION_AMOUNTS as defaultAmounts,
 } from "@/data/donations";
+import { useSevaDetail } from "@/hooks/temple/seva/useSeva";
 
 type DonationType = "one-time" | "auto";
 type PaymentMethod = "upi" | "card" | "netbanking";
@@ -307,35 +308,45 @@ export default function DonatePage() {
     "temple-maintenance": "Temple Maintenance",
   };
 
-  const sevaId = Object.prototype.hasOwnProperty.call(
-    sevaNames,
-    requestedSevaId,
-  )
-    ? requestedSevaId
-    : "go-seva";
-
-  const [seva, setSeva] = useState(sevaNames[sevaId] || "Go Seva");
+  const sevaId = requestedSevaId;
+  const { seva: apiSeva } = useSevaDetail(requestedSevaId);
+  const [seva, setSeva] = useState(sevaNames[requestedSevaId] || "Go Seva");
+  const [availableAmounts, setAvailableAmounts] = useState<string[]>(defaultAmounts);
 
   useEffect(() => {
     try {
       const savedSevaId = sessionStorage.getItem("donationSevaId");
       const savedSevaName = sessionStorage.getItem("donationSevaName");
+      const savedSuggestedAmounts = sessionStorage.getItem("donationSuggestedAmounts");
 
-      const validSavedId =
-        savedSevaId &&
-        Object.prototype.hasOwnProperty.call(sevaNames, savedSevaId);
+      if (savedSuggestedAmounts) {
+        try {
+          const parsed = JSON.parse(savedSuggestedAmounts);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setAvailableAmounts(parsed.map(String));
+          }
+        } catch {
+          // Keep defaults if error parsing
+        }
+      } else if (apiSeva?.suggestedAmounts && apiSeva.suggestedAmounts.length > 0) {
+        setAvailableAmounts(apiSeva.suggestedAmounts.map(String));
+      }
 
-      const currentId = validSavedId ? savedSevaId : sevaId;
-
-      if (savedSevaName && validSavedId && currentId === sevaId) {
+      if (apiSeva?.name) {
+        setSeva(apiSeva.name);
+      } else if (savedSevaName) {
         setSeva(savedSevaName);
-      } else {
-        setSeva(sevaNames[currentId] || "Go Seva");
+      } else if (savedSevaId && sevaNames[savedSevaId]) {
+        setSeva(sevaNames[savedSevaId]);
+      } else if (sevaNames[requestedSevaId]) {
+        setSeva(sevaNames[requestedSevaId]);
+      } else if (requestedSevaId) {
+        setSeva(`Seva #${requestedSevaId}`);
       }
     } catch {
-      setSeva(sevaNames[sevaId] || "Go Seva");
+      setSeva(sevaNames[requestedSevaId] || "Go Seva");
     }
-  }, [sevaId]);
+  }, [requestedSevaId, apiSeva]);
 
   const [amount, setAmount] = useState("501");
   const [type, setType] = useState<DonationType>("one-time");
@@ -345,8 +356,7 @@ export default function DonatePage() {
   const [mandateAccepted, setMandateAccepted] = useState(false);
   const [error, setError] = useState("");
 
-  // Load the selected amount without putting it in the URL.
-
+  // Load the selected amount from sessionStorage and highlight correctly
   useEffect(() => {
     try {
       const storedAmount = sessionStorage.getItem("donationAmount");
@@ -363,7 +373,7 @@ export default function DonatePage() {
         return;
       }
 
-      if (amounts.map(String).includes(storedAmount)) {
+      if (availableAmounts.includes(storedAmount)) {
         setAmount(storedAmount);
         setCustomAmount("");
       } else {
@@ -373,7 +383,7 @@ export default function DonatePage() {
     } catch {
       // Keep the default amount if sessionStorage is unavailable.
     }
-  }, []);
+  }, [availableAmounts]);
 
   const finalAmount = amount === "custom" ? customAmount : amount;
   const numericAmount = Number(finalAmount);
@@ -525,8 +535,8 @@ export default function DonatePage() {
 
           <SectionTitle>Donation Amount</SectionTitle>
 
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
-            {amounts.map((value) => (
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+            {availableAmounts.map((value) => (
               <button
                 key={value}
                 type="button"

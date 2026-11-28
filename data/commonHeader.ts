@@ -143,8 +143,8 @@ export function getPageInfo(pathname: string): {
     };
   }
 
-  // Dynamic route: /seva/[id]
-  if (pathname.startsWith("/seva/")) {
+  // Dynamic route: /seva-donation/seva/[id] or /seva/[id]
+  if (pathname.startsWith("/seva-donation/seva/") || pathname.startsWith("/seva/")) {
     return {
       title: "Seva Details",
       subtitle: "Offer your seva with devotion and love",
